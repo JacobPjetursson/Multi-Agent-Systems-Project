@@ -31,7 +31,6 @@ public class Client {
 				}
 			}
 			response = serverMessages.readLine();
-			
 		}
 		response = serverMessages.readLine(); // response = #initial
 		response = serverMessages.readLine();

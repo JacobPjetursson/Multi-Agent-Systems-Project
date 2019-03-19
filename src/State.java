@@ -3,14 +3,13 @@ import java.util.List;
 
 public class State{
 	
-	public static List<Point> goals;
 	public static boolean[][] walls;
-	
-	private List<Point> boxes;
-	
+	public static List<Goal> goals;
+	private List<Box> boxes;
+	private List<Agent> agents;
 	
 	public State(){
-  
+		
 	}
 
 }
