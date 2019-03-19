@@ -1,7 +1,16 @@
-public class State{
+import java.awt.Point;
+import java.util.List;
 
-  public State(){
+public class State{
+	
+	public static List<Point> goals;
+	public static boolean[][] walls;
+	
+	private List<Point> boxes;
+	
+	
+	public State(){
   
-  }
+	}
 
 }
