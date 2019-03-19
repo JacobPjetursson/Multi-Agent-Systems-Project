@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 public class Client {
-	
+
 	private static String domain;
 	private static String levelName;
-    
+
 
     public static void main(String[] args) throws Exception {
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
-        
+
         // STEP 1 : First System.out.println(client name);
         System.out.println("Client name");
-        
+
         // STEP 2 : Read level file from server;
         String response = serverMessages.readLine(); // response = #domain
         domain = serverMessages.readLine();
@@ -34,7 +34,6 @@ public class Client {
 			}
 		}
 		response = serverMessages.readLine();
-			
 	}
 	response = serverMessages.readLine();
 	int cols = response.length();
@@ -45,9 +44,9 @@ public class Client {
 		rows++;
 		response = serverMessages.readLine();
 	}
-		
+
 	State.walls = new boolean[rows][cols];
-		
+
 
 
 	for(int row = 0; row < rows; row++) {
@@ -60,10 +59,10 @@ public class Client {
 				//TODO : Agent here do something
 			}else if(chr <= 'Z' && chr >= 'A') {
 				//TODO : Box here do something
-			}	
+			}
 		}
 	}
-		
+
 	response = serverMessages.readLine();
 	while(!response.contains("end")) {
 		int row = 0;
@@ -71,14 +70,14 @@ public class Client {
 			char chr = response.charAt(col);
 			if(chr <= 'Z' && chr >= 'A') {
 				//TODO : Goal here do something
-			}	
-					
+			}
+
 		}
 		row++;
 		response = serverMessages.readLine();
 	}
-		
-        
+
+
         // STEP 3 : System.out.println(Solution);
 
     }
