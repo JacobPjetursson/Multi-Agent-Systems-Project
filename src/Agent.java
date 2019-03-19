@@ -14,4 +14,9 @@ public class Agent extends MovableObject {
 		return id;
 	}
 
+	@Override
+	public Agent move(Point position) {
+		return new Agent(position, color, id);
+	}
+
 }

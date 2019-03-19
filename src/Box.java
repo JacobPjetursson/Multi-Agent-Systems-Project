@@ -14,4 +14,9 @@ public class Box extends MovableObject {
 		return letter;
 	}
 
+	@Override
+	public Box move(Point position) {
+		return new Box(position, color, letter);
+	}
+
 }
