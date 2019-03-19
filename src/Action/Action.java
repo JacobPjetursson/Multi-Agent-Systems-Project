@@ -7,5 +7,5 @@ public abstract class Action {
         N, S, E, W
     }
 
-    public abstract String toString ();
+    public abstract String toString();
 }

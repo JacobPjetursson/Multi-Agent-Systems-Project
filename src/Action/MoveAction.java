@@ -7,6 +7,6 @@ public class MoveAction extends Action{
     }
 
     public String toString() {
-        return "Move(" + dir1.name() + ");";
+        return String.format("Move(%s);", dir1);
     }
 }

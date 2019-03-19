@@ -1,22 +1,28 @@
-import Event.Event;
+import Task.Task;
+import state.State;
 
+import java.io.BufferedReader;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 public class Scheduler {
-    PriorityQueue<Event> queue;
+    private Queue<Task> queue;
+    private BufferedReader serverMessages;
 
-    public Scheduler() {
-        queue = new PriorityQueue<>(new EventComparator());
+    public Scheduler(State initialState, BufferedReader serverMessages) {
+        this.serverMessages = serverMessages;
+        // Get initial plan from initial state, queue them to priorityqueue
+        queue = new PriorityQueue<>(new TaskComparator());
     }
 
 
-    private class EventComparator implements Comparator<Event> {
+    private class TaskComparator implements Comparator<Task> {
         @Override
-        public int compare(Event e1, Event e2) {
-            if (e1.getPriority() > e2.getPriority())
+        public int compare(Task t1, Task t2) {
+            if (t1.getPriority() > t2.getPriority())
                 return 1;
-            else if (e2.getPriority() > e1.getPriority())
+            else if (t2.getPriority() > t1.getPriority())
                 return -1;
             return 0;
         }

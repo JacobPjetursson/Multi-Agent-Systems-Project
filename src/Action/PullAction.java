@@ -8,6 +8,6 @@ public class PullAction extends Action {
     }
 
     public String toString() {
-        return "Pull(" + dir1.name() + "," + dir2.name() + ");";
+        return String.format("Pull(%s,%s);", dir1, dir2);
     }
 }
