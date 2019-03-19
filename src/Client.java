@@ -48,6 +48,8 @@ public class Client {
 		
 	State.walls = new boolean[rows][cols];
 		
+
+
 	for(int row = 0; row < rows; row++) {
 		String levelLine = levelLines.get(row);
 		for(int col = 0; col < cols; col++) {
@@ -59,7 +61,6 @@ public class Client {
 			}else if(chr <= 'Z' && chr >= 'A') {
 				//TODO : Box here do something
 			}	
-					
 		}
 	}
 		
