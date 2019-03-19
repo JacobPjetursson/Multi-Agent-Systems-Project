@@ -1,4 +1,5 @@
-import java.awt.Point;
+package state;
+
 import java.util.List;
 
 public class State{
@@ -8,7 +9,7 @@ public class State{
 	private List<Box> boxes;
 	private List<Agent> agents;
 	
-	public State(){
+	public State() {
 		
 	}
 
