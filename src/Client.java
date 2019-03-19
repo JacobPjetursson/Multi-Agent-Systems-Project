@@ -1,5 +1,8 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 public class Client {
 	
 	private static String domain;
@@ -33,13 +36,23 @@ public class Client {
 			response = serverMessages.readLine();
 			
 		}
-		response = serverMessages.readLine(); // response = #initial
 		response = serverMessages.readLine();
+		int cols = response.length();
+		int rows = 0;
+		List<String> levelLines = new ArrayList<String>();
 		while(!response.contains("goal")) {
-			int row = 0;
-			for(int col = 0; col < response.length(); col++) {
-				char chr = response.charAt(col);
-				State.walls[row][col] = false;
+			levelLines.add(response);
+			rows++;
+			response = serverMessages.readLine();
+		}
+		
+		State.walls = new boolean[rows][cols];
+		
+		for(int row = 0; row < rows; row++) {
+			String levelLine = levelLines.get(row);
+			for(int col = 0; col < cols; col++) {
+				char chr = levelLine.charAt(col);
+					State.walls[row][col] = false;
 				if (chr == '+') {
 					State.walls[row][col] = true;
 				}else if (chr <= '9' && chr >= '0')	{
@@ -49,10 +62,22 @@ public class Client {
 				}	
 						
 			}
+		}
+		
+		response = serverMessages.readLine();
+		while(!response.contains("end")) {
+			int row = 0;
+			for(int col = 0; col < response.length(); col++) {
+				char chr = response.charAt(col);
+				if(chr <= 'Z' && chr >= 'A') {
+					//TODO : Goal here do something
+				}	
+						
+			}
 			row++;
 			response = serverMessages.readLine();
 		}
-        
+		
         
         // STEP 3 : System.out.println(Solution);
 
