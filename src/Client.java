@@ -48,11 +48,12 @@ public class Client {
 			rows++;
 			response = serverMessages.readLine();
 		}
-
+      
 		State.walls = new boolean[rows][cols];
 		List<Agent> agents = new ArrayList<>();
 		List<Box> boxes = new ArrayList<>();
 		List<Goal> goals = new ArrayList<>();
+
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < cols; col++) {
@@ -73,6 +74,7 @@ public class Client {
 		}
 
 		response = serverMessages.readLine();
+
 		int row = 0;
 		while(!response.contains("end")) {
 			for(int col = 0; col < response.length(); col++) {
