@@ -52,7 +52,6 @@ public class Client {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < cols; col++) {
 				char chr = levelLine.charAt(col);
-					State.walls[row][col] = false;
 				if (chr == '+') {
 					State.walls[row][col] = true;
 				}else if (chr <= '9' && chr >= '0')	{
