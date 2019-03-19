@@ -1,3 +1,5 @@
+import Event.Event;
+
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -12,9 +14,9 @@ public class Scheduler {
     private class EventComparator implements Comparator<Event> {
         @Override
         public int compare(Event e1, Event e2) {
-            if (e1.priority > e2.priority)
+            if (e1.getPriority() > e2.getPriority())
                 return 1;
-            else if (e2.priority > e1.priority)
+            else if (e2.getPriority() > e1.getPriority())
                 return -1;
             return 0;
         }
