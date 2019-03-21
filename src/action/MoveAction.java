@@ -1,4 +1,4 @@
-package Action;
+package action;
 
 public class MoveAction extends Action{
 

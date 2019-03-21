@@ -1,4 +1,4 @@
-package Action;
+package action;
 
 public abstract class Action {
     Dir dir1, dir2;
