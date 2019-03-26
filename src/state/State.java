@@ -1,6 +1,7 @@
 package state;
 
 import action.Action;
+import action.MoveAction;
 import task.Task;
 
 import java.util.*;
@@ -76,7 +77,28 @@ public class State{
 
     // Get children of state where only agent moves
     public LinkedList<State> getChildren(Agent agent) {
-	    return null; // TODO
+	    LinkedList<State> children = new LinkedList<>();
+	    for (Action a : getLegalActions(agent))
+	        children.add(new State(this, a));
+	    return children;
+    }
+
+    private LinkedList<Action> getLegalActions(Agent agent) {
+	    LinkedList<Action> legalActions = new LinkedList<>();
+	    for (Agent a : this.agents) {
+	        if (agent.equals(a)) {
+	            Location loc = a.getLocation();
+	            if (!walls[loc.getRow() - 1][loc.getCol()])
+                    legalActions.add(new MoveAction(a, Action.Dir.N));
+                if (!walls[loc.getRow() + 1][loc.getCol()])
+                    legalActions.add(new MoveAction(a, Action.Dir.S));
+                if (!walls[loc.getRow()][loc.getCol() + 1])
+                    legalActions.add(new MoveAction(a, Action.Dir.E));
+                if (!walls[loc.getRow() - 1][loc.getCol() - 1])
+                    legalActions.add(new MoveAction(a, Action.Dir.W));
+            }
+        }
+        return legalActions;
     }
 
     public ArrayList<Action> extractPlan() {
