@@ -30,12 +30,13 @@ public class Planner {
     	plan.addAll(getPlan(state, task));
     }
 
-    public ArrayList<Action> getPlan(State state, Task task) {
+    public ArrayList<Action> getPlan(State initialState, Task task) {
         HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator());
-        frontier.add(state);
-        explored.add(state);
+        frontier.add(initialState);
+        explored.add(initialState);
         while (!frontier.isEmpty()) {
+            State state = frontier.poll();
             if (task.isTerminal(state))
                 return state.extractPlan();
             for (State child : state.getChildren(agent)) {
