@@ -1,6 +1,7 @@
 package state;
 
 import action.Action;
+import task.Task;
 
 import java.util.*;
 
@@ -11,6 +12,7 @@ public class State{
 	private List<Box> boxes;
 	private List<Agent> agents;
 	private State parent;
+	private Action action;
 
 
 	// Initial state
@@ -18,13 +20,27 @@ public class State{
 	    this.agents = agents;
 	    this.boxes = boxes;
 	    this.parent = null;
+	    this.action = null;
 
 	}
+
+	public List<Agent> getAgents() {
+		return agents;
+	}
+
+	public List<Goal> getGoals() {
+		return goals;
+	}
+
+	public List<Box> getBoxes() {
+	    return boxes;
+    }
 
 	// Intermediate state
 	public State(State parent, Action action) {
 	    this.agents = new ArrayList<>();
 	    this.boxes = new ArrayList<>();
+	    this.action = action;
 	    this.parent = parent;
 
 	    for (Agent a : parent.getAgents())
@@ -35,15 +51,8 @@ public class State{
 	    action.apply(this);
     }
 
-    public List<Agent> getAgents() {
-	    return agents;
-    }
 
-    public List<Box> getBoxes() {
-	    return boxes;
-    }
-
-    public boolean isTerminal() {
+    public boolean isTerminal(Task task) {
 	    return false; // TODO
     }
 
@@ -70,11 +79,11 @@ public class State{
 	    return null; // TODO
     }
 
-    public ArrayList<State> extractPlan() {
-        ArrayList<State> plan = new ArrayList<>();
+    public ArrayList<Action> extractPlan() {
+        ArrayList<Action> plan = new ArrayList<>();
         State n = this;
         while (n.parent != null) {
-            plan.add(n);
+            plan.add(n.action);
             n = n.parent;
         }
         Collections.reverse(plan);

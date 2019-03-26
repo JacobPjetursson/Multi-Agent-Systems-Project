@@ -100,9 +100,11 @@ public class Client {
 			System.err.println(agent);
 		}
 		
-		State.goals = goals;
-		
-
+        State.goals = goals;
+        State initialState = new State(agents, boxes);
+        Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
+        schedule.start();
+		// STEP 3 : System.out.println(Solution);
 	}
 	
 	private static int getColorCode(String color) {
