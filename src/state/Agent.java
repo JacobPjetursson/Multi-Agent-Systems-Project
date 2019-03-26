@@ -22,5 +22,14 @@ public class Agent extends MovableObject {
 	public String toString() {
 		return "Agent" + id + ";" + color + " - " + location;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Agent) {
+			Agent agent = (Agent) obj;
+			return this.getId() == agent.getId();
+		}
+		return false;
+	}
 
 }

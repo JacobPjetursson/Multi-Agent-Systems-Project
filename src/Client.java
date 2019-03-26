@@ -50,6 +50,8 @@ public class Client {
 			response = serverMessages.readLine();
 		}
       
+		State.ROWS = rows;
+		State.COLS = cols;
 		State.walls = new boolean[rows][cols];
 		List<Agent> agents = new ArrayList<>();
 		List<Box> boxes = new ArrayList<>();

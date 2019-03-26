@@ -6,9 +6,14 @@ import action.MoveAction;
 import java.util.*;
 
 public class State implements Comparable<State> {
-
+	
+	public static final Map<Location, Object> DISTANCE_MAPS = new HashMap<>();
+	
+	public static int ROWS;
+	public static int COLS;
 	public static boolean[][] walls;
 	public static List<Goal> goals;
+	
 	private List<Box> boxes;
 	private List<Agent> agents;
 	private State parent;
@@ -23,7 +28,13 @@ public class State implements Comparable<State> {
 		this.parent = null;
 		this.action = null;
 		g = 0;
-
+		
+		for (int i = 0; i < ROWS; i++) {
+			for (int j = 0; j < COLS; j++) {
+				Location l = new Location(i, j);
+				DISTANCE_MAPS.put(l, new DistanceMap(l));
+			}
+		}
 	}
 
 	public List<Agent> getAgents() {
