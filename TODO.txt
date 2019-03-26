@@ -5,3 +5,10 @@ Proposed structure:
     Read file -> initial state -> planner -> list of subtasks (agent-to-box, box-to-goal) ->
     scheduler -> prioritized list of subtasks (heuristic) -> allocate tasks to agents -> greedy best-first for each agent on task ->
     return list of actions to scheduler -> print joint actions -> allocate tasks to agents and repeat
+
+
+- greedy best-first search on tasks
+
+- online planning
+
+- interaction mellem agenter, scheduler og server

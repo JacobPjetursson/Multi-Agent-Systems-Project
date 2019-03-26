@@ -16,7 +16,6 @@ public class Scheduler {
         queue = new PriorityQueue<>(new TaskComparator());
     }
 
-
     private class TaskComparator implements Comparator<Task> {
         @Override
         public int compare(Task t1, Task t2) {
