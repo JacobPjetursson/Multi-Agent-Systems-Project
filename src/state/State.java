@@ -14,6 +14,7 @@ public class State{
 	private List<Agent> agents;
 	private State parent;
 	private Action action;
+	private int g;
 
 
 	// Initial state
@@ -22,6 +23,7 @@ public class State{
 	    this.boxes = boxes;
 	    this.parent = null;
 	    this.action = null;
+	    g = 0;
 
 	}
 
@@ -43,6 +45,7 @@ public class State{
 	    this.boxes = new ArrayList<>();
 	    this.action = action;
 	    this.parent = parent;
+	    g++;
 
 	    for (Agent a : parent.getAgents())
 	        this.agents.add(new Agent(a));
@@ -66,8 +69,8 @@ public class State{
         return Objects.hash(boxes, agents);
     }
 
-    public int g() {
-	    return 0;
+    public int f() {
+	    return g + h();
     }
 
     // Get children of state where only agent moves
@@ -105,5 +108,9 @@ public class State{
         }
         Collections.reverse(plan);
         return plan;
+    }
+
+    private int h() {
+	    return 0;
     }
 }

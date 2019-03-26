@@ -52,8 +52,8 @@ public class Planner {
 
         @Override
         public int compare(State s1, State s2) {
-            int g1 = s1.g();
-            int g2 = s2.g();
+            int g1 = s1.f();
+            int g2 = s2.f();
             if (g1 > g2)
                 return 1;
             else if (g1 < g2)
