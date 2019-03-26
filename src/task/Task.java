@@ -1,6 +1,6 @@
-package Event;
+package task;
 
-public abstract class Event {
+public abstract class Task {
     int priority;
 
     public int getPriority() {

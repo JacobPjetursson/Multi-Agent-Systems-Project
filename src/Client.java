@@ -23,11 +23,12 @@ public class Client {
 		System.out.println("Client name");
 
 		// STEP 2 : Read level file from server;
-		String response = serverMessages.readLine(); // response = #domain
+		String response;
+		serverMessages.readLine(); // response = #domain
 		domain = serverMessages.readLine();
-		response = serverMessages.readLine();  // response = #levelname
+		serverMessages.readLine();  // response = #levelname
 		levelName = serverMessages.readLine();
-		response = serverMessages.readLine(); // response = #colors
+		serverMessages.readLine(); // response = #colors
 		response = serverMessages.readLine();
 		while(!response.contains("#initial")) {
 			String[] split = response.split("\\s+");
@@ -42,7 +43,7 @@ public class Client {
 		response = serverMessages.readLine();
 		int cols = response.length();
 		int rows = 0;
-		List<String> levelLines = new ArrayList<String>();
+		List<String> levelLines = new ArrayList<>();
 		while(!response.contains("goal")) {
 			levelLines.add(response);
 			rows++;
@@ -74,7 +75,6 @@ public class Client {
 		}
 
 		response = serverMessages.readLine();
-
 		int row = 0;
 		while(!response.contains("end")) {
 			for(int col = 0; col < response.length(); col++) {
@@ -102,11 +102,10 @@ public class Client {
 		
 		State.goals = goals;
 		
-		
-		
+
 	}
 	
-	public static int getColorCode(String color) {
+	private static int getColorCode(String color) {
 		switch (color) {
 		case "blue":
 			return 1;
