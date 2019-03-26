@@ -2,7 +2,6 @@ package state;
 
 import action.Action;
 import action.MoveAction;
-import task.Task;
 
 import java.util.*;
 
@@ -14,14 +13,16 @@ public class State implements Comparable<State> {
 	private List<Agent> agents;
 	private State parent;
 	private Action action;
+	private int g;
 
 
 	// Initial state
 	public State(List<Agent> agents, List<Box> boxes) {
-	    this.agents = agents;
-	    this.boxes = boxes;
-	    this.parent = null;
-	    this.action = null;
+		this.agents = agents;
+		this.boxes = boxes;
+		this.parent = null;
+		this.action = null;
+		g = 0;
 
 	}
 
@@ -34,81 +35,86 @@ public class State implements Comparable<State> {
 	}
 
 	public List<Box> getBoxes() {
-	    return boxes;
-    }
+		return boxes;
+	}
 
 	// Intermediate state
 	public State(State parent, Action action) {
-	    this.agents = new ArrayList<>();
-	    this.boxes = new ArrayList<>();
-	    this.action = action;
-	    this.parent = parent;
+		this.agents = new ArrayList<>();
+		this.boxes = new ArrayList<>();
+		this.action = action;
+		this.parent = parent;
+		g++;
 
-	    for (Agent a : parent.getAgents())
-	        this.agents.add(new Agent(a));
-	    for (Box b : parent.getBoxes())
-	        this.boxes.add(new Box(b));
+		for (Agent a : parent.getAgents())
+			this.agents.add(new Agent(a));
+		for (Box b : parent.getBoxes())
+			this.boxes.add(new Box(b));
 
-	    action.apply(this);
-    }
+		action.apply(this);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof State)) return false;
-        State state = (State) o;
-        return Objects.equals(boxes, state.boxes) &&
-                Objects.equals(agents, state.agents);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof State)) return false;
+		State state = (State) o;
+		return Objects.equals(boxes, state.boxes) &&
+				Objects.equals(agents, state.agents);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(boxes, agents);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(boxes, agents);
+	}
 
-    public int g() {
-	    return 0;
-    }
+	public int f() {
+		return g + h();
+	}
+	
+	private int h() {
+		return 0;
+	}
 
-    // Get children of state where only agent moves
-    public LinkedList<State> getChildren(Agent agent) {
-	    LinkedList<State> children = new LinkedList<>();
-	    for (Action a : getLegalActions(agent))
-	        children.add(new State(this, a));
-	    return children;
-    }
+	// Get children of state where only agent moves
+	public LinkedList<State> getChildren(Agent agent) {
+		LinkedList<State> children = new LinkedList<>();
+		for (Action a : getLegalActions(agent))
+			children.add(new State(this, a));
+		return children;
+	}
 
-    private LinkedList<Action> getLegalActions(Agent agent) {
-	    LinkedList<Action> legalActions = new LinkedList<>();
-	    for (Agent a : this.agents) {
-	        if (agent.equals(a)) {
-	            Location loc = a.getLocation();
-	            if (!walls[loc.getRow() - 1][loc.getCol()])
-                    legalActions.add(new MoveAction(a, Action.Dir.N));
-                if (!walls[loc.getRow() + 1][loc.getCol()])
-                    legalActions.add(new MoveAction(a, Action.Dir.S));
-                if (!walls[loc.getRow()][loc.getCol() + 1])
-                    legalActions.add(new MoveAction(a, Action.Dir.E));
-                if (!walls[loc.getRow() - 1][loc.getCol() - 1])
-                    legalActions.add(new MoveAction(a, Action.Dir.W));
-            }
-        }
-        return legalActions;
-    }
+	private LinkedList<Action> getLegalActions(Agent agent) {
+		LinkedList<Action> legalActions = new LinkedList<>();
+		for (Agent a : this.agents) {
+			if (agent.equals(a)) {
+				Location loc = a.getLocation();
+				if (!walls[loc.getRow() - 1][loc.getCol()])
+					legalActions.add(new MoveAction(a, Action.Dir.N));
+				if (!walls[loc.getRow() + 1][loc.getCol()])
+					legalActions.add(new MoveAction(a, Action.Dir.S));
+				if (!walls[loc.getRow()][loc.getCol() + 1])
+					legalActions.add(new MoveAction(a, Action.Dir.E));
+				if (!walls[loc.getRow() - 1][loc.getCol() - 1])
+					legalActions.add(new MoveAction(a, Action.Dir.W));
+			}
+		}
+		return legalActions;
+	}
 
-    public ArrayList<Action> extractPlan() {
-        ArrayList<Action> plan = new ArrayList<>();
-        State n = this;
-        while (n.parent != null) {
-            plan.add(n.action);
-            n = n.parent;
-        }
-        Collections.reverse(plan);
-        return plan;
-    }
+	public ArrayList<Action> extractPlan() {
+		ArrayList<Action> plan = new ArrayList<>();
+		State n = this;
+		while (n.parent != null) {
+			plan.add(n.action);
+			n = n.parent;
+		}
+		Collections.reverse(plan);
+		return plan;
+	}
 
 	@Override
 	public int compareTo(State o) {
-		return this.g() - o.g();
+		return this.f() - o.f();
 	}
 }
