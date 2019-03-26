@@ -52,11 +52,6 @@ public class State{
 	    action.apply(this);
     }
 
-
-    public boolean isTerminal(Task task) {
-	    return task.isTerminal(this);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

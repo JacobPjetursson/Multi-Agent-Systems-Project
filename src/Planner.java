@@ -36,7 +36,7 @@ public class Planner {
         frontier.add(state);
         explored.add(state);
         while (!frontier.isEmpty()) {
-            if (state.isTerminal(task))
+            if (task.isTerminal(state))
                 return state.extractPlan();
             for (State child : state.getChildren(agent)) {
                 if (!explored.contains(child)) {
