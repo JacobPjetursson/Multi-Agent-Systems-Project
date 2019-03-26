@@ -1,5 +1,7 @@
 package action;
 
+import state.State;
+
 public abstract class Action {
     Dir dir1, dir2;
 
@@ -8,7 +10,8 @@ public abstract class Action {
     }
 
     public abstract String toString();
-    
+    public abstract void apply(State state);
+
     @Override
     public boolean equals(Object obj) {
     	if (obj instanceof Action) {

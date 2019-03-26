@@ -6,4 +6,9 @@ public class NoOpAction extends Action {
     public String toString() {
         return COMMAND;
     }
+
+    @Override
+    public void apply(State state) {
+
+    }
 }

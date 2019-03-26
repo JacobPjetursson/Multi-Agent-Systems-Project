@@ -4,12 +4,7 @@ import state.Agent;
 import state.State;
 import task.Task;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 
 public class Planner {
 	private Queue<Action> plan;
@@ -19,29 +14,35 @@ public class Planner {
         this.agent = agent;
         plan = new LinkedList<>();
     }
-    
+
     public Action poll() {
     	if (plan.isEmpty()) {
     		return new NoOpAction();
     	}
     	return plan.poll();
     }
-    
+
     public void clear() {
     	plan.clear();
     }
-    
+
     public void addTask(State state, Task task) {
     	plan.addAll(getPlan(state, task));
     }
 
-    public ArrayList<Action> getPlan(State state, Task task) {
-        HashSet<State> explored;
+    public List<Action> getPlan(State state, Task task) {
+        HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator());
         frontier.add(state);
+        explored.add(state);
         while (!frontier.isEmpty()) {
+            if (state.isTerminal())
+                return state.extractPlan();
             for (State child : state.getChildren(agent)) {
-                // TODO
+                if (!explored.contains(child)) {
+                    frontier.add(child);
+                    explored.add(child);
+                }
             }
         }
         return null;

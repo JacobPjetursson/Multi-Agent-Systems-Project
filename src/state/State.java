@@ -1,5 +1,8 @@
 package state;
 
+import action.Action;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +28,30 @@ public class State{
 		return goals;
 	}
 
+	public State(State parent, Action action) {
+	    this.agents = new ArrayList<>();
+	    this.boxes = new ArrayList<>();
+
+	    for (Agent a : parent.getAgents())
+	        this.agents.add(new Agent(a));
+	    for (Box b : parent.getBoxes())
+	        this.boxes.add(new Box(b));
+
+	    action.apply(this);
+    }
+
+    public List<Agent> getAgents() {
+	    return agents;
+    }
+
+    public List<Box> getBoxes() {
+	    return boxes;
+    }
+
+    public boolean isTerminal() {
+	    return false; // TODO
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,6 +72,10 @@ public class State{
 
     // Get children of state where only agent moves
     public LinkedList<State> getChildren(Agent agent) {
+	    return null; // TODO
+    }
+
+    public List<Action> extractPlan() {
 	    return null; // TODO
     }
 }
