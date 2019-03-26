@@ -39,7 +39,7 @@ public class Planner {
             State state = frontier.poll();
             if (task.isTerminal(state))
                 return state.extractPlan();
-            for (State child : state.getChildren(agent)) {
+            for (State child : state.getExpandedStates(agent)) {
                 if (!explored.contains(child)) {
                     frontier.add(child);
                     explored.add(child);

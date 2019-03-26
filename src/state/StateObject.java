@@ -16,5 +16,22 @@ public abstract class StateObject {
 	public int getColor() {
 		return color;
 	}
-	
+
+	/*
+	public boolean isNeighbor(Location loc) {
+        if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() + 1) {
+            return true;
+        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() - 1) {
+            return true;
+        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() + 1) {
+            return true;
+        } else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol()) {
+            return true;
+        } else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol()) {
+            return true;
+        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() - 1) {
+            return true;
+        }
+	}
+	*/
 }

@@ -8,9 +8,7 @@ public class PullAction extends Action {
     private Agent agent;
     private Box box;
 
-    public PullAction(Agent agent, Box box, Dir dir1, Dir dir2) {
-        this.agent = agent;
-        this.box = box;
+    public PullAction(Dir dir1, Dir dir2) {
         this.dir1 = dir1;
         this.dir2 = dir2;
     }

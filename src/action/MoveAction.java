@@ -6,8 +6,8 @@ import state.State;
 public class MoveAction extends Action{
     Agent agent;
 
-    public MoveAction(Agent agent, Dir dir1) {
-        this.agent = agent;
+    public MoveAction(Dir dir1) {
+
         this.dir1 = dir1;
     }
 
