@@ -1,5 +1,6 @@
 package state;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,5 +33,14 @@ public class State{
     @Override
     public int hashCode() {
         return Objects.hash(boxes, agents);
+    }
+
+    public int g() {
+	    return 0;
+    }
+
+    // Get children of state where only agent moves
+    public LinkedList<State> getChildren(Agent agent) {
+	    return null; // TODO
     }
 }
