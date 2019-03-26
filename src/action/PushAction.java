@@ -1,10 +1,23 @@
 package action;
 
-public class PushAction extends Action {
+import state.Agent;
+import state.Box;
 
-    public PushAction(Dir dir1, Dir dir2) {
+public class PushAction extends Action {
+    private Agent agent;
+    private Box box;
+
+    public PushAction(Agent agent, Box box, Dir dir1, Dir dir2) {
         this.dir1 = dir1;
         this.dir2 = dir2;
+    }
+
+    public Agent getAgent() {
+        return agent;
+    }
+
+    public Box getBox() {
+        return box;
     }
 
     public String toString() {

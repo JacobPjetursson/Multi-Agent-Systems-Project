@@ -9,6 +9,11 @@ public class Location {
 		this.row = row;
 		this.col = col;
 	}
+
+	public Location(Location duplicate) {
+	    this.row = duplicate.getRow();
+	    this.col = duplicate.getCol();
+    }
 	
 	public int getRow() {
 		return row;

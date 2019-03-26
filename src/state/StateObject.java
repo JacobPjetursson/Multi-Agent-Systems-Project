@@ -9,7 +9,7 @@ public abstract class StateObject {
 		this.color = color;
 	}
 	
-	public Location getPosition() {
+	public Location getLocation() {
 		return position;
 	}
 	
