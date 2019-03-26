@@ -1,4 +1,4 @@
-package Action;
+package action;
 
 public abstract class Action {
     Dir dir1, dir2;
@@ -7,5 +7,5 @@ public abstract class Action {
         N, S, E, W
     }
 
-    public abstract String toString ();
+    public abstract String toString();
 }
