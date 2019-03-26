@@ -14,7 +14,10 @@ public class State{
 	public State(List<Agent> agents, List<Box> boxes) {
 	    this.agents = agents;
 	    this.boxes = boxes;
-
+	}
+	
+	public List<Agent> getAgents() {
+		return agents;
 	}
 
     @Override

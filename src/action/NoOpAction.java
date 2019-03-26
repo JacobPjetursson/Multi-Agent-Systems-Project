@@ -1,6 +1,6 @@
 package action;
 
-public class NoOpAction {
+public class NoOpAction extends Action {
 
     public String toString() {
         return "NoOp";
