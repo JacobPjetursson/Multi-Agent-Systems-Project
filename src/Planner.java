@@ -14,18 +14,18 @@ public class Planner {
         plan = new LinkedList<>();
     }
 
-    public Action poll() {
+    Action poll() {
     	if (plan.isEmpty()) {
     		return new NoOpAction();
     	}
     	return plan.poll();
     }
 
-    public void clear() {
+    void clear() {
     	plan.clear();
     }
 
-    public void addTask(State state, Task task) {
+    void addTask(State state, Task task) {
         ArrayList<Action> actionList = createPlan(state, task);
         if (actionList == null)
             System.err.println("No plan was found");
@@ -37,7 +37,11 @@ public class Planner {
         return plan.size();
     }
 
-    public ArrayList<Action> createPlan(State initialState, Task task) {
+    public Queue<Action> getPlan() {
+        return plan;
+    }
+
+    private ArrayList<Action> createPlan(State initialState, Task task) {
         HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
@@ -56,15 +60,11 @@ public class Planner {
         return null;
     }
 
-    public Queue<Action> getPlan() {
-        return plan;
-    }
-    
+
     private class StateComparator implements Comparator<State> {
-    	
     	Task task;
     	
-    	public StateComparator(Task task) {
+    	StateComparator(Task task) {
 			this.task = task;
 		}
     	

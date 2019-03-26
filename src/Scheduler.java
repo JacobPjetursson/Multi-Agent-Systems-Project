@@ -47,6 +47,7 @@ public class Scheduler implements Runnable {
     	Planner planner = plannerMap.get(agent.getId());
     	if (!tasks.isEmpty()) {
     		Task task = tasks.poll();
+    		task.assignAgent(agent);
     		planner.addTask(state, task);
     	}
     }
