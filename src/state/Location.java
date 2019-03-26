@@ -9,6 +9,11 @@ public class Location {
 		this.row = row;
 		this.col = col;
 	}
+
+	public Location(Location duplicate) {
+	    this.row = duplicate.getRow();
+	    this.col = duplicate.getCol();
+    }
 	
 	public int getRow() {
 		return row;
@@ -17,6 +22,14 @@ public class Location {
 	public int getCol() {
 		return col;
 	}
+
+	public void setRow(int row) {
+	    this.row = row;
+    }
+
+    public void setCol(int col) {
+	    this.col = col;
+    }
 	
 	@Override
 	public String toString() {

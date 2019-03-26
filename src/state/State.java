@@ -1,5 +1,13 @@
 package state;
 
+import action.Action;
+import action.MoveAction;
+import action.PullAction;
+import action.PushAction;
+import jdk.internal.agent.resources.agent;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,6 +23,26 @@ public class State{
 		this.boxes = boxes;
 	}
 
+	public State(State parent, Action action) {
+	    this.agents = new ArrayList<>();
+	    this.boxes = new ArrayList<>();
+
+	    for (Agent a : parent.getAgents())
+	        this.agents.add(new Agent(a));
+	    for (Box b : parent.getBoxes())
+	        this.boxes.add(new Box(b));
+
+	    action.apply(this);
+    }
+
+    public List<Agent> getAgents() {
+	    return agents;
+    }
+
+    public List<Box> getBoxes() {
+	    return boxes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -27,5 +55,18 @@ public class State{
     @Override
     public int hashCode() {
         return Objects.hash(boxes, agents);
+    }
+
+    public int g() {
+	    return 0;
+    }
+
+    // Get children of state where only agent moves
+    public LinkedList<State> getChildren(Agent agent) {
+	    return null; // TODO
+    }
+
+    public List<Action> extractPlan() {
+	    return null; // TODO
     }
 }
