@@ -1,5 +1,7 @@
 package action;
 
+import state.State;
+
 public class NoOpAction extends Action {
 	public static final String COMMAND = "NoOp";
 
@@ -11,4 +13,5 @@ public class NoOpAction extends Action {
     public void apply(State state) {
 
     }
+
 }

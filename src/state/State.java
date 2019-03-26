@@ -27,6 +27,10 @@ public class State{
 	public List<Goal> getGoals() {
 		return goals;
 	}
+	
+	public List<Box> getBoxes() {
+	    return boxes;
+    }
 
 	public State(State parent, Action action) {
 	    this.agents = new ArrayList<>();
@@ -38,14 +42,6 @@ public class State{
 	        this.boxes.add(new Box(b));
 
 	    action.apply(this);
-    }
-
-    public List<Agent> getAgents() {
-	    return agents;
-    }
-
-    public List<Box> getBoxes() {
-	    return boxes;
     }
 
     public boolean isTerminal() {
