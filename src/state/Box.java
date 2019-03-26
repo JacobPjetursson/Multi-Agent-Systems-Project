@@ -19,13 +19,13 @@ public class Box extends MovableObject {
 	}
 
 	@Override
-	public Box move(Location position) {
-		return new Box(position, color, letter);
+	public Box move(Location location) {
+		return new Box(location, color, letter);
 	}
 	
 	@Override
 	public String toString() {
-		return "Box " + letter + ";" + color + " - " + position;
+		return "Box " + letter + ";" + color + " - " + location;
 	}
 
 }

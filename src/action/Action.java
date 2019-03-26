@@ -1,5 +1,7 @@
 package action;
 
+import state.State;
+
 public abstract class Action {
     Dir dir1, dir2;
 
@@ -8,4 +10,6 @@ public abstract class Action {
     }
 
     public abstract String toString();
+
+    public abstract void apply(State state);
 }

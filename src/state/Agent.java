@@ -17,15 +17,10 @@ public class Agent extends MovableObject {
 	public int getId() {
 		return id;
 	}
-
-	@Override
-	public Agent move(Location position) {
-		return new Agent(position, color, id);
-	}
 	
 	@Override
 	public String toString() {
-		return "Agent" + id + ";" + color + " - " + position;
+		return "Agent" + id + ";" + color + " - " + location;
 	}
 
 }

@@ -34,17 +34,7 @@ public class State{
 	    for (Box b : parent.getBoxes())
 	        this.boxes.add(new Box(b));
 
-	    applyAction(action);
-    }
-
-    private void applyAction(Action action) {
-	    if (action instanceof MoveAction) {
-
-        } else if (action instanceof PullAction) {
-
-        } else if (action instanceof PushAction) {
-
-        }
+	    action.apply(this);
     }
 
     public List<Agent> getAgents() {

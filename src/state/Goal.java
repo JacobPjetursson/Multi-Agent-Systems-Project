@@ -15,7 +15,7 @@ public class Goal extends StateObject {
 	
 	@Override
 	public String toString() {
-		return "Goal " + letter + ";" + color + " - " + position;
+		return "Goal " + letter + ";" + color + " - " + location;
 	}
 	
 }
