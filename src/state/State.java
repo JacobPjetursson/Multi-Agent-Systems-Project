@@ -2,12 +2,13 @@ package state;
 
 import action.Action;
 import action.MoveAction;
+import task.Task;
 
 import java.util.*;
 
-public class State implements Comparable<State> {
+public class State {
 	
-	public static final Map<Location, Object> DISTANCE_MAPS = new HashMap<>();
+	public static final Map<Location, DistanceMap> DISTANCE_MAPS = new HashMap<>();
 	
 	public static int ROWS;
 	public static int COLS;
@@ -79,12 +80,8 @@ public class State implements Comparable<State> {
 		return Objects.hash(boxes, agents);
 	}
 
-	public int f() {
-		return g + h();
-	}
-	
-	private int h() {
-		return 0;
+	public int f(Task task) {
+		return g + task.h(this);
 	}
 
 	// Get children of state where only agent moves
@@ -122,10 +119,5 @@ public class State implements Comparable<State> {
 		}
 		Collections.reverse(plan);
 		return plan;
-	}
-
-	@Override
-	public int compareTo(State o) {
-		return this.f() - o.f();
 	}
 }

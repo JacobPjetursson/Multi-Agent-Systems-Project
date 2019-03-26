@@ -2,23 +2,18 @@ import state.Agent;
 import state.Goal;
 import state.State;
 import task.GoalTask;
-import task.PlanTask;
 import task.Task;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 import action.Action;
 import action.NoOpAction;
 
 public class Scheduler implements Runnable {
-    private Queue<Task> queue;
     private BufferedReader serverMessages;
     private State state;
     private Map<Integer, PriorityQueue<Task>> taskMap;
@@ -28,7 +23,6 @@ public class Scheduler implements Runnable {
         this.serverMessages = serverMessages;
         // Get initial plan from initial state, queue them to priorityqueue
         state = initialState;
-        queue = new PriorityQueue<>();
         
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
