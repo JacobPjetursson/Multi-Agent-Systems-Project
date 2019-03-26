@@ -20,6 +20,10 @@ public class State{
 	public List<Agent> getAgents() {
 		return agents;
 	}
+	
+	public List<Goal> getGoals() {
+		return goals;
+	}
 
     @Override
     public boolean equals(Object o) {

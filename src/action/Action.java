@@ -8,4 +8,13 @@ public abstract class Action {
     }
 
     public abstract String toString();
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj instanceof Action) {
+			Action act = (Action) obj;
+			return this.toString().equals(act.toString());
+		}
+    	return false;
+    }
 }
