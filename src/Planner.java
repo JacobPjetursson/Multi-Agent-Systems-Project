@@ -12,13 +12,13 @@ public class Planner {
         this.agent = agent;
     }
 
-    public List<Action> getPlan(State state, Task task) {
+    public ArrayList<Action> getPlan(State state, Task task) {
         HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator());
         frontier.add(state);
         explored.add(state);
         while (!frontier.isEmpty()) {
-            if (state.isTerminal())
+            if (state.isTerminal(task))
                 return state.extractPlan();
             for (State child : state.getChildren(agent)) {
                 if (!explored.contains(child)) {
