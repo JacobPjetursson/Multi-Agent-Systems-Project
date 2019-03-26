@@ -101,7 +101,8 @@ public class Client {
 
         State.goals = goals;
         State initialState = new State(agents, boxes);
-        new Scheduler(initialState, serverMessages);
+        Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
+        schedule.start();
 		// STEP 3 : System.out.println(Solution);
 	}
 	

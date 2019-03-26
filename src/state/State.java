@@ -24,6 +24,18 @@ public class State{
 
 	}
 
+	public List<Agent> getAgents() {
+		return agents;
+	}
+
+	public List<Goal> getGoals() {
+		return goals;
+	}
+
+	public List<Box> getBoxes() {
+	    return boxes;
+    }
+
 	// Intermediate state
 	public State(State parent, Action action) {
 	    this.agents = new ArrayList<>();
@@ -39,13 +51,6 @@ public class State{
 	    action.apply(this);
     }
 
-    public List<Agent> getAgents() {
-	    return agents;
-    }
-
-    public List<Box> getBoxes() {
-	    return boxes;
-    }
 
     public boolean isTerminal(Task task) {
 	    return false; // TODO
