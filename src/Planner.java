@@ -32,7 +32,7 @@ public class Planner {
 
     public ArrayList<Action> getPlan(State state, Task task) {
         HashSet<State> explored = new HashSet<>();
-        PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator());
+        PriorityQueue<State> frontier = new PriorityQueue<>();
         frontier.add(state);
         explored.add(state);
         while (!frontier.isEmpty()) {
@@ -46,19 +46,5 @@ public class Planner {
             }
         }
         return null;
-    }
-
-    public class StateComparator implements Comparator<State> {
-
-        @Override
-        public int compare(State s1, State s2) {
-            int g1 = s1.g();
-            int g2 = s2.g();
-            if (g1 > g2)
-                return 1;
-            else if (g1 < g2)
-                return 2;
-            return 0;
-        }
     }
 }

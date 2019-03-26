@@ -6,7 +6,7 @@ import task.Task;
 
 import java.util.*;
 
-public class State{
+public class State implements Comparable<State> {
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
@@ -106,4 +106,9 @@ public class State{
         Collections.reverse(plan);
         return plan;
     }
+
+	@Override
+	public int compareTo(State o) {
+		return this.g() - o.g();
+	}
 }

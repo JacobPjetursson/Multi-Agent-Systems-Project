@@ -28,7 +28,7 @@ public class Scheduler implements Runnable {
         this.serverMessages = serverMessages;
         // Get initial plan from initial state, queue them to priorityqueue
         state = initialState;
-        queue = new PriorityQueue<>(new TaskComparator());
+        queue = new PriorityQueue<>();
         
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
@@ -38,17 +38,6 @@ public class Scheduler implements Runnable {
         }
         for (Goal goal : state.getGoals()) {
         	taskMap.get(goal.getColor()).add(new GoalTask(goal));
-        }
-    }
-
-    private class TaskComparator implements Comparator<Task> {
-        @Override
-        public int compare(Task t1, Task t2) {
-            if (t1.getPriority() > t2.getPriority())
-                return 1;
-            else if (t2.getPriority() > t1.getPriority())
-                return -1;
-            return 0;
         }
     }
     
