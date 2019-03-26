@@ -17,11 +17,6 @@ public class Box extends MovableObject {
 	public char getLetter() {
 		return letter;
 	}
-
-	@Override
-	public Box move(Location location) {
-		return new Box(location, color, letter);
-	}
 	
 	@Override
 	public String toString() {

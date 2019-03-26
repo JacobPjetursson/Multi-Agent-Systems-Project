@@ -3,10 +3,7 @@ import state.Agent;
 import state.State;
 import task.Task;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Planner {
     Agent agent;
@@ -15,13 +12,19 @@ public class Planner {
         this.agent = agent;
     }
 
-    public ArrayList<Action> getPlan(State state, Task task) {
-        HashSet<State> explored;
+    public List<Action> getPlan(State state, Task task) {
+        HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator());
         frontier.add(state);
+        explored.add(state);
         while (!frontier.isEmpty()) {
+            if (state.isTerminal())
+                return state.extractPlan();
             for (State child : state.getChildren(agent)) {
-                // TODO
+                if (!explored.contains(child)) {
+                    frontier.add(child);
+                    explored.add(child);
+                }
             }
         }
         return null;

@@ -1,10 +1,6 @@
 package state;
 
 import action.Action;
-import action.MoveAction;
-import action.PullAction;
-import action.PushAction;
-import jdk.internal.agent.resources.agent;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -43,6 +39,10 @@ public class State{
 
     public List<Box> getBoxes() {
 	    return boxes;
+    }
+
+    public boolean isTerminal() {
+	    return false; // TODO
     }
 
     @Override

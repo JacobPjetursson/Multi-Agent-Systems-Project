@@ -9,6 +9,8 @@ public class PushAction extends Action {
     private Box box;
 
     public PushAction(Agent agent, Box box, Dir dir1, Dir dir2) {
+        this.agent = agent;
+        this.box = box;
         this.dir1 = dir1;
         this.dir2 = dir2;
     }
