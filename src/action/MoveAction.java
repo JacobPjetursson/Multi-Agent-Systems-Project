@@ -8,6 +8,6 @@ public class MoveAction extends Action{
     }
 
     public String toString() {
-        return String.format("Move(%s);", dir1);
+        return String.format("Move(%s)", dir1);
     }
 }

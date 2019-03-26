@@ -8,6 +8,6 @@ public class PushAction extends Action {
     }
 
     public String toString() {
-        return String.format("Push(%s,%s);", dir1, dir2);
+        return String.format("Push(%s,%s)", dir1, dir2);
     }
 }
