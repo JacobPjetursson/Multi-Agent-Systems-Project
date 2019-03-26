@@ -10,7 +10,7 @@ public class ResolveConflictTask extends Task {
 	}
 
 	@Override
-	protected boolean isTerminal(State state) {
+	public boolean isTerminal(State state) {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -18,5 +18,5 @@ public abstract class Task implements Comparable<Task> {
     	return this.priority - o.priority;
     }
 
-	protected abstract boolean isTerminal(State state);
+	public abstract boolean isTerminal(State state);
 }

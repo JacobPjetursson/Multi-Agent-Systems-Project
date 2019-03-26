@@ -53,7 +53,7 @@ public class State{
 
 
     public boolean isTerminal(Task task) {
-	    return false; // TODO
+	    return task.isTerminal(this);
     }
 
     @Override
