@@ -1,6 +1,10 @@
 package task;
 
+import java.util.List;
+
+import state.Box;
 import state.Goal;
+import state.State;
 
 public class GoalTask extends Task {
 	
@@ -13,6 +17,20 @@ public class GoalTask extends Task {
 	
 	public Goal getGoal() {
 		return goal;
+	}
+
+	@Override
+	protected boolean isTerminal(State state) {
+		char letter = goal.getLetter();
+		List<Box> boxes = state.getBoxes();
+		for(Box box : boxes) {
+			if (box.getLetter() == letter) {
+				if (box.getLocation().equals(goal.getLocation())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }
