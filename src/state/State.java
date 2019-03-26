@@ -2,10 +2,7 @@ package state;
 
 import action.Action;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class State{
 
@@ -13,17 +10,22 @@ public class State{
 	public static List<Goal> goals;
 	private List<Box> boxes;
 	private List<Agent> agents;
+	private State parent;
 
 
+	// Initial state
 	public State(List<Agent> agents, List<Box> boxes) {
 	    this.agents = agents;
 	    this.boxes = boxes;
+	    this.parent = null;
 
 	}
 
+	// Intermediate state
 	public State(State parent, Action action) {
 	    this.agents = new ArrayList<>();
 	    this.boxes = new ArrayList<>();
+	    this.parent = parent;
 
 	    for (Agent a : parent.getAgents())
 	        this.agents.add(new Agent(a));
@@ -68,7 +70,14 @@ public class State{
 	    return null; // TODO
     }
 
-    public List<Action> extractPlan() {
-	    return null; // TODO
+    public ArrayList<State> extractPlan() {
+        ArrayList<State> plan = new ArrayList<>();
+        State n = this;
+        while (n.parent != null) {
+            plan.add(n);
+            n = n.parent;
+        }
+        Collections.reverse(plan);
+        return plan;
     }
 }
