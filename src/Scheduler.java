@@ -26,13 +26,20 @@ public class Scheduler implements Runnable {
         
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
+
         for (Agent agent : state.getAgents()) {
-        	plannerMap.put(agent.getId(), new Planner(agent));
+        	plannerMap.put(agent.getId(), new Planner(agent.getId()));
         	taskMap.put(agent.getColor(), new PriorityQueue<>());
         }
         for (Goal goal : state.getGoals()) {
         	taskMap.get(goal.getColor()).add(new GoalTask(goal));
         }
+
+        // Initial tasks
+        for (Agent agent : state.getAgents())
+            getTask(state, agent);
+
+
     }
     
     private void getTask(State state, Agent agent) {
@@ -57,16 +64,17 @@ public class Scheduler implements Runnable {
 					getTask(state, agent);
 					a = planner.poll();
 				}
-				if (!a.toString().equals(NoOpAction.COMMAND)) {
+				else {
 					done = false;
 				}
-	        	cmd += a.toString() + ";";
+				cmd += a.toString() + ";";
 	        }
 			solved = done;
-			cmd = cmd.substring(0, cmd.length()-1);
-			System.out.println(cmd);
-			System.err.println(cmd);
-			
+            cmd = cmd.substring(0, cmd.length()-1);
+            System.out.println(cmd);
+            System.err.println(cmd);
+
+
 			String message = "";
 			try {
 				message = serverMessages.readLine();
@@ -74,7 +82,7 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 			
-			System.err.println(message);
+			System.err.println("RESPONSE: " + message);
 			String[] feedback = message.split(";");
 			for (Agent agent : state.getAgents()) {
 				boolean error = !Boolean.parseBoolean(feedback[agent.getId()]);
@@ -87,7 +95,7 @@ public class Scheduler implements Runnable {
 					// TODO: Update global state
 				}
 	        }
-			
+
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

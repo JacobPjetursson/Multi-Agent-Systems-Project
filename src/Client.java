@@ -53,9 +53,9 @@ public class Client {
 		State.ROWS = rows;
 		State.COLS = cols;
 		State.walls = new boolean[rows][cols];
-		List<Agent> agents = new ArrayList<>();
-		List<Box> boxes = new ArrayList<>();
-		List<Goal> goals = new ArrayList<>();
+		ArrayList<Agent> agents = new ArrayList<>();
+		ArrayList<Box> boxes = new ArrayList<>();
+		ArrayList<Goal> goals = new ArrayList<>();
 
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);

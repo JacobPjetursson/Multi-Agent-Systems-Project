@@ -1,6 +1,5 @@
 import action.Action;
 import action.NoOpAction;
-import state.Agent;
 import state.State;
 import task.Task;
 
@@ -8,10 +7,10 @@ import java.util.*;
 
 public class Planner {
 	private Queue<Action> plan;
-    private Agent agent;
+    private int agentId;
 
-    public Planner(Agent agent) {
-        this.agent = agent;
+    public Planner(int agentId) {
+        this.agentId = agentId;
         plan = new LinkedList<>();
     }
 
@@ -27,10 +26,18 @@ public class Planner {
     }
 
     public void addTask(State state, Task task) {
-    	plan.addAll(getPlan(state, task));
+        ArrayList<Action> actionList = createPlan(state, task);
+        if (actionList == null)
+            System.err.println("No plan was found");
+        else
+    	    plan.addAll(actionList);
     }
 
-    public ArrayList<Action> getPlan(State initialState, Task task) {
+    public int getSize() {
+        return plan.size();
+    }
+
+    public ArrayList<Action> createPlan(State initialState, Task task) {
         HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
@@ -39,7 +46,7 @@ public class Planner {
             State state = frontier.poll();
             if (task.isTerminal(state))
                 return state.extractPlan();
-            for (State child : state.getExpandedStates(agent)) {
+            for (State child : state.getExpandedStates(agentId)) {
                 if (!explored.contains(child)) {
                     frontier.add(child);
                     explored.add(child);
@@ -47,6 +54,10 @@ public class Planner {
             }
         }
         return null;
+    }
+
+    public Queue<Action> getPlan() {
+        return plan;
     }
     
     private class StateComparator implements Comparator<State> {
