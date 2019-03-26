@@ -89,6 +89,7 @@ public class Client {
 			response = serverMessages.readLine();
 		}
 		
+		
 		for (Goal goal : goals) {
 			System.err.println(goal);
 		}
@@ -98,9 +99,11 @@ public class Client {
 		for (Agent agent : agents) {
 			System.err.println(agent);
 		}
-
-
-		// STEP 3 : System.out.println(Solution);
+		
+		State.goals = goals;
+		
+		
+		
 	}
 	
 	public static int getColorCode(String color) {

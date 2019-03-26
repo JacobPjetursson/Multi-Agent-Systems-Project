@@ -10,8 +10,9 @@ public class State{
 	private List<Box> boxes;
 	private List<Agent> agents;
 
-	public State() {
-
+	public State(List<Box> boxes, List<Agent> agents) {
+		this.agents = agents;
+		this.boxes = boxes;
 	}
 
     @Override
