@@ -78,7 +78,9 @@ public class Scheduler implements Runnable {
 
 			String message = "";
 			try {
-				message = serverMessages.readLine();
+				do {
+					message = serverMessages.readLine();
+				} while (message.equals("invalid"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
