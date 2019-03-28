@@ -51,6 +51,10 @@ public class Scheduler implements Runnable {
     		planner.addTask(state, task);
     	}
     }
+    
+    private Planner getPlanner(Agent agent) {
+    	return plannerMap.get(agent.getId());
+    }
 
 	@Override
 	public void run() {
@@ -59,7 +63,7 @@ public class Scheduler implements Runnable {
 			boolean done = true;
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
-				Planner planner = plannerMap.get(agent.getId());
+				Planner planner = getPlanner(agent);
 				Action a = planner.poll();
 				if (a.toString().equals(NoOpAction.COMMAND)) {
 					getTask(state, agent);
@@ -91,9 +95,11 @@ public class Scheduler implements Runnable {
 					System.err.println("Make new plan for Agent"+agent.getId());
 					plannerMap.get(agent.getId()).clear();
 					// TODO: Planner make new plan!!
+					
 				}
 				else {
-					// TODO: Update global state
+					Planner planner = getPlanner(agent);
+					state = state.applyAction(agent, planner.getLastAction());
 				}
 	        }
 

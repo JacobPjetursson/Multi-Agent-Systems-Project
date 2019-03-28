@@ -20,7 +20,7 @@ public class Client {
 		Map<Character, Integer> colorMap = new HashMap<>();
 		
 		// STEP 1 : First System.out.println(client name);
-		System.out.println("Client name");
+		System.out.println("Bob");
 
 		// STEP 2 : Read level file from server;
 		String response;
@@ -53,9 +53,9 @@ public class Client {
 		State.ROWS = rows;
 		State.COLS = cols;
 		State.walls = new boolean[rows][cols];
-		ArrayList<Agent> agents = new ArrayList<>();
-		ArrayList<Box> boxes = new ArrayList<>();
-		ArrayList<Goal> goals = new ArrayList<>();
+		List<Agent> agents = new ArrayList<>();
+		List<Box> boxes = new ArrayList<>();
+		List<Goal> goals = new ArrayList<>();
 
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);

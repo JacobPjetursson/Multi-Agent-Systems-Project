@@ -7,6 +7,7 @@ import java.util.*;
 
 public class Planner {
 	private Queue<Action> plan;
+	private Action lastAction;
     private int agentId;
 
     public Planner(int agentId) {
@@ -14,18 +15,25 @@ public class Planner {
         plan = new LinkedList<>();
     }
 
-    Action poll() {
+    public Action poll() {
     	if (plan.isEmpty()) {
-    		return new NoOpAction();
+    		lastAction = new NoOpAction();
     	}
-    	return plan.poll();
+    	else {
+    		lastAction = plan.poll();
+    	}
+    	return lastAction;
+    }
+    
+    public Action getLastAction() {
+    	return lastAction;
     }
 
-    void clear() {
+    public void clear() {
     	plan.clear();
     }
 
-    void addTask(State state, Task task) {
+    public void addTask(State state, Task task) {
         ArrayList<Action> actionList = createPlan(state, task);
         if (actionList == null)
             System.err.println("No plan was found");

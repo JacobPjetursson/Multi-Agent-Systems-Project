@@ -3,9 +3,9 @@ import java.io.IOException;
 
 public class Runner {
 	
-	public static final String LEVEL = "MASimpleConflict.lvl";
+	public static final String LEVEL = "MANoConflict.lvl";
 	public static final boolean DEBUG = false;
-	public static final boolean GUI = false;
+	public static final boolean GUI = true;
 	
 	private static final String CURRENT_DIRECTORY;
 	private static final String DEBUG_STRING;
@@ -24,6 +24,12 @@ public class Runner {
 		};
 		ProcessBuilder pb = new ProcessBuilder(args).inheritIO();
 		Process p = pb.start();
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				p.destroy();
+			}
+		}));
 		p.waitFor();
 	}
 	
