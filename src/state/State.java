@@ -14,7 +14,6 @@ public class State{
 	public static int COLS;
     private static final Random RNG = new Random(1);
 
-
 	public static boolean[][] walls;
 	public static List<Goal> goals;
 	
@@ -188,9 +187,5 @@ public class State{
         }
         Collections.reverse(plan);
         return plan;
-    }
-
-    private int h() {
-	    return 0;
     }
 }
