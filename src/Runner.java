@@ -12,7 +12,7 @@ public class Runner {
 	static {
 		File currentDirFile = new File(".");
 		CURRENT_DIRECTORY = currentDirFile.getAbsolutePath();
-		DEBUG_STRING = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000 ";
+		DEBUG_STRING = "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,quiet=y,address=8000 ";
 	}
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
