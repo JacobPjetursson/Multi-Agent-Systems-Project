@@ -1,5 +1,7 @@
 package state;
 
+import java.util.Objects;
+
 public class Box extends MovableObject {
 	
 	private char letter;
@@ -9,12 +11,25 @@ public class Box extends MovableObject {
 		this.letter = letter;
 	}
 
-	public Box(Box duplicate) {
+	Box(Box duplicate) {
 	    super(new Location(duplicate.getLocation()), duplicate.getColor());
 	    this.letter = duplicate.getLetter();
     }
-	
-	public char getLetter() {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Box)) return false;
+        Box box = (Box) o;
+        return getLetter() == box.getLetter() && getLocation().equals(box.getLocation());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLetter(), getLocation());
+    }
+
+    public char getLetter() {
 		return letter;
 	}
 	

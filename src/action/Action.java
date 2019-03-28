@@ -1,7 +1,5 @@
 package action;
 
-import state.State;
-
 import java.util.ArrayList;
 
 public abstract class Action {
@@ -9,7 +7,7 @@ public abstract class Action {
     public Dir dir2;
 
     public enum Dir {
-        N, S, E, W
+        N, W, E, S
     }
 
     public static final Action[] EVERY;
@@ -38,7 +36,6 @@ public abstract class Action {
     }
 
     public abstract String toString();
-    public abstract void apply(State state);
 
     @Override
     public boolean equals(Object obj) {
@@ -54,7 +51,9 @@ public abstract class Action {
     }
 
     public static int dirToRowChange(Dir d) {
-        // South is down one row (1), north is up one row (-1).
+        if (d == null)
+            return 0;
+
         switch (d) {
             case S:
                 return 1;
@@ -66,7 +65,9 @@ public abstract class Action {
     }
 
     public static int dirToColChange(Dir d) {
-        // East is right one column (1), west is left one column (-1).
+        if (d == null)
+            return 0;
+
         switch (d) {
             case E:
                 return 1;

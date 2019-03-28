@@ -1,5 +1,7 @@
 package state;
 
+import java.util.Objects;
+
 public class Agent extends MovableObject {
 	
 	private int id;
@@ -31,5 +33,10 @@ public class Agent extends MovableObject {
 		}
 		return false;
 	}
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 
 }

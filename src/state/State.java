@@ -2,10 +2,10 @@ package state;
 
 import action.Action;
 import action.MoveAction;
-import task.Task;
-
 import action.PullAction;
 import action.PushAction;
+import task.Task;
+
 import java.util.*;
 
 public class State{
@@ -25,7 +25,7 @@ public class State{
 
 
 	// Initial state
-	public State(List<Agent> agents, List<Box> boxes) {
+	public State(ArrayList<Agent> agents, ArrayList<Box> boxes) {
 		this.agents = agents;
 		this.boxes = boxes;
 		this.parent = null;
@@ -64,8 +64,6 @@ public class State{
 			this.agents.add(new Agent(a));
 		for (Box b : parent.getBoxes())
 			this.boxes.add(new Box(b));
-
-		action.apply(this);
 	}
 
 	@Override
@@ -86,21 +84,42 @@ public class State{
 		return g + task.h(this);
 	}
 
-    public ArrayList<State> getExpandedStates(Agent agent) {
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Boxes: ");
+	    for (Box b : boxes)
+	        sb.append("(").append(b.toString()).append("), ");
+	    sb.append("\nAgents: ");
+	    for (Agent a : agents)
+	        sb.append("(").append(a.toString()).append("), ");
+	    sb.append("\n");
+	    return sb.toString();
+    }
+
+    public ArrayList<State> getExpandedStates(int agentId) {
         ArrayList<State> expandedStates = new ArrayList<>(Action.EVERY.length);
+        Agent agent = null;
+        for (Agent a : getAgents())
+            if (a.getId() == agentId)
+                agent = a;
+        if (agent == null)
+            return expandedStates;
+
+        int agentRow = agent.getLocation().getRow();
+        int agentCol = agent.getLocation().getCol();
         for (Action action : Action.EVERY) {
             // Determine applicability of action
-            int newAgentRow = agent.getLocation().getRow() + Action.dirToRowChange(action.dir1);
-            int newAgentCol = agent.getLocation().getCol() + Action.dirToColChange(action.dir1);
+            int newAgentRow = agentRow + Action.dirToRowChange(action.dir1);
+            int newAgentCol = agentCol + Action.dirToColChange(action.dir1);
 
             if (action instanceof MoveAction) {
                 // Check if there's a wall or box on the cell to which the agent is moving
                 if (this.cellIsFree(newAgentRow, newAgentCol)) {
-                    State child = new State(this, this.action);
+                    State child = new State(this, action);
                     for (Agent a : child.getAgents()) { // Only expand for input agent
                         if (a.equals(agent)) {
                             a.getLocation().setRow(newAgentRow);
-                            a.getLocation().setRow(newAgentCol);
+                            a.getLocation().setCol(newAgentCol);
                         }
                     }
                     expandedStates.add(child);
@@ -112,11 +131,11 @@ public class State{
                     int newBoxCol = newAgentCol + Action.dirToColChange(action.dir2);
                     // .. and that new cell of box is free
                     if (this.cellIsFree(newBoxRow, newBoxCol)) {
-                        State child = new State(this, this.action);
+                        State child = new State(this, action);
                         for (Agent a : child.getAgents()) { // Only expand for input agent
                             if (a.equals(agent)) {
                                 a.getLocation().setRow(newAgentRow);
-                                a.getLocation().setRow(newAgentCol);
+                                a.getLocation().setCol(newAgentCol);
                             }
                         }
                         for (Box b : child.getBoxes()) {
@@ -132,15 +151,15 @@ public class State{
             } else if (action instanceof PullAction) {
                 // Cell is free where agent is going
                 if (this.cellIsFree(newAgentRow, newAgentCol)) {
-                    int boxRow = agent.getLocation().getRow() + Action.dirToRowChange(action.dir2);
-                    int boxCol = agent.getLocation().getCol() + Action.dirToColChange(action.dir2);
+                    int boxRow = agentRow + Action.dirToRowChange(action.dir2);
+                    int boxCol = agentCol + Action.dirToColChange(action.dir2);
                     // .. and there's a box in "dir2" of the agent
                     if (this.boxAt(boxRow, boxCol)) {
-                        State child = new State(this, this.action);
+                        State child = new State(this, action);
                         for (Agent a : child.getAgents()) { // Only expand for input agent
                             if (a.equals(agent)) {
                                 a.getLocation().setRow(newAgentRow);
-                                a.getLocation().setRow(newAgentCol);
+                                a.getLocation().setCol(newAgentCol);
                             }
                         }
                         for (Box b : child.getBoxes()) {
@@ -161,21 +180,21 @@ public class State{
 
     private boolean cellIsFree(int row, int col) {
 	    boolean boxFree = true;
-	    for (Box b : boxes) {
+	    for (Box b : boxes) { // TODO - optimize
 	        Location boxLoc = b.getLocation();
-	        if (boxLoc.getRow() == row && boxLoc.getCol() == col) // TODO optimize
+	        if (boxLoc.getRow() == row && boxLoc.getCol() == col)
 	            boxFree = false;
         }
         return !walls[row][col] && boxFree;
     }
 
     private boolean boxAt(int row, int col) {
-        for (Box b : boxes) {
+        for (Box b : boxes) { // TODO - optimize
             Location boxLoc = b.getLocation();
             if (boxLoc.getRow() == row && boxLoc.getCol() == col)
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
     public ArrayList<Action> extractPlan() {

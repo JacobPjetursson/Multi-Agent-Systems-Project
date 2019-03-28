@@ -1,6 +1,5 @@
 import action.Action;
 import action.NoOpAction;
-import state.Agent;
 import state.State;
 import task.Task;
 
@@ -8,29 +7,41 @@ import java.util.*;
 
 public class Planner {
 	private Queue<Action> plan;
-    private Agent agent;
+    private int agentId;
 
-    public Planner(Agent agent) {
-        this.agent = agent;
+    public Planner(int agentId) {
+        this.agentId = agentId;
         plan = new LinkedList<>();
     }
 
-    public Action poll() {
+    Action poll() {
     	if (plan.isEmpty()) {
     		return new NoOpAction();
     	}
     	return plan.poll();
     }
 
-    public void clear() {
+    void clear() {
     	plan.clear();
     }
 
-    public void addTask(State state, Task task) {
-    	plan.addAll(getPlan(state, task));
+    void addTask(State state, Task task) {
+        ArrayList<Action> actionList = createPlan(state, task);
+        if (actionList == null)
+            System.err.println("No plan was found");
+        else
+    	    plan.addAll(actionList);
     }
 
-    public ArrayList<Action> getPlan(State initialState, Task task) {
+    public int getSize() {
+        return plan.size();
+    }
+
+    public Queue<Action> getPlan() {
+        return plan;
+    }
+
+    private ArrayList<Action> createPlan(State initialState, Task task) {
         HashSet<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
@@ -39,7 +50,7 @@ public class Planner {
             State state = frontier.poll();
             if (task.isTerminal(state))
                 return state.extractPlan();
-            for (State child : state.getExpandedStates(agent)) {
+            for (State child : state.getExpandedStates(agentId)) {
                 if (!explored.contains(child)) {
                     frontier.add(child);
                     explored.add(child);
@@ -48,12 +59,12 @@ public class Planner {
         }
         return null;
     }
-    
+
+
     private class StateComparator implements Comparator<State> {
-    	
     	Task task;
     	
-    	public StateComparator(Task task) {
+    	StateComparator(Task task) {
 			this.task = task;
 		}
     	
