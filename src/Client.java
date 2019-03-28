@@ -109,6 +109,14 @@ public class Client {
 		// STEP 3 : System.out.println(Solution);
 	}
 	
+	public static String getDomain() {
+		return domain;
+	}
+	
+	public static String getLevel() {
+		return levelName;
+	}
+	
 	private static int getColorCode(String color) {
 		switch (color) {
 		case "blue":
