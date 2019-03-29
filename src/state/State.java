@@ -51,7 +51,7 @@ public class State{
 		this.parent = parent;
 		g++;
 	}
-	
+
 	// Copy
 	private State(State state) {
 		this.agents = copyAgents(state.agents);
@@ -71,6 +71,47 @@ public class State{
 	public List<Box> getBoxes() {
 		return boxes;
 	}
+	
+	public Agent getAgent(Agent agent) {
+		// TODO - optimize
+		return getAgent(agent.getId());
+	}
+
+	public Agent getAgent(int id) {
+		// TODO - optimize
+		for (Agent agent : getAgents()) {
+			if (agent.getId() == id) {
+				return agent;
+			}
+		}
+		return null;
+	}
+
+	public Agent getAgentAt(Location location) {
+		// TODO - optimize
+		for (Agent agent : getAgents()) {
+			if (location.equals(agent.location)) {
+				return agent;
+			}
+		}
+		return null;
+	}
+
+	public Box getBoxAt(Location location) {
+		// TODO - optimize
+		for (Box box : getBoxes()) {
+			if (location.equals(box.location)) {
+				return box;
+			}
+		}
+		return null;
+	}
+	
+	public MovableObject getObjectAt(Location location) {
+		MovableObject object = getAgentAt(location);
+		object = object == null ? getBoxAt(location) : object;
+		return object;
+	}
 
 	private List<Agent> copyAgents(List<Agent> old) {
 		return old.stream().map(x -> new Agent(x)).collect(Collectors.toList());
@@ -79,7 +120,7 @@ public class State{
 	private List<Box> copyBoxes(List<Box> old) {
 		return old.stream().map(x -> new Box(x)).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	protected State clone() {
 		return new State(this);
@@ -114,7 +155,7 @@ public class State{
 		sb.append("\n");
 		return sb.toString();
 	}
-	
+
 	private State expand(Agent agent, Action action) {
 		State state = new State(this, agent, action);
 		// Check if action is applied
@@ -122,68 +163,40 @@ public class State{
 	}
 
 	public boolean applyAction(Agent agent, Action action) {
-		int agentRow = agent.getLocation().getRow();
-		int agentCol = agent.getLocation().getCol();
-
-		// Determine applicability of action
-		Action.Dir direction = action.dir1;
-		int newAgentRow = agentRow + Action.dirToRowChange(direction);
-		int newAgentCol = agentCol + Action.dirToColChange(direction);
-
+		Location agentLocation = agent.getLocation();
 		if (action instanceof MoveAction) {
 			// Check if there's a wall or box on the cell to which the agent is moving
-			if (this.cellIsFree(newAgentRow, newAgentCol)) {
-				for (Agent a : getAgents()) { // Only expand for input agent
-					if (a.equals(agent)) {
-						a.getLocation().setRow(newAgentRow);
-						a.getLocation().setCol(newAgentCol);
-					}
-				}
+			MoveAction moveAction = (MoveAction) action;
+			Location newLocation = agentLocation.move(moveAction.getDirection());
+			if (this.cellIsFree(newLocation)) {
+				getAgent(agent).setLocation(newLocation);
 				return true;
 			}
 		} else if (action instanceof PushAction) {
 			// Make sure that there's actually a box to move
-			if (this.boxAt(newAgentRow, newAgentCol)) {
-				int newBoxRow = newAgentRow + Action.dirToRowChange(action.dir2);
-				int newBoxCol = newAgentCol + Action.dirToColChange(action.dir2);
+			PushAction pushAction = (PushAction) action;
+			Location newAgentLocation = agentLocation.move(pushAction.getAgentDirection());
+			Box box = getBoxAt(newAgentLocation);
+			if (box != null) {
+				Location newBoxLocation = box.getLocation().move(pushAction.getBoxDirection());
 				// .. and that new cell of box is free
-				if (this.cellIsFree(newBoxRow, newBoxCol)) {
-					for (Agent a : getAgents()) { // Only expand for input agent
-						if (a.equals(agent)) {
-							a.getLocation().setRow(newAgentRow);
-							a.getLocation().setCol(newAgentCol);
-						}
-					}
-					for (Box b : getBoxes()) {
-						if (b.location.getRow() == newAgentRow && b.location.getCol() == newAgentCol) {
-							b.location.setRow(newBoxRow);
-							b.location.setCol(newBoxCol);
-						}
-
-					}
+				if (this.cellIsFree(newBoxLocation)) {
+					getAgent(agent).setLocation(newAgentLocation);
+					box.setLocation(newBoxLocation);
 					return true;
 				}
 			}
 		} else if (action instanceof PullAction) {
 			// Cell is free where agent is going
-			if (this.cellIsFree(newAgentRow, newAgentCol)) {
-				int boxRow = agentRow + Action.dirToRowChange(action.dir2);
-				int boxCol = agentCol + Action.dirToColChange(action.dir2);
+			PullAction pullAction = (PullAction) action;
+			Location newAgentLocation = agentLocation.move(pullAction.getAgentDirection());
+			if (this.cellIsFree(newAgentLocation)) {
+				Location boxLocation = agentLocation.move(pullAction.getBoxDirection());
+				Box box = getBoxAt(boxLocation);
 				// .. and there's a box in "dir2" of the agent
-				if (this.boxAt(boxRow, boxCol)) {
-					for (Agent a : getAgents()) { // Only expand for input agent
-						if (a.equals(agent)) {
-							a.getLocation().setRow(newAgentRow);
-							a.getLocation().setCol(newAgentCol);
-						}
-					}
-					for (Box b : getBoxes()) {
-						if (b.location.getRow() == boxRow && b.location.getCol() == boxCol) {
-							b.location.setRow(agent.getLocation().getRow());
-							b.location.setCol(agent.getLocation().getCol());
-						}
-
-					}
+				if (box != null) {
+					getAgent(agent).setLocation(newAgentLocation);
+					box.setLocation(agentLocation);
 					return true;
 				}
 			}
@@ -206,16 +219,6 @@ public class State{
 		return expandedStates;
 	}
 
-	private Agent getAgent(int id) {
-		// TODO - optimize
-		for (Agent agent : getAgents()) {
-			if (agent.getId() == id) {
-				return agent;
-			}
-		}
-		return null;
-	}
-
 	private boolean cellIsFree(int row, int col) {
 		boolean boxFree = true;
 		for (Box b : boxes) { // TODO - optimize
@@ -225,14 +228,9 @@ public class State{
 		}
 		return !walls[row][col] && boxFree;
 	}
-
-	private boolean boxAt(int row, int col) {
-		for (Box b : boxes) { // TODO - optimize
-			Location boxLoc = b.getLocation();
-			if (boxLoc.getRow() == row && boxLoc.getCol() == col)
-				return true;
-		}
-		return false;
+	
+	private boolean cellIsFree(Location location) {
+		return cellIsFree(location.getRow(), location.getCol());
 	}
 
 	public ArrayList<Action> extractPlan() {
@@ -245,7 +243,7 @@ public class State{
 		Collections.reverse(plan);
 		return plan;
 	}
-	
-	
-	
+
+
+
 }

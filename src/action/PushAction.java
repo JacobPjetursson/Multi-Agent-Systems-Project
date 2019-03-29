@@ -1,13 +1,13 @@
 package action;
 
-public class PushAction extends Action {
+public class PushAction extends BoxAction {
 
-    public PushAction(Dir dir1, Dir dir2) {
-        this.dir1 = dir1;
-        this.dir2 = dir2;
-    }
+    protected PushAction(Dir agentDir, Dir boxDir) {
+		super(agentDir, boxDir);
+	}
 
-    public String toString() {
-        return String.format("Push(%s,%s)", dir1, dir2);
+    @Override
+	public String toString() {
+    	return "Push" + super.toString();
     }
 }

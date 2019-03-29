@@ -3,9 +3,6 @@ package action;
 import java.util.ArrayList;
 
 public abstract class Action {
-    public Dir dir1;
-    public Dir dir2;
-
     public enum Dir {
         N, W, E, S
     }
@@ -35,6 +32,7 @@ public abstract class Action {
         EVERY = cmds.toArray(new Action[0]);
     }
 
+    @Override
     public abstract String toString();
 
     @Override

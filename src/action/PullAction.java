@@ -1,13 +1,13 @@
 package action;
 
-public class PullAction extends Action {
+public class PullAction extends BoxAction {
 
-    public PullAction(Dir dir1, Dir dir2) {
-        this.dir1 = dir1;
-        this.dir2 = dir2;
-    }
+    public PullAction(Dir agentDir, Dir boxDir) {
+		super(agentDir, boxDir);
+	}
 
-    public String toString() {
-        return String.format("Pull(%s,%s)", dir1, dir2);
+    @Override
+	public String toString() {
+    	return "Pull" + super.toString();
     }
 }
