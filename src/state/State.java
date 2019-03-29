@@ -24,7 +24,6 @@ public class State{
 	private Action action;
 	private int g;
 
-
 	// Initial state
 	public State(List<Agent> agents, List<Box> boxes) {
 		this.agents = agents;
@@ -43,12 +42,22 @@ public class State{
 	}
 
 	// Intermediate state
-	private State(State parent, Action action) {
-		this.agents = copyAgents(parent.getAgents());
-		this.boxes = copyBoxes(parent.getBoxes());
-		this.action = action;
+	private State(State parent, Agent agent, Action action) {
+		this(parent);
+		this.action = null;
+		if (applyAction(agent, action)) {
+			this.action = action;
+		}
 		this.parent = parent;
 		g++;
+	}
+	
+	// Copy
+	private State(State state) {
+		this.agents = copyAgents(state.agents);
+		this.boxes = copyBoxes(state.boxes);
+		this.action = state.action;
+		this.parent = state.parent;
 	}
 
 	public List<Agent> getAgents() {
@@ -69,6 +78,11 @@ public class State{
 
 	private List<Box> copyBoxes(List<Box> old) {
 		return old.stream().map(x -> new Box(x)).collect(Collectors.toList());
+	}
+	
+	@Override
+	protected State clone() {
+		return new State(this);
 	}
 
 	@Override
@@ -100,8 +114,14 @@ public class State{
 		sb.append("\n");
 		return sb.toString();
 	}
+	
+	private State expand(Agent agent, Action action) {
+		State state = new State(this, agent, action);
+		// Check if action is applied
+		return state.action == null ? null : state;
+	}
 
-	public State applyAction(Agent agent, Action action) {
+	public boolean applyAction(Agent agent, Action action) {
 		int agentRow = agent.getLocation().getRow();
 		int agentCol = agent.getLocation().getCol();
 
@@ -113,14 +133,13 @@ public class State{
 		if (action instanceof MoveAction) {
 			// Check if there's a wall or box on the cell to which the agent is moving
 			if (this.cellIsFree(newAgentRow, newAgentCol)) {
-				State child = new State(this, action);
-				for (Agent a : child.getAgents()) { // Only expand for input agent
+				for (Agent a : getAgents()) { // Only expand for input agent
 					if (a.equals(agent)) {
 						a.getLocation().setRow(newAgentRow);
 						a.getLocation().setCol(newAgentCol);
 					}
 				}
-				return child;
+				return true;
 			}
 		} else if (action instanceof PushAction) {
 			// Make sure that there's actually a box to move
@@ -129,21 +148,20 @@ public class State{
 				int newBoxCol = newAgentCol + Action.dirToColChange(action.dir2);
 				// .. and that new cell of box is free
 				if (this.cellIsFree(newBoxRow, newBoxCol)) {
-					State child = new State(this, action);
-					for (Agent a : child.getAgents()) { // Only expand for input agent
+					for (Agent a : getAgents()) { // Only expand for input agent
 						if (a.equals(agent)) {
 							a.getLocation().setRow(newAgentRow);
 							a.getLocation().setCol(newAgentCol);
 						}
 					}
-					for (Box b : child.getBoxes()) {
+					for (Box b : getBoxes()) {
 						if (b.location.getRow() == newAgentRow && b.location.getCol() == newAgentCol) {
 							b.location.setRow(newBoxRow);
 							b.location.setCol(newBoxCol);
 						}
 
 					}
-					return child;
+					return true;
 				}
 			}
 		} else if (action instanceof PullAction) {
@@ -153,25 +171,24 @@ public class State{
 				int boxCol = agentCol + Action.dirToColChange(action.dir2);
 				// .. and there's a box in "dir2" of the agent
 				if (this.boxAt(boxRow, boxCol)) {
-					State child = new State(this, action);
-					for (Agent a : child.getAgents()) { // Only expand for input agent
+					for (Agent a : getAgents()) { // Only expand for input agent
 						if (a.equals(agent)) {
 							a.getLocation().setRow(newAgentRow);
 							a.getLocation().setCol(newAgentCol);
 						}
 					}
-					for (Box b : child.getBoxes()) {
+					for (Box b : getBoxes()) {
 						if (b.location.getRow() == boxRow && b.location.getCol() == boxCol) {
 							b.location.setRow(agent.getLocation().getRow());
 							b.location.setCol(agent.getLocation().getCol());
 						}
 
 					}
-					return child;
+					return true;
 				}
 			}
 		}
-		return null;
+		return false;
 	}
 
 	public ArrayList<State> getExpandedStates(int agentId) {
@@ -179,11 +196,12 @@ public class State{
 		Agent agent = getAgent(agentId);
 
 		for (Action action : Action.EVERY) {
-			State child = applyAction(agent, action);
+			State child = expand(agent, action);
 			if (child != null) {
 				expandedStates.add(child);
 			}
 		}
+		// TODO - Giver det mening at shuffle? Er ret sikker paa det blev brug i warmup grundet DFS
 		Collections.shuffle(expandedStates, RNG);
 		return expandedStates;
 	}
@@ -227,4 +245,7 @@ public class State{
 		Collections.reverse(plan);
 		return plan;
 	}
+	
+	
+	
 }

@@ -5,7 +5,7 @@ public class Runner {
 	
 	public static final String LEVEL = "MANoConflict.lvl";
 	public static final boolean DEBUG = false;
-	public static final boolean GUI = true;
+	public static final boolean GUI = false;
 	
 	private static final String CURRENT_DIRECTORY;
 	private static final String DEBUG_STRING;

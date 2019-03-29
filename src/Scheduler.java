@@ -99,7 +99,7 @@ public class Scheduler implements Runnable {
 				}
 				else {
 					Planner planner = getPlanner(agent);
-					state = state.applyAction(agent, planner.getLastAction());
+					state.applyAction(agent, planner.getLastAction());
 				}
 	        }
 
