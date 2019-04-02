@@ -1,0 +1,19 @@
+#domain
+hospital
+#levelname
+ClearConflict
+#colors
+red: 0, A, C
+#initial
++++++
++0A +
+++C++
++   +
++++++
+#goal
++++++
++   +
+++ ++
++  A+
++++++
+#end

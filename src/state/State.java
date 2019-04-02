@@ -128,11 +128,21 @@ public class State{
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof State)) return false;
-		State state = (State) o;
-		return Objects.equals(boxes, state.boxes) &&
-				Objects.equals(agents, state.agents);
+		if (o instanceof State) {
+			State state = (State) o;
+			for (int i = 0; i < getBoxes().size(); i++) {
+				if (!getBoxes().get(i).equals(state.getBoxes().get(i))) {
+					return false;
+				}
+			}
+			for (int i = 0; i < getAgents().size(); i++) {
+				if (!getAgents().get(i).equals(state.getAgents().get(i))) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	@Override
