@@ -51,4 +51,10 @@ public class MoveToBoxTask extends Task {
 		return true;
 	}
 
+	@Override
+	public void initializeState(State state) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

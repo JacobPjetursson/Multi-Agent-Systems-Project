@@ -4,8 +4,6 @@ import state.Goal;
 import state.State;
 
 public class NaiveGoalTask extends GoalTask {
-	
-	private Goal goal;
 
 	public NaiveGoalTask(int priority, Goal goal) {
 		super(priority,goal);

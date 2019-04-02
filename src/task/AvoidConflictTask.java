@@ -20,7 +20,7 @@ public class AvoidConflictTask extends Task {
 
 	@Override
 	public boolean isTerminal(State state) {
-		return state.g() > avoidPlan.size()-2; // TODO - probably off-by-one error here
+		return state.g() > avoidPlan.size()-2; // TODO - fix
 	}
 
 	@Override

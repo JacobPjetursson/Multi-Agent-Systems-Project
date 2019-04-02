@@ -48,15 +48,15 @@ public class Planner {
     	return agentId;
     }
 
-    public void addTask(State state, Task task) {
+    public boolean addTask(State state, Task task) {
         List<Action> actionList = createPlan(state, task);
         if (actionList == null) {
             System.err.println("No plan was found");
+            return false;
         }
-        else {
-    	    plan.addAll(actionList);
-    	    tasks.add(task);
-        }
+        plan.addAll(actionList);
+        tasks.add(task);
+        return true;
     }
     
     public Queue<Task> getTasks() {

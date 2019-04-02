@@ -12,8 +12,7 @@ public class GoalTask extends Task {
 	private Goal goal;
 
 	public GoalTask(Goal goal) {
-		super(3);
-		this.goal = goal;
+		this(3, goal);
 	}
 	
 	public GoalTask(int priority, Goal goal) {

@@ -2,6 +2,7 @@ import action.*;
 import state.*;
 import task.AvoidConflictTask;
 import task.GoalTask;
+import task.NaiveGoalTask;
 import task.Task;
 
 import java.io.BufferedReader;
@@ -43,10 +44,9 @@ public class Scheduler implements Runnable {
         }
 
         // Initial tasks
-        for (Agent agent : state.getAgents())
+        for (Agent agent : state.getAgents()) {
             getTask(state, agent);
-
-
+        }
     }
 
     private void getTask(State state, Agent agent) {
@@ -55,7 +55,14 @@ public class Scheduler implements Runnable {
     	if (!tasks.isEmpty()) {
     		Task task = tasks.poll();
     		task.assignAgent(agent);
-    		planner.addTask(state, task);
+    		if (!planner.addTask(state, task)) {
+    			planner.clear();
+    			tasks.add(task);
+    			if (task instanceof GoalTask) {
+    				GoalTask goalTask = (GoalTask) task;
+    				planner.addTask(state, new NaiveGoalTask(2, goalTask.getGoal()));
+    			}
+    		}
     	}
     }
 
