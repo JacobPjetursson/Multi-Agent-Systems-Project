@@ -60,8 +60,8 @@ public class State{
 		this.g = state.g;
 	}
 
-	public Collection<Agent> getAgents() {
-		return agents.values();
+	public List<Agent> getAgents() {
+		return (List<Agent>) agents.values();
 	}
 
 	public List<Goal> getGoals() {

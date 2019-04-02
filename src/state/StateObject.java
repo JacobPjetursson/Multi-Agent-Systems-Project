@@ -17,21 +17,23 @@ public abstract class StateObject {
 		return color;
 	}
 
-	/*
+
 	public boolean isNeighbor(Location loc) {
-        if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() + 1) {
+        if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() + 1)
             return true;
-        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() - 1) {
+        else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() - 1)
             return true;
-        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() + 1) {
+        else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol())
             return true;
-        } else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol()) {
+        else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol())
             return true;
-        } else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol()) {
+        else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol() + 1)
             return true;
-        } else if (location.getRow() == loc.getRow() && location.getCol() == loc.getCol() - 1) {
+        else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol() - 1)
             return true;
-        }
+        else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol() - 1)
+			return true;
+		else return location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol() + 1;
+
 	}
-	*/
 }

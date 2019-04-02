@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Runner {
-
 	public static final String LEVEL = "LEVEL";
 	public static final String DEBUG = "DEBUG";
 	public static final String GUI = "GUI";
