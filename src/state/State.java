@@ -182,7 +182,7 @@ public class State{
 			PushAction pushAction = (PushAction) action;
 			Location newAgentLocation = agentLocation.move(pushAction.getAgentDirection());
 			Box box = getBoxAt(newAgentLocation);
-			if (box != null) {
+			if (box != null && box.getColor() == agent.getColor()) {
 				Location newBoxLocation = box.getLocation().move(pushAction.getBoxDirection());
 				// .. and that new cell of box is free
 				if (this.cellIsFree(newBoxLocation)) {
@@ -199,7 +199,7 @@ public class State{
 				Location boxLocation = agentLocation.move(pullAction.getBoxDirection());
 				Box box = getBoxAt(boxLocation);
 				// .. and there's a box in "dir2" of the agent
-				if (box != null) {
+				if (box != null && box.getColor() == agent.getColor()) {
 					getAgent(agent).setLocation(newAgentLocation);
 					box.setLocation(agentLocation);
 					return true;
