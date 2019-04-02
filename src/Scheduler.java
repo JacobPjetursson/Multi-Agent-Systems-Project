@@ -1,21 +1,11 @@
-import state.Agent;
-import state.Box;
-import state.Goal;
-import state.Location;
-import state.MovableObject;
-import state.State;
+import action.*;
+import state.*;
 import task.GoalTask;
 import task.Task;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-
-import action.*;
+import java.util.*;
 
 public class Scheduler implements Runnable {
     private BufferedReader serverMessages;
@@ -35,6 +25,16 @@ public class Scheduler implements Runnable {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
         	taskMap.put(agent.getColor(), new PriorityQueue<>());
         }
+
+        /* TODO - uncomment when we are ready to split tasks up further
+           TODO - also, instead of taking all boxes, only take those that have been assigned to a goal
+        // Task of getting agent to box
+		for (Box box : state.getBoxes()) {
+        	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
+		}
+        */
+
+        // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
         	taskMap.get(goal.getColor()).add(new GoalTask(goal));
         }
