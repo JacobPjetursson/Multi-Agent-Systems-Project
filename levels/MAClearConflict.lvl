@@ -3,17 +3,18 @@ hospital
 #levelname
 ClearConflict
 #colors
-red: 0, A, C
+red: 0, A
+Pink : 1, B, C
 #initial
-+++++
-+0A +
-++C++
-+   +
-+++++
++++++++++
++0A     +
+++++C++++
++1B     +
++++++++++
 #goal
-+++++
-+   +
-++ ++
-+  A+
-+++++
++++++++++
++      B+
+++++ ++++
++      A+
++++++++++
 #end
