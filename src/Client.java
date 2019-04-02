@@ -20,7 +20,7 @@ public class Client {
 		Map<Character, Integer> colorMap = new HashMap<>();
 		
 		// STEP 1 : First System.out.println(client name);
-		System.out.println("Client name");
+		System.out.println("Bob");
 
 		// STEP 2 : Read level file from server;
 		String response;
@@ -107,6 +107,14 @@ public class Client {
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();
 		// STEP 3 : System.out.println(Solution);
+	}
+	
+	public static String getDomain() {
+		return domain;
+	}
+	
+	public static String getLevel() {
+		return levelName;
 	}
 	
 	private static int getColorCode(String color) {

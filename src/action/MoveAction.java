@@ -1,29 +1,18 @@
 package action;
 
-import state.Agent;
-import state.State;
+public class MoveAction extends Action {
+	private Dir dir;
 
-public class MoveAction extends Action{
-    Agent agent;
-
-    public MoveAction(Dir dir1) {
-
-        this.dir1 = dir1;
+    public MoveAction(Dir dir) {
+        this.dir = dir;
     }
-
-    public Agent getAgent() {
-        return agent;
-    }
-
-    public String toString() {
-        return String.format("Move(%s);", dir1);
-    }
+    
+	public Dir getDirection() {
+		return dir;
+	}
 
     @Override
-    public void apply(State state) {
-        for (Agent a : state.getAgents()) { // TODO - make hashset instead for constant lookup of agents
-            if (a.equals(agent))
-                a.move(dir1);
-        }
+    public String toString() {
+        return String.format("Move(%s)", dir);
     }
 }
