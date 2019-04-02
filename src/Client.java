@@ -53,7 +53,7 @@ public class Client {
 		State.ROWS = rows;
 		State.COLS = cols;
 		State.walls = new boolean[rows][cols];
-		List<Agent> agents = new ArrayList<>();
+		HashMap<Integer, Agent> agents = new HashMap<>();
 		List<Box> boxes = new ArrayList<>();
 		List<Goal> goals = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class Client {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
 					int id = Character.getNumericValue(chr);
-					agents.add(new Agent(position, color, id));
+					agents.put(id, new Agent(position, color, id));
 				}else if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
@@ -98,7 +98,7 @@ public class Client {
 		for (Box box : boxes) {
 			System.err.println(box);
 		}
-		for (Agent agent : agents) {
+		for (Agent agent : agents.values()) {
 			System.err.println(agent);
 		}
 		

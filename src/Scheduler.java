@@ -1,24 +1,14 @@
-import state.Agent;
-import state.Box;
-import state.Goal;
-import state.Location;
-import state.MovableObject;
-import state.State;
+import action.*;
+import state.*;
 import task.AvoidConflictTask;
 import task.GoalTask;
 import task.Task;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import action.*;
 
 public class Scheduler implements Runnable {
     private BufferedReader serverMessages;
@@ -30,7 +20,7 @@ public class Scheduler implements Runnable {
         this.serverMessages = serverMessages;
         // Get initial plan from initial state, queue them to priorityqueue
         state = initialState;
-        
+
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
 
@@ -38,6 +28,16 @@ public class Scheduler implements Runnable {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
         	taskMap.put(agent.getColor(), new PriorityQueue<>());
         }
+
+        /* TODO - uncomment when we are ready to split tasks up further
+           TODO - also, instead of taking all boxes, only take those that have been assigned to a goal
+        // Task of getting agent to box
+		for (Box box : state.getBoxes()) {
+        	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
+		}
+        */
+
+        // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
         	addTask(goal.getColor(), new GoalTask(goal));
         }
@@ -48,7 +48,7 @@ public class Scheduler implements Runnable {
 
 
     }
-    
+
     private void getTask(State state, Agent agent) {
     	PriorityQueue<Task> tasks = taskMap.get(agent.getColor());
     	Planner planner = plannerMap.get(agent.getId());
@@ -58,19 +58,19 @@ public class Scheduler implements Runnable {
     		planner.addTask(state, task);
     	}
     }
-    
+
     private void addTask(Integer color, Task task) {
     	taskMap.get(color).add(task);
     }
-    
+
     private void addTasks(Integer color, Collection<Task> tasks) {
     	taskMap.get(color).addAll(tasks);
     }
-    
+
     private Planner getPlanner(Agent agent) {
     	return plannerMap.get(agent.getId());
     }
-    
+
     private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
     	Set<MovableObject> conflictList = conflictMap.get(location);
 		if (conflictList == null) {
@@ -79,7 +79,7 @@ public class Scheduler implements Runnable {
 		}
 		conflictList.add(object);
     }
-    
+
     private void collectConflicts(Map<Location, Set<MovableObject>> conflictMap, Agent agent, Action action) {
     	Location location = agent.getLocation();
     	if (action instanceof MoveAction) {
@@ -110,7 +110,7 @@ public class Scheduler implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 			boolean done = true;
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
@@ -137,7 +137,7 @@ public class Scheduler implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
 			System.err.println("RESPONSE: " + message);
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
@@ -153,7 +153,7 @@ public class Scheduler implements Runnable {
 					state.applyAction(agent, action);
 				}
 	        }
-			
+
 			// TODO - handle conflicts
 			for (Location location : conflicts.keySet()) {
 				Set<MovableObject> objects = conflicts.get(location);
@@ -162,7 +162,7 @@ public class Scheduler implements Runnable {
 					Agent priorityAgent = (Agent) priority;
 					Planner priorityPlanner = getPlanner(priorityAgent);
 					priorityPlanner.undo();
-					
+
 					Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
 					for (MovableObject object : rest) {
 						if (object instanceof Agent) {
