@@ -49,11 +49,12 @@ public class Planner {
     }
 
     public boolean addTask(State state, Task task) {
-        List<Action> actionList = createPlan(state, task);
-        if (actionList == null) {
+    	State terminalState = createPlan(state, task);
+        if (terminalState == null) {
             System.err.println("No plan was found");
             return false;
         }
+        List<Action> actionList = terminalState.extractActionPlan();
         plan.addAll(actionList);
         tasks.add(task);
         return true;
@@ -71,15 +72,18 @@ public class Planner {
         return plan;
     }
 
-    private List<Action> createPlan(State initialState, Task task) {
+    public State createPlan(State initialState, Task task) {
+    	initialState = initialState.clone();
+    	task.initializeState(initialState);
         Set<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
         explored.add(initialState);
         while (!frontier.isEmpty()) {
             State state = frontier.poll();
-            if (task.isTerminal(state))
-                return state.extractPlan();
+            if (task.isTerminal(state)) {
+                return state;
+            }
             for (State child : state.getExpandedStates(agentId)) {
             	if (task.updateState(child) && !explored.contains(child)) {
             		frontier.add(child);

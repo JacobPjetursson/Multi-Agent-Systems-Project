@@ -2,6 +2,7 @@ import action.*;
 import state.*;
 import task.AvoidConflictTask;
 import task.GoalTask;
+import task.MoveBoxTask;
 import task.NaiveGoalTask;
 import task.Task;
 
@@ -60,7 +61,20 @@ public class Scheduler implements Runnable {
     			tasks.add(task);
     			if (task instanceof GoalTask) {
     				GoalTask goalTask = (GoalTask) task;
-    				planner.addTask(state, new NaiveGoalTask(2, goalTask.getGoal()));
+    				Task naiveTask = new NaiveGoalTask(2, goalTask.getGoal());
+    				naiveTask.assignAgent(agent);
+    				State terminalState = planner.createPlan(state, naiveTask);
+    				List<Location> plan = terminalState.extractLocationPlan(agent);
+    				for (Location location : plan) {
+    					MovableObject object = state.getObjectAt(location);
+    					if (object instanceof Agent) {
+    						// Move agent
+    					}
+    					else if (object instanceof Box) {
+    						Box box = (Box) object;
+    						taskMap.get(box.getColor()).add(new MoveBoxTask(5, box, plan));
+    					}
+    				}
     			}
     		}
     	}

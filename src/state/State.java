@@ -1,6 +1,7 @@
 package state;
 
 import action.Action;
+import action.BoxAction;
 import action.MoveAction;
 import action.PullAction;
 import action.PushAction;
@@ -129,7 +130,7 @@ public class State{
 	}
 
 	@Override
-	protected State clone() {
+	public State clone() {
 		return new State(this);
 	}
 
@@ -242,8 +243,8 @@ public class State{
 		return cellIsFree(location.getRow(), location.getCol());
 	}
 
-	public ArrayList<Action> extractPlan() {
-		ArrayList<Action> plan = new ArrayList<>();
+	public List<Action> extractActionPlan() {
+		List<Action> plan = new ArrayList<>();
 		State n = this;
 		while (n.parent != null) {
 			plan.add(n.action);
@@ -253,6 +254,36 @@ public class State{
 		return plan;
 	}
 
-
+	public List<State> extractStatePlan() {
+		List<State> plan = new ArrayList<>();
+		State n = this;
+		while (n.parent != null) {
+			plan.add(n);
+			n = n.parent;
+		}
+		Collections.reverse(plan);
+		return plan;
+	}
+	
+	public List<Location> extractLocationPlan(Agent agent) {
+		List<Location> plan = new ArrayList<>();
+		State n = this;
+		Location l = agent.getLocation();
+		while (n.parent != null) {
+			Action action = n.action;
+			if (action instanceof BoxAction) {
+				BoxAction boxAction = (BoxAction) action;
+				l = l.move(boxAction.getAgentDirection());
+			}
+			else if (action instanceof MoveAction) {
+				MoveAction moveAction = (MoveAction) action;
+				l = l.move(moveAction.getDirection());
+			}
+			plan.add(l);
+			n = n.parent;
+		}
+		Collections.reverse(plan);
+		return plan;
+	}
 
 }
