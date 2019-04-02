@@ -18,16 +18,6 @@ public class MoveToBoxTask extends Task {
     }
 
     @Override
-    public boolean isDone(State state) {
-        List<Agent> agents = state.getAgents();
-        for(Agent agent : agents) {
-            if (box.getColor() == agent.getColor() && box.isNeighbor(agent.getLocation()))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     public int h(State state) {
 
         int color = box.getColor();
@@ -45,5 +35,20 @@ public class MoveToBoxTask extends Task {
         }
         return best;
     }
+    
+    @Override
+    public boolean isTerminal(State state) {
+    	List<Agent> agents = state.getAgents();
+        for(Agent agent : agents) {
+            if (box.getColor() == agent.getColor() && box.isNeighbor(agent.getLocation()))
+                return true;
+        }
+        return false;
+    }
+
+	@Override
+	public boolean updateState(State state) {
+		return true;
+	}
 
 }

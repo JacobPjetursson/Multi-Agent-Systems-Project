@@ -21,7 +21,7 @@ public class GoalTask extends Task {
 	}
 
 	@Override
-	public boolean isDone(State state) {
+	public boolean isTerminal(State state) {
 		char letter = goal.getLetter();
 		List<Box> boxes = state.getBoxes();
 		for(Box box : boxes) {

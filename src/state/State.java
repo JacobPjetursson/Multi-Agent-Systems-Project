@@ -61,7 +61,7 @@ public class State{
 	}
 
 	public List<Agent> getAgents() {
-		return (List<Agent>) agents.values();
+		return agents.values().stream().collect(Collectors.toList());
 	}
 
 	public List<Goal> getGoals() {

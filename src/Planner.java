@@ -78,7 +78,7 @@ public class Planner {
         explored.add(initialState);
         while (!frontier.isEmpty()) {
             State state = frontier.poll();
-            if (task.isDone(state))
+            if (task.isTerminal(state))
                 return state.extractPlan();
             for (State child : state.getExpandedStates(agentId)) {
             	if (task.updateState(child) && !explored.contains(child)) {
