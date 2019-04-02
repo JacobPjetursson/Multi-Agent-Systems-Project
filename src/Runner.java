@@ -11,7 +11,7 @@ public class Runner {
 	public static final String LEVEL = "LEVEL";
 	public static final String DEBUG = "DEBUG";
 	public static final String GUI = "GUI";
-
+	
 	private static final String CURRENT_DIRECTORY;
 	private static final String DEBUG_STRING;
 	static {
