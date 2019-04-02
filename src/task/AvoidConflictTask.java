@@ -36,4 +36,10 @@ public class AvoidConflictTask extends Task {
 		return state.applyAction(state.getAgent(avoidAgentId), action);
 	}
 
+	@Override
+	public void initializeState(State state) {
+		
+		
+	}
+
 }

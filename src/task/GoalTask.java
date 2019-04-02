@@ -16,6 +16,11 @@ public class GoalTask extends Task {
 		this.goal = goal;
 	}
 	
+	public GoalTask(int priority, Goal goal) {
+		super(priority);
+		this.goal = goal;
+	}
+	
 	public Goal getGoal() {
 		return goal;
 	}
@@ -57,6 +62,11 @@ public class GoalTask extends Task {
 	public boolean updateState(State state) {
 		// The world is assumed to be static
 		return true;
+	}
+
+	@Override
+	public void initializeState(State state) {
+		
 	}
 
 }
