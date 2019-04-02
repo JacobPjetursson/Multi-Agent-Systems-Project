@@ -7,12 +7,14 @@ import java.util.*;
 
 public class Planner {
 	private Queue<Action> plan;
+	private Queue<Task> tasks;
 	private Action lastAction;
     private int agentId;
 
     public Planner(int agentId) {
         this.agentId = agentId;
         plan = new LinkedList<>();
+        tasks = new LinkedList<>();
     }
 
     public Action poll() {
@@ -25,20 +27,40 @@ public class Planner {
     	return lastAction;
     }
     
+    public void undo() {
+    	Queue<Action> plan = new LinkedList<>();
+    	plan.add(this.lastAction);
+    	plan.addAll(this.plan);
+    	this.lastAction = new NoOpAction();
+    	this.plan = plan;
+    }
+    
     public Action getLastAction() {
     	return lastAction;
     }
 
     public void clear() {
     	plan.clear();
+    	tasks.clear();
+    }
+    
+    public int getAgentId() {
+    	return agentId;
     }
 
     public void addTask(State state, Task task) {
-        ArrayList<Action> actionList = createPlan(state, task);
-        if (actionList == null)
+        List<Action> actionList = createPlan(state, task);
+        if (actionList == null) {
             System.err.println("No plan was found");
-        else
+        }
+        else {
     	    plan.addAll(actionList);
+    	    tasks.add(task);
+        }
+    }
+    
+    public Queue<Task> getTasks() {
+    	return new LinkedList<>(tasks);
     }
 
     public int getSize() {
@@ -49,8 +71,8 @@ public class Planner {
         return plan;
     }
 
-    private ArrayList<Action> createPlan(State initialState, Task task) {
-        HashSet<State> explored = new HashSet<>();
+    private List<Action> createPlan(State initialState, Task task) {
+        Set<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
         explored.add(initialState);
@@ -59,10 +81,10 @@ public class Planner {
             if (task.isTerminal(state))
                 return state.extractPlan();
             for (State child : state.getExpandedStates(agentId)) {
-                if (!explored.contains(child)) {
-                    frontier.add(child);
-                    explored.add(child);
-                }
+            	if (task.updateState(child) && !explored.contains(child)) {
+            		frontier.add(child);
+            		explored.add(child);
+            	}
             }
         }
         return null;

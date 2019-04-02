@@ -4,8 +4,8 @@ import java.io.IOException;
 public class Runner {
 	
 	public static final String LEVEL = "MASimpleConflict.lvl";
-	public static final boolean DEBUG = true;
-	public static final boolean GUI = false;
+	public static final boolean DEBUG = false;
+	public static final boolean GUI = true;
 	
 	private static final String CURRENT_DIRECTORY;
 	private static final String DEBUG_STRING;
