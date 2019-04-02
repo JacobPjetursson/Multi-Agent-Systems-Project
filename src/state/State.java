@@ -64,6 +64,13 @@ public class State{
 	public List<Agent> getAgents() {
 		return agents;
 	}
+	
+	public void removeObjectsExecpt(Agent agent, Box box) {
+		agents = new ArrayList<>();
+		agents.add(agent);
+		boxes = new ArrayList<>();
+		boxes.add(box);
+	}
 
 	public List<Goal> getGoals() {
 		return goals;

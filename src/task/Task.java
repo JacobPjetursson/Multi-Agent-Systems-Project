@@ -31,4 +31,5 @@ public abstract class Task implements Comparable<Task> {
 	public abstract boolean isTerminal(State state);
 	public abstract int h(State state);
 	public abstract boolean updateState(State state);
+	public abstract void initializeState(State state);
 }
