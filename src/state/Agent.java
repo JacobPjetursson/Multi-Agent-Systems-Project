@@ -29,7 +29,7 @@ public class Agent extends MovableObject {
 	public boolean equals(Object obj) {
 		if (obj instanceof Agent) {
 			Agent agent = (Agent) obj;
-			return this.getId() == agent.getId();
+			return this.getId() == agent.getId() && this.getLocation().equals(agent.getLocation());
 		}
 		return false;
 	}
