@@ -3,6 +3,7 @@ import java.io.IOException;
 
 public class Runner {
 
+
 	public static final String LEVEL = "MASimpleConflict.lvl";
 	public static final boolean DEBUG = false;
 	public static final boolean GUI = true;
