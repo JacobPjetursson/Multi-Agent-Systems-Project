@@ -13,19 +13,18 @@ public class State{
 	public static final Map<Location, DistanceMap> DISTANCE_MAPS = new HashMap<>();
 	public static int ROWS;
 	public static int COLS;
-	private static final Random RNG = new Random(1);
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
 
 	private List<Box> boxes;
-	private List<Agent> agents;
+	private HashMap<Integer, Agent> agents;
 	private State parent;
 	private Action action;
 	private int g;
 
 	// Initial state
-	public State(List<Agent> agents, List<Box> boxes) {
+	public State(HashMap<Integer, Agent> agents, List<Box> boxes) {
 		this.agents = agents;
 		this.boxes = boxes;
 		this.parent = null;
@@ -61,8 +60,8 @@ public class State{
 		this.g = state.g;
 	}
 
-	public List<Agent> getAgents() {
-		return agents;
+	public Collection<Agent> getAgents() {
+		return agents.values();
 	}
 
 	public List<Goal> getGoals() {
@@ -74,23 +73,15 @@ public class State{
 	}
 	
 	public Agent getAgent(Agent agent) {
-		// TODO - optimize
-		return getAgent(agent.getId());
+		return agents.get(agent.getId());
 	}
 
 	public Agent getAgent(int id) {
-		// TODO - optimize
-		for (Agent agent : getAgents()) {
-			if (agent.getId() == id) {
-				return agent;
-			}
-		}
-		return null;
+		return agents.get(id);
 	}
 
 	public Agent getAgentAt(Location location) {
-		// TODO - optimize
-		for (Agent agent : getAgents()) {
+		for (Agent agent : agents.values()) {
 			if (location.equals(agent.location)) {
 				return agent;
 			}
@@ -99,7 +90,6 @@ public class State{
 	}
 
 	public Box getBoxAt(Location location) {
-		// TODO - optimize
 		for (Box box : getBoxes()) {
 			if (location.equals(box.location)) {
 				return box;
@@ -114,8 +104,12 @@ public class State{
 		return object;
 	}
 
-	private List<Agent> copyAgents(List<Agent> old) {
-		return old.stream().map(x -> new Agent(x)).collect(Collectors.toList());
+	private HashMap<Integer, Agent> copyAgents(HashMap<Integer, Agent> old) {
+	    HashMap<Integer, Agent> copy = new HashMap<>();
+		for (Agent a : old.values())
+		    copy.put(a.getId(), new Agent(a));
+
+        return copy;
 	}
 
 	private List<Box> copyBoxes(List<Box> old) {
@@ -155,7 +149,7 @@ public class State{
 		for (Box b : boxes)
 			sb.append("(").append(b.toString()).append("), ");
 		sb.append("\nAgents: ");
-		for (Agent a : agents)
+		for (Agent a : agents.values())
 			sb.append("(").append(a.toString()).append("), ");
 		sb.append("\n");
 		return sb.toString();
@@ -219,8 +213,6 @@ public class State{
 				expandedStates.add(child);
 			}
 		}
-		// TODO - Giver det mening at shuffle? Er ret sikker paa det blev brug i warmup grundet DFS
-		Collections.shuffle(expandedStates, RNG);
 		return expandedStates;
 	}
 
