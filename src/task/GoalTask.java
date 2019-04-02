@@ -52,5 +52,11 @@ public class GoalTask extends Task {
 		}
 		return best;
 	}
+	
+	@Override
+	public boolean updateState(State state) {
+		// The world is assumed to be static
+		return true;
+	}
 
 }

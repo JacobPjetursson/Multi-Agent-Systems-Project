@@ -58,6 +58,7 @@ public class State{
 		this.boxes = copyBoxes(state.boxes);
 		this.action = state.action;
 		this.parent = state.parent;
+		this.g = state.g;
 	}
 
 	public List<Agent> getAgents() {
@@ -142,6 +143,10 @@ public class State{
 
 	public int f(Task task) {
 		return g + task.h(this);
+	}
+	
+	public int g() {
+		return g;
 	}
 
 	public String toString() {
