@@ -65,11 +65,17 @@ public class State{
 		return agents;
 	}
 	
-	public void removeObjectsExecpt(Agent agent, Box box) {
+	public void removeObjectsExecpt(Agent agent, int color) {
 		agents = new ArrayList<>();
 		agents.add(agent);
-		boxes = new ArrayList<>();
-		boxes.add(box);
+		List<Box> newBoxes = new ArrayList<>();
+		for(int i = 0; i < boxes.size(); i++) {
+			Box b = boxes.get(i);
+			if(b.getColor() == color) {
+				newBoxes.add(b);
+			}
+		}
+		boxes = newBoxes;
 	}
 
 	public List<Goal> getGoals() {
