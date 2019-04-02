@@ -1,4 +1,4 @@
 *.iml
 /bin/
 /out/
-/bin/runner.conf
+/lib/runner.conf
