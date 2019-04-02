@@ -64,9 +64,9 @@ public class State{
 		return agents.values().stream().collect(Collectors.toList());
 	}
 	
-	public void removeObjectsExecpt(Agent agent, Box box) {
-		agents = new ArrayList<>();
-		agents.add(agent);
+	public void removeObjectsExcept(Agent agent, Box box) {
+		agents = new HashMap<>();
+		agents.put(agent.getId(), agent);
 		boxes = new ArrayList<>();
 		boxes.add(box);
 	}
@@ -115,7 +115,6 @@ public class State{
 	    HashMap<Integer, Agent> copy = new HashMap<>();
 		for (Agent a : old.values())
 		    copy.put(a.getId(), new Agent(a));
-
         return copy;
 	}
 

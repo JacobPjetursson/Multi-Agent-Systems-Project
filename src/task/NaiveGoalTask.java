@@ -28,7 +28,7 @@ public class NaiveGoalTask extends GoalTask {
 
 	@Override
 	public void initializeState(State state) {
-		state.removeObjectsExecpt(getAgent(), getAgent().getColor());
+		state.removeObjectsExcept(getAgent(), getAgent().getColor());
 
 	}
 
