@@ -64,11 +64,17 @@ public class State{
 		return agents.values().stream().collect(Collectors.toList());
 	}
 	
-	public void removeObjectsExcept(Agent agent, Box box) {
+	public void removeObjectsExcept(Agent agent, int color) {
 		agents = new HashMap<>();
 		agents.put(agent.getId(), agent);
-		boxes = new ArrayList<>();
-		boxes.add(box);
+		List<Box> newBoxes = new ArrayList<>();
+		for(int i = 0; i < boxes.size(); i++) {
+			Box b = boxes.get(i);
+			if(b.getColor() == color) {
+				newBoxes.add(b);
+			}
+		}
+		boxes = newBoxes;
 	}
 
 	public List<Goal> getGoals() {
