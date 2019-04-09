@@ -284,6 +284,7 @@ public class State{
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;
 				l = l.move(boxAction.getAgentDirection());
+				plan.add(l.move(boxAction.getBoxDirection()));
 			}
 			else if (action instanceof MoveAction) {
 				MoveAction moveAction = (MoveAction) action;

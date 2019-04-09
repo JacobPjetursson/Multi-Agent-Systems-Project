@@ -2,6 +2,7 @@ import action.*;
 import state.*;
 import task.AvoidConflictTask;
 import task.GoalTask;
+import task.MoveAgentTask;
 import task.MoveBoxTask;
 import task.NaiveGoalTask;
 import task.ResolveTask;
@@ -101,12 +102,18 @@ public class Scheduler implements Runnable {
     				for (Location location : plan) {
     					MovableObject object = state.getObjectAt(location);
     					if (object instanceof Agent) {
-    						// Move agent
+    						Agent agnt = (Agent) object;
+    						if(agnt.getId() != agent.getId()) {
+    							taskMap.get(agnt.getColor()).add(new MoveAgentTask(4, task, agnt, plan));
+        						lock++;
+    						}
     					}
     					else if (object instanceof Box) {
     						Box box = (Box) object;
-    						taskMap.get(box.getColor()).add(new MoveBoxTask(5, task, box, plan));
-    						lock++;
+    						if(box.getColor() != agent.getColor()) {
+    							taskMap.get(box.getColor()).add(new MoveBoxTask(5, task, box, plan));
+        						lock++;
+    						}
     					}
     				}
     				lockTask(task, lock);
@@ -165,7 +172,7 @@ public class Scheduler implements Runnable {
 		boolean solved = false;
 		while (!solved) {
 			try { // TODO - Remove at release build
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -176,6 +183,7 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action a = planner.poll();
 				if (a.toString().equals(NoOpAction.COMMAND)) {
+					getTask(state, agent);
 					Queue<Task> tasks = planner.getTasks();
 					while (!tasks.isEmpty()) {
 						Task completedTask = tasks.poll();
@@ -184,8 +192,10 @@ public class Scheduler implements Runnable {
 							unlockTask(task.getTaskToResolve());
 						}
 					}
-					getTask(state, agent);
 					a = planner.poll();
+					if (!a.toString().equals(NoOpAction.COMMAND)) {
+						done = false;
+					}
 				}
 				else {
 					done = false;
