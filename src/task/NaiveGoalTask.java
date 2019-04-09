@@ -26,8 +26,8 @@ public class NaiveGoalTask extends GoalTask {
 
 	@Override
 	public void initializeState(State state) {
+		// TODO - Remove all except specific box
 		state.removeObjectsExcept(getAgent(), getAgent().getColor());
-
 	}
 
 }
