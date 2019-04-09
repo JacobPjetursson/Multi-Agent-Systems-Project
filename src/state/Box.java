@@ -5,15 +5,17 @@ import java.util.Objects;
 public class Box extends MovableObject {
 	
 	private char letter;
+	private int id;
 
-	public Box(Location location, int color, char letter) {
+	public Box(int id, int color, char letter, Location location) {
 		super(location, color);
 		this.letter = letter;
+		this.id = id;
 	}
 
 	Box(Box duplicate) {
-	    super(new Location(duplicate.getLocation()), duplicate.getColor());
-	    this.letter = duplicate.getLetter();
+		this(duplicate.getId(), duplicate.getColor(), 
+				duplicate.getLetter(), duplicate.getLocation());
     }
 
     @Override
@@ -32,6 +34,10 @@ public class Box extends MovableObject {
     public char getLetter() {
 		return letter;
 	}
+    
+    public int getId() {
+    	return id;
+    }
 	
 	@Override
 	public String toString() {

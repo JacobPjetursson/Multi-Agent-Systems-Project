@@ -18,14 +18,14 @@ public class State{
 	public static boolean[][] walls;
 	public static List<Goal> goals;
 
-	private List<Box> boxes;
-	private HashMap<Integer, Agent> agents;
+	private Map<Integer, Agent> agents;
+	private Map<Integer, Box> boxes;
 	private State parent;
 	private Action action;
 	private int g;
 
 	// Initial state
-	public State(HashMap<Integer, Agent> agents, List<Box> boxes) {
+	public State(Map<Integer, Agent> agents, Map<Integer, Box> boxes) {
 		this.agents = agents;
 		this.boxes = boxes;
 		this.parent = null;
@@ -64,15 +64,18 @@ public class State{
 	public List<Agent> getAgents() {
 		return agents.values().stream().collect(Collectors.toList());
 	}
-	
+
+	public List<Box> getBoxes() {
+		return boxes.values().stream().collect(Collectors.toList());
+	}
+
 	public void removeObjectsExcept(Agent agent, int color) {
 		agents = new HashMap<>();
 		agents.put(agent.getId(), agent);
-		List<Box> newBoxes = new ArrayList<>();
-		for(int i = 0; i < boxes.size(); i++) {
-			Box b = boxes.get(i);
-			if(b.getColor() == color) {
-				newBoxes.add(b);
+		Map<Integer, Box> newBoxes = new HashMap<>();
+		for(Box b : getBoxes()) {
+			if (b.getColor() == color) {
+				newBoxes.put(b.getId(), b);
 			}
 		}
 		boxes = newBoxes;
@@ -82,20 +85,24 @@ public class State{
 		return goals;
 	}
 
-	public List<Box> getBoxes() {
-		return boxes;
-	}
-	
 	public Agent getAgent(Agent agent) {
-		return agents.get(agent.getId());
+		return getAgent(agent.getId());
 	}
 
 	public Agent getAgent(int id) {
 		return agents.get(id);
 	}
 
+	public Box getBox(Box box) {
+		return getBox(box.getId());
+	}
+
+	public Box getBox(int id) {
+		return boxes.get(id);
+	}
+
 	public Agent getAgentAt(Location location) {
-		for (Agent agent : agents.values()) {
+		for (Agent agent : getAgents()) {
 			if (location.equals(agent.location)) {
 				return agent;
 			}
@@ -111,22 +118,26 @@ public class State{
 		}
 		return null;
 	}
-	
+
 	public MovableObject getObjectAt(Location location) {
 		MovableObject object = getAgentAt(location);
 		object = object == null ? getBoxAt(location) : object;
 		return object;
 	}
 
-	private HashMap<Integer, Agent> copyAgents(HashMap<Integer, Agent> old) {
-	    HashMap<Integer, Agent> copy = new HashMap<>();
+	private Map<Integer, Agent> copyAgents(Map<Integer, Agent> old) {
+		HashMap<Integer, Agent> copy = new HashMap<>();
 		for (Agent a : old.values())
-		    copy.put(a.getId(), new Agent(a));
-        return copy;
+			copy.put(a.getId(), new Agent(a));
+		return copy;
 	}
 
-	private List<Box> copyBoxes(List<Box> old) {
-		return old.stream().map(x -> new Box(x)).collect(Collectors.toList());
+	private Map<Integer, Box> copyBoxes(Map<Integer, Box> old) {
+		HashMap<Integer, Box> copy = new HashMap<>();
+		for (Box b : old.values()) {
+			copy.put(b.getId(), new Box(b));
+		}
+		return copy;
 	}
 
 	@Override
@@ -151,7 +162,7 @@ public class State{
 	public int f(Task task) {
 		return g + task.h(this);
 	}
-	
+
 	public int g() {
 		return g;
 	}
@@ -159,10 +170,10 @@ public class State{
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Boxes: ");
-		for (Box b : boxes)
+		for (Box b : getBoxes())
 			sb.append("(").append(b.toString()).append("), ");
 		sb.append("\nAgents: ");
-		for (Agent a : agents.values())
+		for (Agent a : getAgents())
 			sb.append("(").append(a.toString()).append("), ");
 		sb.append("\n");
 		return sb.toString();
@@ -231,14 +242,14 @@ public class State{
 
 	private boolean cellIsFree(int row, int col) {
 		boolean boxFree = true;
-		for (Box b : boxes) { // TODO - optimize
+		for (Box b : getBoxes()) { // TODO - optimize
 			Location boxLoc = b.getLocation();
 			if (boxLoc.getRow() == row && boxLoc.getCol() == col)
 				boxFree = false;
 		}
 		return !walls[row][col] && boxFree;
 	}
-	
+
 	private boolean cellIsFree(Location location) {
 		return cellIsFree(location.getRow(), location.getCol());
 	}
@@ -264,13 +275,12 @@ public class State{
 		Collections.reverse(plan);
 		return plan;
 	}
-	
+
 	public List<Location> extractLocationPlan(Agent agent) {
 		List<Location> plan = new ArrayList<>();
-		State n = this;
 		Location l = agent.getLocation();
-		while (n.parent != null) {
-			Action action = n.action;
+		List<Action> actions = extractActionPlan();
+		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;
 				l = l.move(boxAction.getAgentDirection());
@@ -280,9 +290,7 @@ public class State{
 				l = l.move(moveAction.getDirection());
 			}
 			plan.add(l);
-			n = n.parent;
 		}
-		Collections.reverse(plan);
 		return plan;
 	}
 

@@ -1,27 +1,28 @@
 package task;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import state.Box;
 import state.DistanceMap;
 import state.Location;
 import state.State;
 
-public class MoveBoxTask extends Task {
+public class MoveBoxTask extends ResolveTask {
 	
-	private Collection<Location> path;
+	private Set<Location> path;
 	private Box box;
 
-	public MoveBoxTask(int priority, Box box, Collection<Location> path) {
-		super(priority);
+	public MoveBoxTask(int priority, Task taskToResolve, Box box, Collection<Location> path) {
+		super(priority, taskToResolve);
 		this.box = box;
-		this.path = path;
+		this.path = new HashSet<>(path);
 	}
 
 	@Override
 	public boolean isTerminal(State state) {
-		//return !path.contains(state.getBox(box)); // TODO - boxes should have id?
-		return true;
+		return !path.contains(state.getBox(box).getLocation());
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import task.AvoidConflictTask;
 import task.GoalTask;
 import task.MoveBoxTask;
 import task.NaiveGoalTask;
+import task.ResolveTask;
 import task.Task;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ public class Scheduler implements Runnable {
     private State state;
     private Map<Integer, PriorityQueue<Task>> taskMap;
     private Map<Integer, Planner> plannerMap;
+    private Map<Task, Integer> taskLockMap;
 
     public Scheduler(State initialState, BufferedReader serverMessages) {
         this.serverMessages = serverMessages;
@@ -25,6 +27,7 @@ public class Scheduler implements Runnable {
 
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
+        taskLockMap = new HashMap<>();
 
         for (Agent agent : state.getAgents()) {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
@@ -49,6 +52,36 @@ public class Scheduler implements Runnable {
             getTask(state, agent);
         }
     }
+    
+    private void lockTask(Task task, int lock) {
+    	taskLockMap.put(task, lock);
+    }
+    
+    private int unlockTask(Task task) {
+    	Integer lock = taskLockMap.get(task);
+    	if (lock != null) {
+    		int val = lock - 1;
+    		if (val <= 0) {
+    			taskLockMap.remove(task);
+    			taskMap.get(task.getAgent().getColor()).add(task);
+    		}
+    		else {
+    			taskLockMap.put(task, val);
+    		}
+    		return val;
+    	}
+    	return -1;
+    }
+    
+    private boolean allTasksCompleted() {
+    	for (Integer color : taskMap.keySet()) {
+    		Collection<Task> tasks = taskMap.get(color);
+    		if (!tasks.isEmpty()) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 
     private void getTask(State state, Agent agent) {
     	PriorityQueue<Task> tasks = taskMap.get(agent.getColor());
@@ -58,7 +91,7 @@ public class Scheduler implements Runnable {
     		task.assignAgent(agent);
     		if (!planner.addTask(state, task)) {
     			planner.clear();
-    			tasks.add(task);
+    			int lock = 0;
     			if (task instanceof GoalTask) {
     				GoalTask goalTask = (GoalTask) task;
     				Task naiveTask = new NaiveGoalTask(2, goalTask.getGoal());
@@ -72,9 +105,14 @@ public class Scheduler implements Runnable {
     					}
     					else if (object instanceof Box) {
     						Box box = (Box) object;
-    						taskMap.get(box.getColor()).add(new MoveBoxTask(5, box, plan));
+    						taskMap.get(box.getColor()).add(new MoveBoxTask(5, task, box, plan));
+    						lock++;
     					}
     				}
+    				lockTask(task, lock);
+    			}
+    			if (!taskLockMap.containsKey(task)) {
+    				tasks.add(task);
     			}
     		}
     	}
@@ -138,6 +176,14 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action a = planner.poll();
 				if (a.toString().equals(NoOpAction.COMMAND)) {
+					Queue<Task> tasks = planner.getTasks();
+					while (!tasks.isEmpty()) {
+						Task completedTask = tasks.poll();
+						if (completedTask instanceof ResolveTask) {
+							ResolveTask task = (ResolveTask) completedTask;
+							unlockTask(task.getTaskToResolve());
+						}
+					}
 					getTask(state, agent);
 					a = planner.poll();
 				}
@@ -146,7 +192,7 @@ public class Scheduler implements Runnable {
 				}
 				cmd += a.toString() + ";";
 	        }
-			solved = done;
+			solved = done && allTasksCompleted();
             cmd = cmd.substring(0, cmd.length()-1);
             System.out.println(cmd);
             System.err.println(cmd);

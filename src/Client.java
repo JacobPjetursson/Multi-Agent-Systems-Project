@@ -53,8 +53,9 @@ public class Client {
 		State.ROWS = rows;
 		State.COLS = cols;
 		State.walls = new boolean[rows][cols];
-		HashMap<Integer, Agent> agents = new HashMap<>();
-		List<Box> boxes = new ArrayList<>();
+		Map<Integer, Agent> agents = new HashMap<>();
+		Map<Integer, Box> boxes = new HashMap<>();
+		int boxId = 1;
 		List<Goal> goals = new ArrayList<>();
 
 		for(int row = 0; row < rows; row++) {
@@ -71,7 +72,8 @@ public class Client {
 				}else if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					boxes.add(new Box(position, color, chr));
+					boxes.put(boxId, new Box(boxId, color, chr, position));
+					boxId++;
 				}
 			}
 		}
@@ -95,7 +97,7 @@ public class Client {
 		for (Goal goal : goals) {
 			System.err.println(goal);
 		}
-		for (Box box : boxes) {
+		for (Box box : boxes.values()) {
 			System.err.println(box);
 		}
 		for (Agent agent : agents.values()) {
