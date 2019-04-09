@@ -23,6 +23,7 @@ public class State{
 	private State parent;
 	private Action action;
 	private int g;
+	private Set<Location> fakeWalls;
 
 	// Initial state
 	public State(Map<Integer, Agent> agents, Map<Integer, Box> boxes) {
@@ -30,6 +31,7 @@ public class State{
 		this.boxes = boxes;
 		this.parent = null;
 		this.action = null;
+		this.fakeWalls = new HashSet<>();
 		g = 0;
 
 		// Preprocess distance maps
@@ -58,6 +60,7 @@ public class State{
 		this.boxes = copyBoxes(state.boxes);
 		this.action = state.action;
 		this.parent = state.parent;
+		this.fakeWalls = copyFakeWalls(state.fakeWalls);
 		this.g = state.g;
 	}
 
@@ -139,6 +142,25 @@ public class State{
 		}
 		return copy;
 	}
+	
+	private Set<Location> copyFakeWalls(Set<Location> old) {
+		Set<Location> copy = new HashSet<>();
+		for (Location l : old) {
+			copy.add(l);
+		}
+		return copy;
+	}
+	
+	public void setFakeWalls() {
+		for(Box box : getBoxes()) {
+			fakeWalls.add(box.location);
+		}
+	}
+	
+	public void setFakeWalls(Box box) {
+		setFakeWalls();
+		fakeWalls.remove(box.location);
+	}
 
 	@Override
 	public State clone() {
@@ -203,7 +225,7 @@ public class State{
 			if (box != null && box.getColor() == agent.getColor()) {
 				Location newBoxLocation = box.getLocation().move(pushAction.getBoxDirection());
 				// .. and that new cell of box is free
-				if (this.cellIsFree(newBoxLocation)) {
+				if (this.cellIsFree(newBoxLocation) && !fakeWalls.contains(newAgentLocation)) {
 					getAgent(agent).setLocation(newAgentLocation);
 					box.setLocation(newBoxLocation);
 					return true;
@@ -217,7 +239,7 @@ public class State{
 				Location boxLocation = agentLocation.move(pullAction.getBoxDirection());
 				Box box = getBoxAt(boxLocation);
 				// .. and there's a box in "dir2" of the agent
-				if (box != null && box.getColor() == agent.getColor()) {
+				if (box != null && box.getColor() == agent.getColor() && !fakeWalls.contains(boxLocation)) {
 					getAgent(agent).setLocation(newAgentLocation);
 					box.setLocation(agentLocation);
 					return true;
@@ -280,19 +302,21 @@ public class State{
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
 		List<Action> actions = extractActionPlan();
+		Set<Location> planSet = new HashSet<>();
 		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;
 				l = l.move(boxAction.getAgentDirection());
-				plan.add(l.move(boxAction.getBoxDirection()));
+				planSet.add(l.move(boxAction.getBoxDirection()));
 			}
 			else if (action instanceof MoveAction) {
 				MoveAction moveAction = (MoveAction) action;
 				l = l.move(moveAction.getDirection());
 			}
-			plan.add(l);
+			planSet.add(l);
+			
 		}
-		return plan;
+		return new ArrayList<>(planSet);
 	}
 
 }

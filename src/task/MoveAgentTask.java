@@ -19,6 +19,7 @@ public class MoveAgentTask extends ResolveTask {
 		super(priority, taskToResolve);
 		this.agent = agent;
 		this.path = new HashSet<>(path);
+		System.err.println(this.path);
 	}
 
 	@Override
@@ -28,9 +29,13 @@ public class MoveAgentTask extends ResolveTask {
 
 	@Override
 	public int h(State state) {
-		//Box box = state.getBox(box);
-		DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
-		return dm.distance(getAgent().getLocation());
+		int h = 0;
+		for(Box b : state.getBoxes()) {
+			if(path.contains(b.getLocation())) {
+				h+=10;
+			}
+		}
+		return h;
 	}
 
 	@Override
@@ -39,6 +44,9 @@ public class MoveAgentTask extends ResolveTask {
 	}
 
 	@Override
-	public void initializeState(State state) {}
+	public void initializeState(State state) {
+		//TODO : Possible make another MoveAgent that uses this, to ensure it does not fuck with boxes when moving
+		//state.setFakeWalls();
+	}
 
 }

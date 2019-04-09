@@ -27,9 +27,14 @@ public class MoveBoxTask extends ResolveTask {
 
 	@Override
 	public int h(State state) {
-		//Box box = state.getBox(box);
+		int h = 0;
 		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-		return dm.distance(getAgent().getLocation());
+		for(Box b : state.getBoxes()) {
+			if(path.contains(b.getLocation())) {
+				h+=10;
+			}
+		}
+		return h+dm.distance(getAgent().getLocation());
 	}
 
 	@Override
@@ -38,6 +43,8 @@ public class MoveBoxTask extends ResolveTask {
 	}
 
 	@Override
-	public void initializeState(State state) {}
+	public void initializeState(State state) {
+		//state.setFakeWalls(box);
+	}
 
 }

@@ -104,7 +104,7 @@ public class Scheduler implements Runnable {
     					if (object instanceof Agent) {
     						Agent agnt = (Agent) object;
     						if(agnt.getId() != agent.getId()) {
-    							taskMap.get(agnt.getColor()).add(new MoveAgentTask(4, task, agnt, plan));
+    							taskMap.get(agnt.getColor()).add(new MoveAgentTask(20, task, agnt, plan));
         						lock++;
     						}
     					}
@@ -117,6 +117,8 @@ public class Scheduler implements Runnable {
     					}
     				}
     				lockTask(task, lock);
+    			} else if(task instanceof ResolveTask) {
+    				//TODO : This
     			}
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
@@ -230,6 +232,7 @@ public class Scheduler implements Runnable {
 					state.applyAction(agent, action);
 				}
 	        }
+			
 
 			// TODO - handle conflicts
 			for (Location location : conflicts.keySet()) {
