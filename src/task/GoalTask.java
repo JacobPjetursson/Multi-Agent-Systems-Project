@@ -67,5 +67,16 @@ public class GoalTask extends Task {
 	public void initializeState(State state) {
 		
 	}
+	
+	@Override 
+	public boolean equals(Object o) {
+		if (o instanceof GoalTask) {
+			GoalTask task = (GoalTask) o;
+			if(task.goal == this.goal) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 }

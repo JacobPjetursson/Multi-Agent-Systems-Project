@@ -19,7 +19,6 @@ public class MoveAgentTask extends ResolveTask {
 		super(priority, taskToResolve);
 		this.agent = agent;
 		this.path = new HashSet<>(path);
-		System.err.println(this.path);
 	}
 
 	@Override
@@ -32,6 +31,7 @@ public class MoveAgentTask extends ResolveTask {
 		int h = 0;
 		for(Box b : state.getBoxes()) {
 			if(path.contains(b.getLocation())) {
+				//TODO : 10 chosen randomly maybe not always working
 				h+=10;
 			}
 		}

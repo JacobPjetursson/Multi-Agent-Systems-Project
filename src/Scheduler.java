@@ -174,7 +174,7 @@ public class Scheduler implements Runnable {
 		boolean solved = false;
 		while (!solved) {
 			try { // TODO - Remove at release build
-				Thread.sleep(100);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -185,6 +185,7 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action a = planner.poll();
 				if (a.toString().equals(NoOpAction.COMMAND)) {
+					//Moved getTask up, dont know if it messes with stuff
 					getTask(state, agent);
 					Queue<Task> tasks = planner.getTasks();
 					while (!tasks.isEmpty()) {
@@ -192,8 +193,11 @@ public class Scheduler implements Runnable {
 						if (completedTask instanceof ResolveTask) {
 							ResolveTask task = (ResolveTask) completedTask;
 							unlockTask(task.getTaskToResolve());
+							
 						}
 					}
+					
+					//getTask was here before but stopped working
 					a = planner.poll();
 					if (!a.toString().equals(NoOpAction.COMMAND)) {
 						done = false;
@@ -230,6 +234,20 @@ public class Scheduler implements Runnable {
 				}
 				else {
 					state.applyAction(agent, action);
+					// TODO : If box moved away from goal add goalTask again, but does this many times right now
+					/*for (Goal goal : state.getGoals()) {
+						if(goal.getColor() != agent.getColor()) {
+							continue;
+						}
+						GoalTask gt = new GoalTask(goal);
+						if((state.getBoxAt(goal.getLocation()) == null 
+								|| state.getBoxAt(goal.getLocation()).getLetter() != goal.getLetter() )
+								&& !(gt.isTerminal(state))
+								&& !(taskMap.get(goal.getColor()).contains(gt))) {
+							addTask(goal.getColor(), gt);
+						}
+			        	
+			        }*/
 				}
 	        }
 			
