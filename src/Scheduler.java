@@ -173,12 +173,6 @@ public class Scheduler implements Runnable {
 	public void run() {
 		boolean solved = false;
 		while (!solved) {
-			try { // TODO - Remove at release build
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
 			boolean done = true;
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
