@@ -263,13 +263,14 @@ public class State{
 	}
 
 	private boolean cellIsFree(int row, int col) {
-		boolean boxFree = true;
+		boolean free = true;
+		// TODO - Why is this not looking at other agents?
 		for (Box b : getBoxes()) { // TODO - optimize
 			Location boxLoc = b.getLocation();
 			if (boxLoc.getRow() == row && boxLoc.getCol() == col)
-				boxFree = false;
+				free = false;
 		}
-		return !walls[row][col] && boxFree;
+		return !walls[row][col] && free;
 	}
 
 	private boolean cellIsFree(Location location) {
@@ -314,9 +315,9 @@ public class State{
 				l = l.move(moveAction.getDirection());
 			}
 			planSet.add(l);
-			
+			plan.add(l);
 		}
-		return new ArrayList<>(planSet);
+		return plan;
 	}
 
 }
