@@ -105,6 +105,7 @@ public class State{
 	}
 
 	public Agent getAgentAt(Location location) {
+		// TODO - optimize
 		for (Agent agent : getAgents()) {
 			if (location.equals(agent.location)) {
 				return agent;
@@ -114,6 +115,7 @@ public class State{
 	}
 
 	public Box getBoxAt(Location location) {
+		// TODO - optimize
 		for (Box box : getBoxes()) {
 			if (location.equals(box.location)) {
 				return box;
@@ -262,19 +264,9 @@ public class State{
 		return expandedStates;
 	}
 
-	private boolean cellIsFree(int row, int col) {
-		boolean free = true;
-		// TODO - Why is this not looking at other agents?
-		for (Box b : getBoxes()) { // TODO - optimize
-			Location boxLoc = b.getLocation();
-			if (boxLoc.getRow() == row && boxLoc.getCol() == col)
-				free = false;
-		}
-		return !walls[row][col] && free;
-	}
-
 	private boolean cellIsFree(Location location) {
-		return cellIsFree(location.getRow(), location.getCol());
+		return !walls[location.getRow()][location.getCol()] && 
+				getObjectAt(location) == null;
 	}
 
 	public List<Action> extractActionPlan() {
