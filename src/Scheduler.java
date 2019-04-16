@@ -113,7 +113,7 @@ public class Scheduler implements Runnable {
     					if (object instanceof Agent) {
     						Agent moveAgent = (Agent) object;
     						if(moveAgent.getId() != agent.getId()) {
-    							// TODO - this does not work with more agents of same color
+    							// TODO - this does not work with more agents of same color -> MAExample4.lvl
     							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
         						lock++;
     						}
