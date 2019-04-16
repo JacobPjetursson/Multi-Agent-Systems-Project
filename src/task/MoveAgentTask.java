@@ -6,7 +6,6 @@ import java.util.Set;
 
 import state.Agent;
 import state.Box;
-import state.DistanceMap;
 import state.Location;
 import state.State;
 

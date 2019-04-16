@@ -295,18 +295,22 @@ public class State{
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
 		List<Action> actions = extractActionPlan();
-		Set<Location> planSet = new HashSet<>();
+		Action last = null;
 		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;
 				l = l.move(boxAction.getAgentDirection());
-				planSet.add(l.move(boxAction.getBoxDirection()));
 			}
 			else if (action instanceof MoveAction) {
 				MoveAction moveAction = (MoveAction) action;
 				l = l.move(moveAction.getDirection());
 			}
-			planSet.add(l);
+			last = action;
+			plan.add(l);
+		}
+		if (last instanceof PushAction) {
+			PushAction pushAction = (PushAction) action;
+			l = l.move(pushAction.getBoxDirection());
 			plan.add(l);
 		}
 		return plan;

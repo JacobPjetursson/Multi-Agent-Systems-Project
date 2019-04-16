@@ -27,6 +27,10 @@ public class Planner {
     	return lastAction;
     }
     
+    public boolean isEmpty() {
+    	return plan.isEmpty();
+    }
+    
     public void undo() {
     	Queue<Action> plan = new LinkedList<>();
     	plan.add(this.lastAction);

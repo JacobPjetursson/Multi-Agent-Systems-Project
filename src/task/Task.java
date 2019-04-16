@@ -15,6 +15,10 @@ public abstract class Task implements Comparable<Task> {
         return priority;
     }
     
+    public void setPriority(int priority) {
+		this.priority = priority;
+	}
+    
     @Override
     public int compareTo(Task o) {
     	return this.priority - o.priority;

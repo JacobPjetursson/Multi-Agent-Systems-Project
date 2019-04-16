@@ -41,7 +41,7 @@ public class Box extends MovableObject {
 	
 	@Override
 	public String toString() {
-		return "Box " + letter + ";" + color + " - " + location;
+		return "Box " + letter + "<" + color + "> - " + location;
 	}
 
 }
