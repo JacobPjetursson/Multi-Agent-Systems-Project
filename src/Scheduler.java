@@ -93,14 +93,20 @@ public class Scheduler implements Runnable {
     private Task assignTask(State state, Agent agent) {
     	PriorityQueue<Task> tasks = taskMap.get(agent.getColor());
     	Planner planner = plannerMap.get(agent.getId());
-    	Task result = null;
-    	if (!tasks.isEmpty()) {
-    		Task task = tasks.poll();
-    		task.assignAgent(agent);
-    		result = task;
+    	Task task = null;
+    	List<Task> denied = new LinkedList<>();
+    	while (task == null && !tasks.isEmpty()) {
+    		task = tasks.poll();
+    		if (!task.assignAgent(agent)) {
+    			denied.add(task);
+    			task = null;
+    		}
+    	}
+    	tasks.addAll(denied);
+    	
+    	if (task != null) {
     		if (!planner.addTask(state, task)) {
     			planner.clear();
-    			result = null;
     			int lock = 0;
     			if (task instanceof GoalTask) {
     				GoalTask goalTask = (GoalTask) task;
@@ -113,7 +119,6 @@ public class Scheduler implements Runnable {
     					if (object instanceof Agent) {
     						Agent moveAgent = (Agent) object;
     						if(moveAgent.getId() != agent.getId()) {
-    							// TODO - this does not work with more agents of same color -> MAExample4.lvl
     							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
         						lock++;
     						}
@@ -134,9 +139,10 @@ public class Scheduler implements Runnable {
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
     			}
+    			task = null;
     		}
     	}
-    	return result;
+    	return task;
     }
 
     private void addTask(Integer color, Task task) {

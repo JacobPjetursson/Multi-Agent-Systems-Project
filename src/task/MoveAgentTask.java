@@ -12,17 +12,17 @@ import state.State;
 public class MoveAgentTask extends ResolveTask {
 
 	private Set<Location> path;
-	private Agent agent;
+	private Agent moveAgent;
 
-	public MoveAgentTask(int priority, Task taskToResolve, Agent agent, Collection<Location> path) {
+	public MoveAgentTask(int priority, Task taskToResolve, Agent moveAgent, Collection<Location> path) {
 		super(priority, taskToResolve);
-		this.agent = agent;
+		this.moveAgent = moveAgent;
 		this.path = new HashSet<>(path);
 	}
 
 	@Override
 	public boolean isTerminal(State state) {
-		return !path.contains(state.getAgent(agent).getLocation());
+		return !path.contains(state.getAgent(moveAgent).getLocation());
 	}
 
 	@Override
@@ -35,6 +35,14 @@ public class MoveAgentTask extends ResolveTask {
 			}
 		}
 		return h;
+	}
+	
+	@Override
+	public boolean assignAgent(Agent agent) {
+		if (agent.getId() == moveAgent.getId()) {
+			return super.assignAgent(agent);
+		}
+		return false;
 	}
 
 	@Override
