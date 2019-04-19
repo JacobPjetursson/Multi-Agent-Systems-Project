@@ -276,7 +276,6 @@ public class Scheduler implements Runnable {
 					Agent priorityAgent = (Agent) priority;
 					Planner priorityPlanner = getPlanner(priorityAgent);
 					priorityPlanner.undo();
-
 					Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
 					for (MovableObject object : rest) {
 						if (object instanceof Agent) {
@@ -287,8 +286,10 @@ public class Scheduler implements Runnable {
 							planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
 						}
 						else if (object instanceof Box) {
-							// Box box = (Box) object;
-							// Well fuck
+							Box box = (Box) object;
+							Task task = priorityPlanner.getTasks().peek();
+							Task avoidTask = new MoveBoxTask(task.getPriority() + 1, task, box, priorityPlanner.getPath(state));
+							// Move the damn box
 						}
 					}
 				}
