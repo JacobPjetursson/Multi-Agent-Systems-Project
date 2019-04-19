@@ -61,6 +61,10 @@ public class Scheduler implements Runnable {
     }
     
     private void lockTask(Task task, int lock) {
+    	Integer old = taskLockMap.get(task);
+    	if (old != null) {
+    		lock += old;
+    	}
     	taskLockMap.put(task, lock);
     }
     
@@ -268,29 +272,29 @@ public class Scheduler implements Runnable {
 	        }
 			
 
-			// TODO - handle conflicts
+			// TODO - handle conflicts better
 			for (Location location : conflicts.keySet()) {
 				Set<MovableObject> objects = conflicts.get(location);
-				MovableObject priority = objects.stream().findAny().get();
-				if (priority instanceof Agent) {
-					Agent priorityAgent = (Agent) priority;
-					Planner priorityPlanner = getPlanner(priorityAgent);
-					priorityPlanner.undo();
-					Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
-					for (MovableObject object : rest) {
-						if (object instanceof Agent) {
-							Agent agent = (Agent) object;
-							Planner planner = getPlanner(agent);
-							addTasks(agent.getColor(), planner.getTasks());
-							planner.clear();
-							planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
-						}
-						else if (object instanceof Box) {
-							Box box = (Box) object;
-							Task task = priorityPlanner.getTasks().peek();
-							Task avoidTask = new MoveBoxTask(task.getPriority() + 1, task, box, priorityPlanner.getPath(state));
-							// Move the damn box
-						}
+				MovableObject priority = objects.stream().filter(x -> x instanceof Agent).findAny().get();
+				Agent priorityAgent = (Agent) priority;
+				Planner priorityPlanner = getPlanner(priorityAgent);
+				priorityPlanner.undo();
+				Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
+				for (MovableObject object : rest) {
+					if (object instanceof Agent) {
+						Agent agent = (Agent) object;
+						Planner planner = getPlanner(agent);
+						addTasks(agent.getColor(), planner.getTasks());
+						planner.clear();
+						planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
+					}
+					else if (object instanceof Box) {
+						Box box = (Box) object;
+						Task task = priorityPlanner.getTasks().peek();
+						Task avoidTask = new MoveBoxTask(task.getPriority() + 1, task, box, priorityPlanner.getPath(state));
+						taskMap.get(box.getColor()).add(avoidTask);
+						lockTask(task, 1);
+						priorityPlanner.clear();
 					}
 				}
 			}
