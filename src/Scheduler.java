@@ -172,9 +172,10 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		boolean solved = false;
+		int prio = 10;
 		while (!solved) {
 			try { // TODO - Remove at release build
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -224,6 +225,7 @@ public class Scheduler implements Runnable {
 			System.err.println("RESPONSE: " + message);
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
+			
 			for (Agent agent : state.getAgents()) {
 				boolean error = !Boolean.parseBoolean(feedback[agent.getId()]);
 				Planner planner = getPlanner(agent);
@@ -235,7 +237,7 @@ public class Scheduler implements Runnable {
 				else {
 					state.applyAction(agent, action);
 					// TODO : If box moved away from goal add goalTask again, but does this many times right now
-					/*for (Goal goal : state.getGoals()) {
+					for (Goal goal : state.getGoals()) {
 						if(goal.getColor() != agent.getColor()) {
 							continue;
 						}
@@ -247,7 +249,8 @@ public class Scheduler implements Runnable {
 							addTask(goal.getColor(), gt);
 						}
 			        	
-			        }*/
+			        }
+			        
 				}
 	        }
 			
