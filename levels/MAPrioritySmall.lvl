@@ -1,0 +1,19 @@
+#domain
+hospital
+#levelname
+PrioritySmall
+#colors
+red: 0, A, B
+#initial
++++++++++++
++AB    ++++
++0        +
++      ++++
++++++++++++
+#goal
++++++++++++
++      ++++
++       AB+
++      ++++
++++++++++++
+#end
