@@ -29,10 +29,16 @@ public class Scheduler implements Runnable {
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
         taskLockMap = new HashMap<>();
+        Comparator<Task> taskComparator = new Comparator<Task>() {
+			@Override
+			public int compare(Task t1, Task t2) {
+				return t2.getPriority() - t1.getPriority();
+			}
+		};
 
         for (Agent agent : state.getAgents()) {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
-        	taskMap.put(agent.getColor(), new PriorityQueue<>());
+        	taskMap.put(agent.getColor(), new PriorityQueue<>(taskComparator));
         }
 
         /* TODO - uncomment when we are ready to split tasks up further
@@ -50,7 +56,7 @@ public class Scheduler implements Runnable {
 
         // Initial tasks
         for (Agent agent : state.getAgents()) {
-            getTask(state, agent);
+            assignTask(state, agent);
         }
     }
     
@@ -84,14 +90,17 @@ public class Scheduler implements Runnable {
     	return true;
     }
 
-    private void getTask(State state, Agent agent) {
+    private Task assignTask(State state, Agent agent) {
     	PriorityQueue<Task> tasks = taskMap.get(agent.getColor());
     	Planner planner = plannerMap.get(agent.getId());
+    	Task result = null;
     	if (!tasks.isEmpty()) {
     		Task task = tasks.poll();
     		task.assignAgent(agent);
+    		result = task;
     		if (!planner.addTask(state, task)) {
     			planner.clear();
+    			result = null;
     			int lock = 0;
     			if (task instanceof GoalTask) {
     				GoalTask goalTask = (GoalTask) task;
@@ -102,16 +111,17 @@ public class Scheduler implements Runnable {
     				for (Location location : plan) {
     					MovableObject object = state.getObjectAt(location);
     					if (object instanceof Agent) {
-    						Agent agnt = (Agent) object;
-    						if(agnt.getId() != agent.getId()) {
-    							taskMap.get(agnt.getColor()).add(new MoveAgentTask(20, task, agnt, plan));
+    						Agent moveAgent = (Agent) object;
+    						if(moveAgent.getId() != agent.getId()) {
+    							// TODO - this does not work with more agents of same color -> MAExample4.lvl
+    							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
         						lock++;
     						}
     					}
     					else if (object instanceof Box) {
     						Box box = (Box) object;
     						if(box.getColor() != agent.getColor()) {
-    							taskMap.get(box.getColor()).add(new MoveBoxTask(5, task, box, plan));
+    							taskMap.get(box.getColor()).add(new MoveBoxTask(task.getPriority()+1, task, box, plan));
         						lock++;
     						}
     					}
@@ -120,11 +130,13 @@ public class Scheduler implements Runnable {
     			} else if(task instanceof ResolveTask) {
     				//TODO : This
     			}
+    			
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
     			}
     		}
     	}
+    	return result;
     }
 
     private void addTask(Integer color, Task task) {
@@ -137,6 +149,21 @@ public class Scheduler implements Runnable {
 
     private Planner getPlanner(Agent agent) {
     	return plannerMap.get(agent.getId());
+    }
+    
+    private void completeTasks(Planner planner) {
+    	Queue<Task> tasks = planner.getTasks();
+    	planner.clear();
+    	while (!tasks.isEmpty()) {
+			Task completedTask = tasks.poll();
+			if (completedTask instanceof ResolveTask) {
+				ResolveTask task = (ResolveTask) completedTask;
+				Task resolved = task.getTaskToResolve();
+				int priority = Math.max(resolved.getPriority(), task.getPriority() + 1);
+				resolved.setPriority(priority);
+				unlockTask(task.getTaskToResolve());
+			}
+		}
     }
 
     private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
@@ -174,39 +201,22 @@ public class Scheduler implements Runnable {
 		boolean solved = false;
 		int prio = 10;
 		while (!solved) {
-			try { // TODO - Remove at release build
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
 			boolean done = true;
+			
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
 				Planner planner = getPlanner(agent);
-				Action a = planner.poll();
-				if (a.toString().equals(NoOpAction.COMMAND)) {
-					//Moved getTask up, dont know if it messes with stuff
-					getTask(state, agent);
-					Queue<Task> tasks = planner.getTasks();
-					while (!tasks.isEmpty()) {
-						Task completedTask = tasks.poll();
-						if (completedTask instanceof ResolveTask) {
-							ResolveTask task = (ResolveTask) completedTask;
-							unlockTask(task.getTaskToResolve());
-							
-						}
-					}
-					
-					//getTask was here before but stopped working
-					a = planner.poll();
-					if (!a.toString().equals(NoOpAction.COMMAND)) {
-						done = false;
-					}
+				if (planner.isEmpty()) {
+					do {
+						completeTasks(planner);
+						assignTask(state, agent);
+					} 
+					while (planner.isEmpty() && !planner.getTasks().isEmpty());
 				}
-				else {
+				if (!planner.isEmpty()) {
 					done = false;
 				}
+				Action a = planner.poll();
 				cmd += a.toString() + ";";
 	        }
 			solved = done && allTasksCompleted();
@@ -274,7 +284,7 @@ public class Scheduler implements Runnable {
 							planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
 						}
 						else if (object instanceof Box) {
-							Box box = (Box) object;
+							// Box box = (Box) object;
 							// Well fuck
 						}
 					}

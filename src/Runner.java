@@ -22,6 +22,13 @@ public class Runner {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Map<String, String> options = loadOptions("lib/runner.conf");
+		Pattern pattern = Pattern.compile("\\<([a-zA-Z0-9]*)\\>");
+		for (int i = 0; i < args.length; i++) {
+			Matcher matcher = pattern.matcher(args[i]);
+			if (matcher.find()) {
+				options.put(matcher.group(1), args[++i]);
+			}
+		}
 		args = new String[] {"java",
 				"-jar", arg("lib/server.jar"),
 				"-c", "java -Duser.dir=" + arg("bin ") + (Boolean.parseBoolean(options.get(DEBUG)) ? DEBUG_STRING : "") + "Client",

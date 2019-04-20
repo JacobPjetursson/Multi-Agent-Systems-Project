@@ -105,6 +105,7 @@ public class State{
 	}
 
 	public Agent getAgentAt(Location location) {
+		// TODO - optimize
 		for (Agent agent : getAgents()) {
 			if (location.equals(agent.location)) {
 				return agent;
@@ -114,6 +115,7 @@ public class State{
 	}
 
 	public Box getBoxAt(Location location) {
+		// TODO - optimize
 		for (Box box : getBoxes()) {
 			if (location.equals(box.location)) {
 				return box;
@@ -262,18 +264,9 @@ public class State{
 		return expandedStates;
 	}
 
-	private boolean cellIsFree(int row, int col) {
-		boolean boxFree = true;
-		for (Box b : getBoxes()) { // TODO - optimize
-			Location boxLoc = b.getLocation();
-			if (boxLoc.getRow() == row && boxLoc.getCol() == col)
-				boxFree = false;
-		}
-		return !walls[row][col] && boxFree;
-	}
-
 	private boolean cellIsFree(Location location) {
-		return cellIsFree(location.getRow(), location.getCol());
+		return !walls[location.getRow()][location.getCol()] && 
+				getObjectAt(location) == null;
 	}
 
 	public List<Action> extractActionPlan() {
@@ -302,21 +295,25 @@ public class State{
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
 		List<Action> actions = extractActionPlan();
-		Set<Location> planSet = new HashSet<>();
+		Action last = null;
 		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;
 				l = l.move(boxAction.getAgentDirection());
-				planSet.add(l.move(boxAction.getBoxDirection()));
 			}
 			else if (action instanceof MoveAction) {
 				MoveAction moveAction = (MoveAction) action;
 				l = l.move(moveAction.getDirection());
 			}
-			planSet.add(l);
-			
+			last = action;
+			plan.add(l);
 		}
-		return new ArrayList<>(planSet);
+		if (last instanceof PushAction) {
+			PushAction pushAction = (PushAction) action;
+			l = l.move(pushAction.getBoxDirection());
+			plan.add(l);
+		}
+		return plan;
 	}
 
 }

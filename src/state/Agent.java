@@ -22,7 +22,7 @@ public class Agent extends MovableObject {
 	
 	@Override
 	public String toString() {
-		return "Agent" + id + ";" + color + " - " + location;
+		return "Agent" + id + "<" + color + "> - " + location;
 	}
 	
 	@Override
