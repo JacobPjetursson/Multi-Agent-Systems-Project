@@ -1,4 +1,5 @@
 import action.*;
+import action.Action.Dir;
 import state.*;
 import task.AvoidConflictTask;
 import task.GoalTask;
@@ -20,6 +21,7 @@ public class Scheduler implements Runnable {
     private Map<Integer, PriorityQueue<Task>> taskMap;
     private Map<Integer, Planner> plannerMap;
     private Map<Task, Integer> taskLockMap;
+    private Map<Location,Integer> priorityMap;
 
     public Scheduler(State initialState, BufferedReader serverMessages) {
         this.serverMessages = serverMessages;
@@ -29,6 +31,9 @@ public class Scheduler implements Runnable {
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
         taskLockMap = new HashMap<>();
+        priorityMap = new HashMap<>();
+        calculateGoalPriorities();
+        
         Comparator<Task> taskComparator = new Comparator<Task>() {
 			@Override
 			public int compare(Task t1, Task t2) {
@@ -51,7 +56,8 @@ public class Scheduler implements Runnable {
 
         // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
-        	addTask(goal.getColor(), new GoalTask(goal));
+        	//addTask(goal.getColor(), new GoalTask(goal));
+        	addTask(goal.getColor(), new GoalTask(priorityMap.get(goal.getLocation()),goal));
         }
 
         // Initial tasks
@@ -67,6 +73,14 @@ public class Scheduler implements Runnable {
     	}
     	taskLockMap.put(task, lock);
     }
+    
+    private void calculateGoalPriorities() {
+    	priorityMap = new HashMap<>();
+    	for(Goal goal : state.getGoals()) {
+    		//TODO : Add better priorities
+    		priorityMap.put(goal.getLocation(), 3);
+    	}
+	}
     
     private int unlockTask(Task task) {
     	Integer lock = taskLockMap.get(task);
@@ -209,6 +223,7 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		boolean solved = false;
+		int prio = 10;
 		while (!solved) {
 			boolean done = true;
 			
@@ -244,6 +259,7 @@ public class Scheduler implements Runnable {
 			System.err.println("RESPONSE: " + message);
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
+			
 			for (Agent agent : state.getAgents()) {
 				boolean error = !Boolean.parseBoolean(feedback[agent.getId()]);
 				Planner planner = getPlanner(agent);
@@ -253,21 +269,26 @@ public class Scheduler implements Runnable {
 					collectConflicts(conflicts, agent, action);
 				}
 				else {
+					Location oldAgentLoc = agent.getLocation();
 					state.applyAction(agent, action);
-					// TODO : If box moved away from goal add goalTask again, but does this many times right now
-					/*for (Goal goal : state.getGoals()) {
-						if(goal.getColor() != agent.getColor()) {
-							continue;
+					//If box moved away from goal add goalTask again
+					if(action instanceof BoxAction) {
+						BoxAction boxAction = (BoxAction) action;
+						Dir boxDir = boxAction.getBoxDirection();
+						Location newAgentLoc = state.getAgent(agent).getLocation();
+						Location newBoxLoc;
+						newBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc.getRow() + Action.dirToRowChange(boxDir), newAgentLoc.getCol() + Action.dirToColChange(boxDir)) : new Location(oldAgentLoc);
+						Location oldBoxLoc;
+						oldBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc) : new Location(newBoxLoc.getRow() + Action.dirToRowChange(boxDir),newBoxLoc.getCol() + Action.dirToColChange(boxDir));
+						//TODO : Optimize to avoid loop, look-up table for goals : (Location,Goal)-Map
+						for(Goal goal : state.getGoals()) {
+							if(goal.getLocation().equals(oldBoxLoc) && goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
+								System.err.println("Adding new goal " + goal.getLetter() + " task");
+								addTask(goal.getColor(), new GoalTask(goal));
+								break;
+							}
 						}
-						GoalTask gt = new GoalTask(goal);
-						if((state.getBoxAt(goal.getLocation()) == null 
-								|| state.getBoxAt(goal.getLocation()).getLetter() != goal.getLetter() )
-								&& !(gt.isTerminal(state))
-								&& !(taskMap.get(goal.getColor()).contains(gt))) {
-							addTask(goal.getColor(), gt);
-						}
-			        	
-			        }*/
+					}
 				}
 	        }
 			
