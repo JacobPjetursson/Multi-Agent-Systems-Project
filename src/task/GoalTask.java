@@ -29,11 +29,8 @@ public class GoalTask extends Task {
 		char letter = goal.getLetter();
 		List<Box> boxes = state.getBoxes();
 		for(Box box : boxes) {
-			if (box.getLetter() == letter) {
-				if (box.getLocation().equals(goal.getLocation())) {
-					return true;
-				}
-			}
+			if (box.getLetter() == letter && box.getLocation().equals(goal.getLocation()))
+				return true;
 		}
 		return false;
 	}
@@ -45,12 +42,13 @@ public class GoalTask extends Task {
 		int best = Integer.MAX_VALUE;
 		for(Box box : boxes) {
 			if (box.getLetter() == letter) {
+			    // TODO - do not include boxes already in goal
 				int val = 0;
 				DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-				val += dm.distance(getAgent().getLocation());
 				val += dm.distance(goal.getLocation());
 				if (val <= best) {
 					best = val;
+					goal.assignBox(box);
 				}
 			}
 		}
@@ -72,9 +70,7 @@ public class GoalTask extends Task {
 	public boolean equals(Object o) {
 		if (o instanceof GoalTask) {
 			GoalTask task = (GoalTask) o;
-			if(task.goal == this.goal) {
-				return true;
-			}
+			return task.goal == this.goal;
 		}
 		return false;
 	}

@@ -64,12 +64,41 @@ public class State{
 		this.g = state.g;
 	}
 
+	// Naively assign boxes to goals based on distance
+	public void assignBoxesToGoals() {
+	    for (Goal g : goals) {
+            int best = Integer.MAX_VALUE;
+            for(Box box : boxes.values()) {
+                if (box.getLetter() == g.getLetter()) {
+                    // TODO - do not include boxes already in goal
+                    int val = 0;
+                    DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+                    val += dm.distance(g.getLocation());
+                    if (val <= best) {
+                        best = val;
+                        g.assignBox(box);
+                    }
+                }
+            }
+        }
+    }
+
+    public List<Box> getAssignedBoxes() {
+	    ArrayList<Box> assignedBoxes = new ArrayList<>();
+	    for (Goal g : goals) {
+	        Box b = g.getAssignedBox();
+	        if (b != null)
+	            assignedBoxes.add(b);
+        }
+        return assignedBoxes;
+    }
+
 	public List<Agent> getAgents() {
-		return agents.values().stream().collect(Collectors.toList());
+		return new ArrayList<>(agents.values());
 	}
 
 	public List<Box> getBoxes() {
-		return boxes.values().stream().collect(Collectors.toList());
+		return new ArrayList<>(boxes.values());
 	}
 
 	public void removeObjectsExcept(Agent agent, int color) {
@@ -146,11 +175,7 @@ public class State{
 	}
 	
 	private Set<Location> copyFakeWalls(Set<Location> old) {
-		Set<Location> copy = new HashSet<>();
-		for (Location l : old) {
-			copy.add(l);
-		}
-		return copy;
+		return new HashSet<>(old);
 	}
 	
 	public void setFakeWalls() {

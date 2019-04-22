@@ -1,0 +1,5 @@
+I think we could consider simplifying the plans a lot. One way is to only do NaiveGoalTasks, and then handle the conflicts as they come.
+Otherwise we could use extremely long time finding a path (exhaustive search worst case...),
+and then when we realise there is no path, we use a long time removing every agent from that path
+
+Obviously, we need to be better at managing simple conflicts like moving an agent away from a corridor, etc.

@@ -11,13 +11,13 @@ public class Planner {
 	private Action lastAction;
     private int agentId;
 
-    public Planner(int agentId) {
+    Planner(int agentId) {
         this.agentId = agentId;
         plan = new LinkedList<>();
         tasks = new LinkedList<>();
     }
 
-    public Action poll() {
+    Action poll() {
     	if (plan.isEmpty()) {
     		lastAction = new NoOpAction();
     	}
@@ -27,11 +27,11 @@ public class Planner {
     	return lastAction;
     }
     
-    public boolean isEmpty() {
+    boolean isEmpty() {
     	return plan.isEmpty();
     }
     
-    public void undo() {
+    void undo() {
     	Queue<Action> plan = new LinkedList<>();
     	plan.add(this.lastAction);
     	plan.addAll(this.plan);
@@ -39,11 +39,11 @@ public class Planner {
     	this.plan = plan;
     }
     
-    public Action getLastAction() {
+    Action getLastAction() {
     	return lastAction;
     }
 
-    public void clear() {
+    void clear() {
     	plan.clear();
     	tasks.clear();
     }
@@ -52,7 +52,7 @@ public class Planner {
     	return agentId;
     }
 
-    public boolean addTask(State state, Task task) {
+    boolean addTask(State state, Task task) {
     	State terminalState = createPlan(state, task);
         if (terminalState == null) {
             System.err.println("No plan was found");
@@ -64,7 +64,7 @@ public class Planner {
         return true;
     }
     
-    public Queue<Task> getTasks() {
+    Queue<Task> getTasks() {
     	return new LinkedList<>(tasks);
     }
 
@@ -72,11 +72,11 @@ public class Planner {
         return plan.size();
     }
 
-    public Queue<Action> getPlan() {
+    Queue<Action> getPlan() {
         return plan;
     }
 
-    public State createPlan(State initialState, Task task) {
+    State createPlan(State initialState, Task task) {
     	initialState = initialState.clone();
     	task.initializeState(initialState);
         Set<State> explored = new HashSet<>();

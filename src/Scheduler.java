@@ -1,13 +1,7 @@
 import action.*;
 import action.Action.Dir;
 import state.*;
-import task.AvoidConflictTask;
-import task.GoalTask;
-import task.MoveAgentTask;
-import task.MoveBoxTask;
-import task.NaiveGoalTask;
-import task.ResolveTask;
-import task.Task;
+import task.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,26 +27,21 @@ public class Scheduler implements Runnable {
         taskLockMap = new HashMap<>();
         priorityMap = new HashMap<>();
         calculateGoalPriorities();
-        
-        Comparator<Task> taskComparator = new Comparator<Task>() {
-			@Override
-			public int compare(Task t1, Task t2) {
-				return t2.getPriority() - t1.getPriority();
-			}
-		};
+
+        Comparator<Task> taskComparator = (t1, t2) -> t2.getPriority() - t1.getPriority();
 
         for (Agent agent : state.getAgents()) {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
         	taskMap.put(agent.getColor(), new PriorityQueue<>(taskComparator));
         }
 
-        /* TODO - uncomment when we are ready to split tasks up further
-           TODO - also, instead of taking all boxes, only take those that have been assigned to a goal
+
+        state.assignBoxesToGoals();
         // Task of getting agent to box
-		for (Box box : state.getBoxes()) {
+		for (Box box : state.getAssignedBoxes()) {
         	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
 		}
-        */
+
 
         // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
@@ -61,6 +50,7 @@ public class Scheduler implements Runnable {
         }
 
         // Initial tasks
+        // TODO - prioritize which agent takes which task, instead of random
         for (Agent agent : state.getAgents()) {
             assignTask(state, agent);
         }
@@ -112,6 +102,7 @@ public class Scheduler implements Runnable {
     		Task task = tasks.poll();
     		task.assignAgent(agent);
     		result = task;
+    		// TODO - I really think we should consider fixing this in another way. See notes.txt
     		if (!planner.addTask(state, task)) {
     			planner.clear();
     			result = null;
@@ -141,9 +132,11 @@ public class Scheduler implements Runnable {
     					}
     				}
     				lockTask(task, lock);
-    			} else if(task instanceof ResolveTask) {
+    			} else if (task instanceof ResolveTask) {
     				//TODO : This
-    			}
+    			} else if (task instanceof MoveToBoxTask) {
+    				// TODO : This. This is similar to goaltask
+				}
     			
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
@@ -213,7 +206,7 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		boolean solved = false;
-		int prio = 10;
+        long timeStart = System.currentTimeMillis();
 		while (!solved) {
 			boolean done = true;
 			
@@ -309,5 +302,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
+		System.err.println("Time spent on solving: " + timeSpent + " seconds.");
 	}
 }

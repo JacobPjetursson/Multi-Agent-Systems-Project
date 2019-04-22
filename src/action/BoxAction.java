@@ -4,7 +4,7 @@ public class BoxAction extends Action {
 	private Dir agentDir;
 	private Dir boxDir;
 	
-	protected BoxAction(Dir agentDir, Dir boxDir) {
+	BoxAction(Dir agentDir, Dir boxDir) {
 		this.agentDir = agentDir;
 		this.boxDir = boxDir;
 	}

@@ -3,7 +3,7 @@ package action;
 public class MoveAction extends Action {
 	private Dir dir;
 
-    public MoveAction(Dir dir) {
+    MoveAction(Dir dir) {
         this.dir = dir;
     }
     
