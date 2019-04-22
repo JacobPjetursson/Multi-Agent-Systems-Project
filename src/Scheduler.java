@@ -1,12 +1,6 @@
 import action.*;
 import state.*;
-import task.AvoidConflictTask;
-import task.GoalTask;
-import task.MoveAgentTask;
-import task.MoveBoxTask;
-import task.NaiveGoalTask;
-import task.ResolveTask;
-import task.Task;
+import task.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,13 +30,13 @@ public class Scheduler implements Runnable {
         	taskMap.put(agent.getColor(), new PriorityQueue<>(taskComparator));
         }
 
-        /* TODO - uncomment when we are ready to split tasks up further
-           TODO - also, instead of taking all boxes, only take those that have been assigned to a goal
+
+        state.assignBoxesToGoals();
         // Task of getting agent to box
-		for (Box box : state.getBoxes()) {
+		for (Box box : state.getAssignedBoxes()) {
         	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
 		}
-        */
+
 
         // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
@@ -50,6 +44,7 @@ public class Scheduler implements Runnable {
         }
 
         // Initial tasks
+        // TODO - prioritize which agent takes which task, instead of random
         for (Agent agent : state.getAgents()) {
             assignTask(state, agent);
         }
@@ -91,7 +86,7 @@ public class Scheduler implements Runnable {
     	Task result = null;
     	if (!tasks.isEmpty()) {
     		Task task = tasks.poll();
-    		task.assignAgent(agent); // TODO - prioritize which agent instead of random
+    		task.assignAgent(agent);
     		result = task;
     		if (!planner.addTask(state, task)) {
     			planner.clear();

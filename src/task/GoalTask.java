@@ -42,12 +42,13 @@ public class GoalTask extends Task {
 		int best = Integer.MAX_VALUE;
 		for(Box box : boxes) {
 			if (box.getLetter() == letter) {
+			    // TODO - do not include boxes already in goal
 				int val = 0;
 				DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-				val += dm.distance(getAgent().getLocation());
 				val += dm.distance(goal.getLocation());
 				if (val <= best) {
 					best = val;
+					goal.assignBox(box);
 				}
 			}
 		}

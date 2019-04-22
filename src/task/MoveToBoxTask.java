@@ -26,8 +26,8 @@ public class MoveToBoxTask extends Task {
         for(Agent agent : agents) {
             if (agent.getColor() == color) {
                 int val = 0;
-                DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-                val += dm.distance(agent.getLocation());
+                DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
+                val += dm.distance(box.getLocation());
                 if (val <= best) {
                     best = val;
                 }

@@ -1,0 +1,4 @@
+I think we could consider looking at plan intersections, e.g. check if plans from separate tasks collide (conflict).
+If they do, then do some shit
+
+Obviously, we need to be better at managing simple conflicts like moving an agent away from a corridor, etc.
