@@ -88,6 +88,7 @@ public class Scheduler implements Runnable {
     		Task task = tasks.poll();
     		task.assignAgent(agent);
     		result = task;
+    		// TODO - I really think we should consider fixing this in another way. See notes.txt
     		if (!planner.addTask(state, task)) {
     			planner.clear();
     			result = null;
@@ -117,9 +118,11 @@ public class Scheduler implements Runnable {
     					}
     				}
     				lockTask(task, lock);
-    			} else if(task instanceof ResolveTask) {
+    			} else if (task instanceof ResolveTask) {
     				//TODO : This
-    			}
+    			} else if (task instanceof MoveToBoxTask) {
+    				// TODO : This. This is similar to goaltask
+				}
     			
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
