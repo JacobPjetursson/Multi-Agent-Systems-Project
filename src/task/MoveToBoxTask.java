@@ -9,8 +9,12 @@ public class MoveToBoxTask extends Task {
     private Box box;
 
     public MoveToBoxTask(Box box) {
-        super(5);
-        this.box = box;
+        this(5,box);
+    }
+    
+    public MoveToBoxTask(int priority, Box box) {
+    	super(priority);
+    	this.box = box;
     }
 
     public Box getBox() {
@@ -53,7 +57,7 @@ public class MoveToBoxTask extends Task {
 
 	@Override
 	public void initializeState(State state) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

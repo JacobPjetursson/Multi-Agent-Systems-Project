@@ -25,8 +25,6 @@ public class Scheduler implements Runnable {
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
         taskLockMap = new HashMap<>();
-        priorityMap = new HashMap<>();
-        calculateGoalPriorities();
 
         Comparator<Task> taskComparator = (t1, t2) -> t2.getPriority() - t1.getPriority();
 
@@ -37,9 +35,12 @@ public class Scheduler implements Runnable {
 
 
         state.assignBoxesToGoals();
+        priorityMap = new HashMap<>();
+        calculateGoalPriorities();
         // Task of getting agent to box
 		for (Box box : state.getAssignedBoxes()) {
-        	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
+			//TODO : Use the goal priorities
+        	taskMap.get(box.getColor()).add(new MoveToBoxTask(10,box));
 		}
 
 
@@ -61,10 +62,35 @@ public class Scheduler implements Runnable {
     }
     
     private void calculateGoalPriorities() {
+    	int priority = 0;
+    	int size = state.getGoals().size();
+    	int[] priorities = new int[size];
     	priorityMap = new HashMap<>();
+    	Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
     	for(Goal goal : state.getGoals()) {
-    		//TODO : Add better priorities
-    		priorityMap.put(goal.getLocation(), 3);
+    		goalPathMap.put(goal, new ArrayList<>());
+    		Box box = goal.getAssignedBox();
+    		
+    		List<Location> shortestPath = state.getPath(box.getLocation(), goal);
+    		for(Location l : shortestPath) {
+    			if(State.goalMap.containsKey(l)) {
+    				List<Goal> goals = goalPathMap.get(goal);
+    				goals.add(State.goalMap.get(l));
+    				goalPathMap.put(goal, goals);
+    			}
+    		}
+    	}
+    	
+    	for(int i = 0; i < size; i++) {
+    		Goal goal = state.getGoals().get(i);
+    		List<Goal> goalsCrossing = goalPathMap.get(goal);
+    		System.err.println(goal);
+    		System.err.println(goalsCrossing);
+    		//TODO : Make smarter but I am tired
+    		for(Goal gc : goalsCrossing) {
+    			priorities[i]++;
+    		}
+    		priorityMap.put(goal.getLocation(), priorities[i]);
     	}
 	}
     
@@ -263,11 +289,13 @@ public class Scheduler implements Runnable {
 						newBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc.getRow() + Action.dirToRowChange(boxDir), newAgentLoc.getCol() + Action.dirToColChange(boxDir)) : new Location(oldAgentLoc);
 						Location oldBoxLoc;
 						oldBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc) : new Location(newBoxLoc.getRow() + Action.dirToRowChange(boxDir),newBoxLoc.getCol() + Action.dirToColChange(boxDir));
-						//TODO : Optimize to avoid loop, look-up table for goals : (Location,Goal)-Map
-						for(Goal goal : state.getGoals()) {
-							if(goal.getLocation().equals(oldBoxLoc) && goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
-								System.err.println("Adding new goal " + goal.getLetter() + " task");
-								addTask(goal.getColor(), new GoalTask(goal));
+						if(State.goalMap.containsKey(oldBoxLoc)){
+							Goal goal = State.goalMap.get(oldBoxLoc);
+							if(goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
+								
+								//TODO : Add move to box task first
+								System.err.println("Re-adding goal task for goal " + goal.getLetter());
+								addTask(goal.getColor(), new GoalTask(priorityMap.get(goal.getLocation()),goal));
 								break;
 							}
 						}

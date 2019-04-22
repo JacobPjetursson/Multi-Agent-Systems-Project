@@ -5,6 +5,8 @@ import action.BoxAction;
 import action.MoveAction;
 import action.PullAction;
 import action.PushAction;
+import action.Action.Dir;
+import task.GoalTask;
 import task.Task;
 
 import java.util.*;
@@ -17,6 +19,7 @@ public class State{
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
+	public static Map<Location,Goal> goalMap;
 
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;
@@ -24,6 +27,7 @@ public class State{
 	private Action action;
 	private int g;
 	private Set<Location> fakeWalls;
+	
 
 	// Initial state
 	public State(Map<Integer, Agent> agents, Map<Integer, Box> boxes) {
@@ -209,7 +213,20 @@ public class State{
 	}
 
 	public int f(Task task) {
-		return g + task.h(this);
+		return g + task.h(this)-boxesInGoal();
+	}
+	
+	public int boxesInGoal() {
+		int goalCount = 0;
+		for(Box box : this.getBoxes()) {
+			if(goalMap.containsKey(box.location)) {
+				Goal goal = goalMap.get(box.location);
+				if(goal.getLetter() == box.getLetter()) {
+					goalCount++;
+				}
+			}
+		}
+		return goalCount;
 	}
 
 	public int g() {
@@ -339,6 +356,37 @@ public class State{
 			plan.add(l);
 		}
 		return plan;
+	}
+
+	public List<Location> getPath(Location loc, Goal goal) {
+		DistanceMap dm = DISTANCE_MAPS.get(goal.getLocation());
+		List<Location> path = new ArrayList<>();
+		Location location = new Location(loc);
+		int dist = dm.distance(location);
+		while (dist > 1) {
+			path.add(location);
+			Location south = new Location(location.getRow()+1,location.getCol());
+			Location north = new Location(location.getRow()-1,location.getCol());
+			Location east = new Location(location.getRow(),location.getCol()+1);
+			Location west = new Location(location.getRow(),location.getCol()-1);
+			if(dm.distance(south) > 0 && dm.distance(south) < dist){
+				dist = dist-1;
+				location = south;
+			}else if(dm.distance(north) > 0 && dm.distance(north) < dist){
+				dist = dist-1;
+				location = north;
+			}else if(dm.distance(east) > 0 && dm.distance(east) < dist){
+				dist = dist-1;
+				location = east;
+			}else if(dm.distance(west) > 0 && dm.distance(west) < dist){
+				dist = dist-1;
+				location = west;
+			}else {
+				
+			}
+		}
+		path.add(location);
+		return path;
 	}
 
 }
