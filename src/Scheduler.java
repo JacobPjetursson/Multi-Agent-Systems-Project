@@ -29,12 +29,7 @@ public class Scheduler implements Runnable {
         plannerMap = new HashMap<>();
         taskMap = new HashMap<>();
         taskLockMap = new HashMap<>();
-        Comparator<Task> taskComparator = new Comparator<Task>() {
-			@Override
-			public int compare(Task t1, Task t2) {
-				return t2.getPriority() - t1.getPriority();
-			}
-		};
+        Comparator<Task> taskComparator = (t1, t2) -> t2.getPriority() - t1.getPriority();
 
         for (Agent agent : state.getAgents()) {
         	plannerMap.put(agent.getId(), new Planner(agent.getId()));
@@ -96,7 +91,7 @@ public class Scheduler implements Runnable {
     	Task result = null;
     	if (!tasks.isEmpty()) {
     		Task task = tasks.poll();
-    		task.assignAgent(agent);
+    		task.assignAgent(agent); // TODO - prioritize which agent instead of random
     		result = task;
     		if (!planner.addTask(state, task)) {
     			planner.clear();
@@ -199,6 +194,7 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		boolean solved = false;
+        long timeStart = System.currentTimeMillis();
 		while (!solved) {
 			boolean done = true;
 			
@@ -288,5 +284,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
+		System.err.println("Time spent on solving: " + timeSpent + " seconds.");
 	}
 }

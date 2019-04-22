@@ -2,7 +2,7 @@ package action;
 
 public class PullAction extends BoxAction {
 
-    public PullAction(Dir agentDir, Dir boxDir) {
+    PullAction(Dir agentDir, Dir boxDir) {
 		super(agentDir, boxDir);
 	}
 

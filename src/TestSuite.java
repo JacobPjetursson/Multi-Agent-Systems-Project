@@ -9,12 +9,7 @@ public class TestSuite {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		File file = new File("levels");
-		File[] levels = file.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".lvl");
-			}
-		});
+		File[] levels = file.listFiles((dir, name) -> name.endsWith(".lvl"));
 		File bin = new File("bin");
 		
 		int[] results = new int[3];
@@ -28,12 +23,7 @@ public class TestSuite {
 			//pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 			Process p = pb.start();
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-				@Override
-				public void run() {
-					p.destroy();
-				}
-			}));
+			Runtime.getRuntime().addShutdownHook(new Thread(p::destroy));
 			
 			long time = 2;
 			TimeUnit unit = TimeUnit.SECONDS;

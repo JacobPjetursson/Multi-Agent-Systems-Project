@@ -8,7 +8,7 @@ import java.util.Set;
 public class DistanceMap {
 	private int[][] map;
 	
-	public DistanceMap(Location init) {
+	DistanceMap(Location init) {
 		boolean[][] walls = State.walls;
 		map = new int[State.ROWS][State.COLS];
 		Queue<Object[]> steps = new LinkedList<>();

@@ -2,7 +2,7 @@ package action;
 
 public class PushAction extends BoxAction {
 
-    protected PushAction(Dir agentDir, Dir boxDir) {
+    PushAction(Dir agentDir, Dir boxDir) {
 		super(agentDir, boxDir);
 	}
 

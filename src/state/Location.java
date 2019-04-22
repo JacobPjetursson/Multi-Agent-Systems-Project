@@ -40,11 +40,11 @@ public class Location {
         return Objects.hash(getRow(), getCol());
     }
 
-    public int getRow() {
+    int getRow() {
 		return row;
 	}
 
-	public int getCol() {
+	int getCol() {
 		return col;
 	}
 

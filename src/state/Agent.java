@@ -11,7 +11,7 @@ public class Agent extends MovableObject {
 		this.id = id;
 	}
 
-	public Agent(Agent duplicate) {
+	Agent(Agent duplicate) {
 	    super(new Location(duplicate.getLocation()), duplicate.getColor());
 	    this.id = duplicate.getId();
     }

@@ -15,7 +15,7 @@ public class GoalTask extends Task {
 		this(3, goal);
 	}
 	
-	public GoalTask(int priority, Goal goal) {
+	GoalTask(int priority, Goal goal) {
 		super(priority);
 		this.goal = goal;
 	}
@@ -29,11 +29,8 @@ public class GoalTask extends Task {
 		char letter = goal.getLetter();
 		List<Box> boxes = state.getBoxes();
 		for(Box box : boxes) {
-			if (box.getLetter() == letter) {
-				if (box.getLocation().equals(goal.getLocation())) {
-					return true;
-				}
-			}
+			if (box.getLetter() == letter && box.getLocation().equals(goal.getLocation()))
+				return true;
 		}
 		return false;
 	}
@@ -72,9 +69,7 @@ public class GoalTask extends Task {
 	public boolean equals(Object o) {
 		if (o instanceof GoalTask) {
 			GoalTask task = (GoalTask) o;
-			if(task.goal == this.goal) {
-				return true;
-			}
+			return task.goal == this.goal;
 		}
 		return false;
 	}
