@@ -58,6 +58,10 @@ public class Scheduler implements Runnable {
     }
     
     private void lockTask(Task task, int lock) {
+    	Integer old = taskLockMap.get(task);
+    	if (old != null) {
+    		lock += old;
+    	}
     	taskLockMap.put(task, lock);
     }
     
@@ -123,15 +127,21 @@ public class Scheduler implements Runnable {
     private Task assignTask(State state, Agent agent) {
     	PriorityQueue<Task> tasks = taskMap.get(agent.getColor());
     	Planner planner = plannerMap.get(agent.getId());
-    	Task result = null;
-    	if (!tasks.isEmpty()) {
-    		Task task = tasks.poll();
-    		task.assignAgent(agent);
-    		result = task;
     		// TODO - I really think we should consider fixing this in another way. See notes.txt
+    	Task task = null;
+    	List<Task> denied = new LinkedList<>();
+    	while (task == null && !tasks.isEmpty()) {
+    		task = tasks.poll();
+    		if (!task.assignAgent(agent)) {
+    			denied.add(task);
+    			task = null;
+    		}
+    	}
+    	tasks.addAll(denied);
+    	
+    	if (task != null) {
     		if (!planner.addTask(state, task)) {
     			planner.clear();
-    			result = null;
     			int lock = 0;
     			if (task instanceof GoalTask) {
     				GoalTask goalTask = (GoalTask) task;
@@ -144,7 +154,6 @@ public class Scheduler implements Runnable {
     					if (object instanceof Agent) {
     						Agent moveAgent = (Agent) object;
     						if(moveAgent.getId() != agent.getId()) {
-    							// TODO - this does not work with more agents of same color -> MAExample4.lvl
     							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
         						lock++;
     						}
@@ -167,9 +176,10 @@ public class Scheduler implements Runnable {
     			if (!taskLockMap.containsKey(task)) {
     				tasks.add(task);
     			}
+    			task = null;
     		}
     	}
-    	return result;
+    	return task;
     }
 
     private void addTask(Integer color, Task task) {
@@ -304,28 +314,29 @@ public class Scheduler implements Runnable {
 	        }
 			
 
-			// TODO - handle conflicts
+			// TODO - handle conflicts better
 			for (Location location : conflicts.keySet()) {
 				Set<MovableObject> objects = conflicts.get(location);
-				MovableObject priority = objects.stream().findAny().get();
-				if (priority instanceof Agent) {
-					Agent priorityAgent = (Agent) priority;
-					Planner priorityPlanner = getPlanner(priorityAgent);
-					priorityPlanner.undo();
-
-					Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
-					for (MovableObject object : rest) {
-						if (object instanceof Agent) {
-							Agent agent = (Agent) object;
-							Planner planner = getPlanner(agent);
-							addTasks(agent.getColor(), planner.getTasks());
-							planner.clear();
-							planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
-						}
-						else if (object instanceof Box) {
-							// Box box = (Box) object;
-							// Well fuck
-						}
+				MovableObject priority = objects.stream().filter(x -> x instanceof Agent).findAny().get();
+				Agent priorityAgent = (Agent) priority;
+				Planner priorityPlanner = getPlanner(priorityAgent);
+				priorityPlanner.undo();
+				Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
+				for (MovableObject object : rest) {
+					if (object instanceof Agent) {
+						Agent agent = (Agent) object;
+						Planner planner = getPlanner(agent);
+						addTasks(agent.getColor(), planner.getTasks());
+						planner.clear();
+						planner.addTask(state, new AvoidConflictTask(1, priorityAgent.getId(), priorityPlanner.getPlan()));
+					}
+					else if (object instanceof Box) {
+						Box box = (Box) object;
+						Task task = priorityPlanner.getTasks().peek();
+						Task avoidTask = new MoveBoxTask(task.getPriority() + 1, task, box, priorityPlanner.getPath(state));
+						taskMap.get(box.getColor()).add(avoidTask);
+						lockTask(task, 1);
+						priorityPlanner.clear();
 					}
 				}
 			}

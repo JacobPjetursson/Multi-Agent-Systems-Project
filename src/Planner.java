@@ -1,5 +1,8 @@
 import action.Action;
+import action.BoxAction;
+import action.MoveAction;
 import action.NoOpAction;
+import state.Location;
 import state.State;
 import task.Task;
 
@@ -74,6 +77,23 @@ public class Planner {
 
     Queue<Action> getPlan() {
         return plan;
+    }
+    
+    public List<Location> getPath(State state) {
+    	List<Location> path = new LinkedList<>();
+    	Location location = state.getAgent(getAgentId()).getLocation();
+    	for (Action action : getPlan()) {
+    		if (action instanceof MoveAction) {
+    			MoveAction moveAction = (MoveAction) action;
+    			location = location.move(moveAction.getDirection());
+    		}
+    		else if (action instanceof BoxAction) {
+    			BoxAction boxAction = (BoxAction) action;
+    			location = location.move(boxAction.getAgentDirection());
+    		}
+    		path.add(location);
+    	}
+    	return path;
     }
 
     State createPlan(State initialState, Task task) {

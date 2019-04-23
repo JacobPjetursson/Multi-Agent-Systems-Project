@@ -24,8 +24,9 @@ public abstract class Task implements Comparable<Task> {
     	return this.priority - o.priority;
     }
     
-    public void assignAgent(Agent agent) {
+    public boolean assignAgent(Agent agent) {
     	this.agent = agent;
+    	return true;
     }
     
     public Agent getAgent() {
