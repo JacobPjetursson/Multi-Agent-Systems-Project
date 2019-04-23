@@ -40,7 +40,7 @@ public class Scheduler implements Runnable {
         // Task of getting agent to box
 		for (Box box : state.getAssignedBoxes()) {
 			//TODO : Use the goal priorities
-        	taskMap.get(box.getColor()).add(new MoveToBoxTask(10,box));
+        	taskMap.get(box.getColor()).add(new MoveToBoxTask(box));
 		}
 
 
