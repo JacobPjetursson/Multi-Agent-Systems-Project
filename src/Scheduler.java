@@ -46,7 +46,6 @@ public class Scheduler implements Runnable {
 
         // Task of getting box to goal
         for (Goal goal : state.getGoals()) {
-        	//addTask(goal.getColor(), new GoalTask(goal));
         	addTask(goal.getColor(), new GoalTask(priorityMap.get(goal.getLocation()),goal));
         }
 
@@ -57,6 +56,81 @@ public class Scheduler implements Runnable {
         }
     }
     
+    private void calculateGoalPriorities() {
+    	//NOT WORKING TOTALLY CORRECT
+    	int size = state.getGoals().size();
+    	priorityMap = new HashMap<>();
+    	Map<Goal, Integer> currentPriorityMap = new HashMap<>();
+    	Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
+    	List<Goal> goals = state.getGoals();
+    	for(Goal goal : goals) {
+    		goalPathMap.put(goal, new ArrayList<>());
+    		Box box = goal.getAssignedBox();
+    		
+    		List<Location> shortestPath = state.getPath(box.getLocation(), goal);
+    		for(Location l : shortestPath) {
+    			if(State.goalMap.containsKey(l)) {
+    				List<Goal> goalsCrossing = goalPathMap.get(goal);
+    				goalsCrossing.add(State.goalMap.get(l));
+    				goalPathMap.put(goal, goalsCrossing);
+    			}
+    		}
+    	}
+    	
+    	//Goals which do not block other goals
+    	int missingPriorities = size;
+    	Set<Goal> hasPriority = new HashSet<>();
+    	for(Goal goal : goals) {
+    		currentPriorityMap.put(goal, 1);
+    		List<Goal> goalsCrossing = goalPathMap.get(goal);
+    		if(goalsCrossing.isEmpty()) {
+    			currentPriorityMap.put(goal, 0);
+    			missingPriorities--;
+    			hasPriority.add(goal);
+    		}
+    	}
+    	
+    	while(missingPriorities > 0) {
+    		for(Goal goal : goals) {
+    			if(hasPriority.contains(goal)) {
+    				continue;
+    			}
+        		
+        		List<Goal> goalsCrossing = goalPathMap.get(goal);
+        		int currentPriority = currentPriorityMap.get(goal);
+        		int updatedPriority = currentPriority;
+        		for(Goal gc : goalsCrossing) {
+        			int tempPriority = currentPriorityMap.get(gc);
+    				if(!goalPathMap.get(gc).contains(goal)) {
+    					tempPriority++;
+    				}
+    				
+    				if (tempPriority > updatedPriority) {
+    					updatedPriority = tempPriority;
+    				}
+        		}
+        		currentPriorityMap.put(goal, updatedPriority);
+        		if(currentPriority == updatedPriority) {
+    				currentPriorityMap.put(goal, currentPriority);
+        			missingPriorities--;
+        			hasPriority.add(goal);
+        			continue;
+    			}
+        		if(updatedPriority >= size) {
+        			currentPriorityMap.put(goal, size);
+        			missingPriorities--;
+        			hasPriority.add(goal);
+        			continue;
+        		}
+        	}
+    	}
+    	
+    	for(Goal goal : goals) {
+    		priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
+    	}
+    	
+	}
+    
     private void lockTask(Task task, int lock) {
     	Integer old = taskLockMap.get(task);
     	if (old != null) {
@@ -64,39 +138,6 @@ public class Scheduler implements Runnable {
     	}
     	taskLockMap.put(task, lock);
     }
-    
-    private void calculateGoalPriorities() {
-    	int priority = 0;
-    	int size = state.getGoals().size();
-    	int[] priorities = new int[size];
-    	priorityMap = new HashMap<>();
-    	Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
-    	for(Goal goal : state.getGoals()) {
-    		goalPathMap.put(goal, new ArrayList<>());
-    		Box box = goal.getAssignedBox();
-    		
-    		List<Location> shortestPath = state.getPath(box.getLocation(), goal);
-    		for(Location l : shortestPath) {
-    			if(State.goalMap.containsKey(l)) {
-    				List<Goal> goals = goalPathMap.get(goal);
-    				goals.add(State.goalMap.get(l));
-    				goalPathMap.put(goal, goals);
-    			}
-    		}
-    	}
-    	
-    	for(int i = 0; i < size; i++) {
-    		Goal goal = state.getGoals().get(i);
-    		List<Goal> goalsCrossing = goalPathMap.get(goal);
-    		System.err.println(goal);
-    		System.err.println(goalsCrossing);
-    		//TODO : Make smarter but I am tired
-    		for(Goal gc : goalsCrossing) {
-    			priorities[i]++;
-    		}
-    		priorityMap.put(goal.getLocation(), priorities[i]);
-    	}
-	}
     
     private int unlockTask(Task task) {
     	Integer lock = taskLockMap.get(task);
@@ -276,6 +317,11 @@ public class Scheduler implements Runnable {
 			}
 
 			System.err.println("RESPONSE: " + message);
+			for(Goal goal : state.getGoals()) {
+				System.err.println("Goal " + goal.getLetter() + " has priority " + priorityMap.get(goal.getLocation()));
+		    	
+			}
+			
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
 			
