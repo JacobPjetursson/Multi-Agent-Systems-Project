@@ -37,4 +37,6 @@ public abstract class Task implements Comparable<Task> {
 	public abstract int h(State state);
 	public abstract boolean updateState(State state);
 	public abstract void initializeState(State state);
+	public abstract Task getNaive();
+	public abstract Task getNextTask();
 }

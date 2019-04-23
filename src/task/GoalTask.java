@@ -1,38 +1,41 @@
 package task;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import state.Box;
 import state.DistanceMap;
 import state.Goal;
 import state.State;
+import state.StateObject;
 
 public class GoalTask extends Task {
 	
+	private Box box;
 	private Goal goal;
 
-	public GoalTask(Goal goal) {
-		this(3, goal);
+	public GoalTask(Box box, Goal goal) {
+		this(3, box, goal);
 	}
 	
-	public GoalTask(int priority, Goal goal) {
+	public GoalTask(int priority, Box box, Goal goal) {
 		super(priority);
 		this.goal = goal;
+		this.box = box;
 	}
 	
 	public Goal getGoal() {
 		return goal;
 	}
+	
+	public Box getBox() {
+		return box;
+	}
 
 	@Override
 	public boolean isTerminal(State state) {
-		char letter = goal.getLetter();
-		List<Box> boxes = state.getBoxes();
-		for(Box box : boxes) {
-			if (box.getLetter() == letter && box.getLocation().equals(goal.getLocation()))
-				return true;
-		}
-		return false;
+		Box box = state.getBox(this.box);
+		return box.getLocation().equals(goal.getLocation());
 	}
 
 	@Override
@@ -75,4 +78,27 @@ public class GoalTask extends Task {
 		return false;
 	}
 
+	@Override
+	public Task getNaive() {
+		return new NaiveGoalTask(this);
+	}
+
+	@Override
+	public Task getNextTask() {
+		return null;
+	}
+	
+	private static class NaiveGoalTask extends GoalTask {		
+		public NaiveGoalTask(GoalTask task) {
+			super(task.getPriority(), task.getBox(), task.getGoal());
+		}
+
+		@Override
+		public void initializeState(State state) {
+			List<StateObject> preserve = new LinkedList<>();
+			preserve.add(getAgent());
+			preserve.add(getBox());
+			state.removeObjectsExcept(preserve);
+		}
+	}
 }

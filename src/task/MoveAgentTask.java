@@ -53,7 +53,19 @@ public class MoveAgentTask extends ResolveTask {
 	@Override
 	public void initializeState(State state) {
 		//TODO : Possible make another MoveAgent that uses this, to ensure it does not fuck with boxes when moving
+		// Maybe update heuristic to avoid moving boxes unless necessary
 		//state.setFakeWalls();
+	}
+
+	@Override
+	public Task getNaive() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Task getNextTask() {
+		return null;
 	}
 
 }
