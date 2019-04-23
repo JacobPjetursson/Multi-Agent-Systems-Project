@@ -375,7 +375,7 @@ public class Scheduler implements Runnable {
 						.filter(x -> !resolved.contains(x))
 						.collect(Collectors.toSet());
 				Optional<MovableObject> temp = objects.stream().filter(x -> x instanceof Agent).findAny();
-				if (temp.isEmpty()) continue;
+				if (!temp.isPresent()) continue;
 				Agent priority = (Agent) temp.get();
 				Planner priorityPlanner = getPlanner(priority);
 				priorityPlanner.undo();
