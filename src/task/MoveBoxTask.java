@@ -47,4 +47,16 @@ public class MoveBoxTask extends ResolveTask {
 		//state.setFakeWalls(box);
 	}
 
+	@Override
+	public Task getNaive() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Task getNextTask() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -27,13 +27,6 @@ public abstract class StateObject {
             return true;
         else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol())
             return true;
-        else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol() + 1)
-            return true;
-        else if (location.getRow() == loc.getRow() + 1 && location.getCol() == loc.getCol() - 1)
-            return true;
-        else if (location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol() - 1)
-			return true;
-		else return location.getRow() == loc.getRow() - 1 && location.getCol() == loc.getCol() + 1;
-
+        return false;
 	}
 }

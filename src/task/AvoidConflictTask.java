@@ -20,7 +20,7 @@ public class AvoidConflictTask extends Task {
 
 	@Override
 	public boolean isTerminal(State state) {
-		return state.g() > avoidPlan.size()-2; // TODO - fix
+		return state.g() >= avoidPlan.size();
 	}
 
 	@Override
@@ -40,6 +40,17 @@ public class AvoidConflictTask extends Task {
 	public void initializeState(State state) {
 		
 		
+	}
+
+	@Override
+	public Task getNaive() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Task getNextTask() {
+		return null;
 	}
 
 }

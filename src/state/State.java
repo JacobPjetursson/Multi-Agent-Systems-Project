@@ -5,12 +5,9 @@ import action.BoxAction;
 import action.MoveAction;
 import action.PullAction;
 import action.PushAction;
-import action.Action.Dir;
-import task.GoalTask;
 import task.Task;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class State{
 	public static final Map<Location, DistanceMap> DISTANCE_MAPS = new HashMap<>();
@@ -105,6 +102,7 @@ public class State{
 		return new ArrayList<>(boxes.values());
 	}
 
+	/*
 	public void removeObjectsExcept(Agent agent, int color) {
 		agents = new HashMap<>();
 		agents.put(agent.getId(), agent);
@@ -115,6 +113,22 @@ public class State{
 			}
 		}
 		boxes = newBoxes;
+	}
+	*/
+	
+	public void removeObjectsExcept(List<StateObject> preserve) {
+		agents = new HashMap<>();
+		boxes = new HashMap<>();
+		for (StateObject object : preserve) {
+			if (object instanceof Agent) {
+				Agent agent = (Agent) object;
+				agents.put(agent.getId(), agent);
+			}
+			else if (object instanceof Box) {
+				Box box = (Box) object;
+				boxes.put(box.getId(), box);
+			}
+		}
 	}
 
 	public List<Goal> getGoals() {

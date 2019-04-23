@@ -14,13 +14,13 @@ public class Planner {
 	private Action lastAction;
     private int agentId;
 
-    Planner(int agentId) {
+    public Planner(int agentId) {
         this.agentId = agentId;
         plan = new LinkedList<>();
         tasks = new LinkedList<>();
     }
 
-    Action poll() {
+    public Action poll() {
     	if (plan.isEmpty()) {
     		lastAction = new NoOpAction();
     	}
@@ -30,11 +30,11 @@ public class Planner {
     	return lastAction;
     }
     
-    boolean isEmpty() {
+    public boolean isEmpty() {
     	return plan.isEmpty();
     }
     
-    void undo() {
+    public void undo() {
     	Queue<Action> plan = new LinkedList<>();
     	plan.add(this.lastAction);
     	plan.addAll(this.plan);
@@ -42,11 +42,11 @@ public class Planner {
     	this.plan = plan;
     }
     
-    Action getLastAction() {
+    public Action getLastAction() {
     	return lastAction;
     }
 
-    void clear() {
+    public void clear() {
     	plan.clear();
     	tasks.clear();
     }
@@ -67,9 +67,14 @@ public class Planner {
         return true;
     }
     
-    Queue<Task> getTasks() {
+    public Queue<Task> getTasks() {
     	return new LinkedList<>(tasks);
     }
+    
+    public Task getNextTask() {
+    	if (tasks.isEmpty()) return null;
+    	return tasks.peek().getNextTask();
+	}
 
     public int getSize() {
         return plan.size();
