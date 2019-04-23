@@ -1,0 +1,19 @@
+#domain
+hospital
+#levelname
+PriorityStupid
+#colors
+red: 0, A, B
+#initial
+++++++++++++
++B ++++++ A+
++0         +
++  ++++++  +
+++++++++++++
+#goal
+++++++++++++
++  ++++++  +
++    AB    +
++  ++++++  +
+++++++++++++
+#end

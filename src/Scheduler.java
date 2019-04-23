@@ -82,36 +82,78 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateGoalPriorities() {
-		int priority = 0;
+		//NOT WORKING TOTALLY CORRECT
 		int size = state.getGoals().size();
-		int[] priorities = new int[size];
 		priorityMap = new HashMap<>();
+		Map<Goal, Integer> currentPriorityMap = new HashMap<>();
 		Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
-		for(Goal goal : state.getGoals()) {
+		List<Goal> goals = state.getGoals();
+		for(Goal goal : goals) {
 			goalPathMap.put(goal, new ArrayList<>());
 			Box box = goal.getAssignedBox();
 
 			List<Location> shortestPath = state.getPath(box.getLocation(), goal);
 			for(Location l : shortestPath) {
 				if(State.goalMap.containsKey(l)) {
-					List<Goal> goals = goalPathMap.get(goal);
-					goals.add(State.goalMap.get(l));
-					goalPathMap.put(goal, goals);
+					List<Goal> goalsCrossing = goalPathMap.get(goal);
+					goalsCrossing.add(State.goalMap.get(l));
+					goalPathMap.put(goal, goalsCrossing);
 				}
 			}
 		}
 
-		for(int i = 0; i < size; i++) {
-			Goal goal = state.getGoals().get(i);
+		//Goals which do not block other goals
+		int missingPriorities = size;
+		Set<Goal> hasPriority = new HashSet<>();
+		for(Goal goal : goals) {
+			currentPriorityMap.put(goal, 1);
 			List<Goal> goalsCrossing = goalPathMap.get(goal);
-			System.err.println(goal);
-			System.err.println(goalsCrossing);
-			//TODO : Make smarter but I am tired
-			for(Goal gc : goalsCrossing) {
-				priorities[i]++;
+			if(goalsCrossing.isEmpty()) {
+				currentPriorityMap.put(goal, 0);
+				missingPriorities--;
+				hasPriority.add(goal);
 			}
-			priorityMap.put(goal.getLocation(), priorities[i]);
 		}
+
+		while(missingPriorities > 0) {
+			for(Goal goal : goals) {
+				if(hasPriority.contains(goal)) {
+					continue;
+				}
+
+				List<Goal> goalsCrossing = goalPathMap.get(goal);
+				int currentPriority = currentPriorityMap.get(goal);
+				int updatedPriority = currentPriority;
+				for(Goal gc : goalsCrossing) {
+					int tempPriority = currentPriorityMap.get(gc);
+					if(!goalPathMap.get(gc).contains(goal)) {
+						tempPriority++;
+					}
+
+					if (tempPriority > updatedPriority) {
+						updatedPriority = tempPriority;
+					}
+				}
+				currentPriorityMap.put(goal, updatedPriority);
+				if(currentPriority == updatedPriority) {
+					currentPriorityMap.put(goal, currentPriority);
+					missingPriorities--;
+					hasPriority.add(goal);
+					continue;
+				}
+				if(updatedPriority >= size) {
+					currentPriorityMap.put(goal, size);
+					missingPriorities--;
+					hasPriority.add(goal);
+					continue;
+				}
+			}
+		}
+
+		for(Goal goal : goals) {
+			priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
+		}
+
 	}
 
 	private boolean allTasksCompleted() {
@@ -145,7 +187,7 @@ public class Scheduler implements Runnable {
 			Planner planner = plannerMap.get(agent.getId());
 			if (!planner.addTask(state, task)) {
 				planner.clear();
-				
+
 				Task naiveTask = task.getNaive();
 				if (naiveTask == null) {
 					System.err.println("No naive solution found");
@@ -154,7 +196,7 @@ public class Scheduler implements Runnable {
 				naiveTask.assignAgent(agent);
 				State terminalState = planner.createPlan(state, naiveTask);
 				List<Location> plan = terminalState.extractLocationPlan(agent);
-				
+
 				int lock = 0;
 				for (Location location : plan) {
 					MovableObject object = state.getObjectAt(location);
@@ -286,6 +328,11 @@ public class Scheduler implements Runnable {
 			}
 
 			System.err.println("RESPONSE: " + message);
+			for(Goal goal : state.getGoals()) {
+				System.err.println("Goal " + goal.getLetter() + " has priority " + priorityMap.get(goal.getLocation()));
+
+			}
+
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
 
