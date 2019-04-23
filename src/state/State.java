@@ -18,13 +18,12 @@ public class State{
 	public static List<Goal> goals;
 	public static Map<Location,Goal> goalMap;
 
+	private Set<Location> fakeWalls;
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;
 	private State parent;
 	private Action action;
 	private int g;
-	private Set<Location> fakeWalls;
-	
 
 	// Initial state
 	public State(Map<Integer, Agent> agents, Map<Integer, Box> boxes) {

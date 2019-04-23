@@ -40,22 +40,9 @@ public class GoalTask extends Task {
 
 	@Override
 	public int h(State state) {
-		char letter = goal.getLetter();
-		List<Box> boxes = state.getBoxes();
-		int best = Integer.MAX_VALUE;
-		for(Box box : boxes) {
-			if (box.getLetter() == letter) {
-			    // TODO - do not include boxes already in goal
-				int val = 0;
-				DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-				val += dm.distance(goal.getLocation());
-				if (val <= best) {
-					best = val;
-					goal.assignBox(box);
-				}
-			}
-		}
-		return best;
+		Box box = state.getBox(this.box);
+		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+		return dm.distance(goal.getLocation());
 	}
 	
 	@Override
