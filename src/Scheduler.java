@@ -45,7 +45,7 @@ public class Scheduler implements Runnable {
 		for (Goal goal : state.getAgentGoals()) {
 			for (Agent agent : state.getAgents()) {
 				if (goal.getLetter() == (char)(agent.getId()+'0')) {
-					addTask(goal.getColor(), new AgentToGoalTask(goal, agent));
+					addTask(goal.getColor(), new AgentToGoalTask(priorityMap.get(goal.getLocation()),goal, agent));
 				}
 			}
 			
@@ -92,20 +92,29 @@ public class Scheduler implements Runnable {
 
 	private void calculateGoalPriorities() {
 		//NOT WORKING TOTALLY CORRECT
-		int size = state.getGoals().size();
+		int size = state.getGoals().size()+state.getAgentGoals().size();
 		priorityMap = new HashMap<>();
 		Map<Goal, Integer> currentPriorityMap = new HashMap<>();
 		Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
-		List<Goal> goals = state.getGoals();
+		List<Goal> goals = new ArrayList<>(state.getGoals());
+		goals.addAll(state.getAgentGoals());
 		for(Goal goal : goals) {
 			goalPathMap.put(goal, new ArrayList<>());
-			Box box = goal.getAssignedBox();
-
-			List<Location> shortestPath = state.getPath(box.getLocation(), goal);
+			Location location;
+			if(goal.getLetter() >= '0' || goal.getLetter() <= '9') {
+				location = state.getAgent(Character.getNumericValue(goal.getLetter())).getLocation();
+			}else {
+				location = goal.getAssignedBox().getLocation();
+			}
+			List<Location> shortestPath = state.getPath(location, goal);
 			for(Location l : shortestPath) {
 				if(State.goalMap.containsKey(l)) {
 					List<Goal> goalsCrossing = goalPathMap.get(goal);
 					goalsCrossing.add(State.goalMap.get(l));
+					goalPathMap.put(goal, goalsCrossing);
+				}else if(State.agentGoalMap.containsKey(l)) {
+					List<Goal> goalsCrossing = goalPathMap.get(goal);
+					goalsCrossing.add(State.agentGoalMap.get(l));
 					goalPathMap.put(goal, goalsCrossing);
 				}
 			}
