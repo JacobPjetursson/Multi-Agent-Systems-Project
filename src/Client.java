@@ -57,7 +57,9 @@ public class Client {
 		Map<Integer, Box> boxes = new HashMap<>();
 		int boxId = 1;
 		List<Goal> goals = new ArrayList<>();
+		List<Goal> agentGoals = new ArrayList<>();
 		Map<Location,Goal> goalMap = new HashMap<>();
+		Map<Location,Goal> agentGoalMap = new HashMap<>();
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < cols; col++) {
@@ -90,6 +92,12 @@ public class Client {
 					goals.add(goal);
 					goalMap.put(position, goal);
 					
+				}else if(chr >= '0' && chr <= '9') {
+					Location position = new Location(row, col);
+					int color = colorMap.get(chr);
+					Goal goal = new Goal(position, color, chr);
+					agentGoals.add(goal);
+					agentGoalMap.put(position, goal);
 				}
 			}
 			row++;
@@ -109,6 +117,8 @@ public class Client {
 		
         State.goals = goals;
         State.goalMap = goalMap;
+        State.agentGoals = agentGoals;
+        State.agentGoalMap = agentGoalMap;
         State initialState = new State(agents, boxes);
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();

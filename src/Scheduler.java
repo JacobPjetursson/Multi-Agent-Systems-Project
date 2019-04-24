@@ -41,6 +41,15 @@ public class Scheduler implements Runnable {
 		for (Goal goal : state.getGoals()) {
 			addGoalTask(goal);
 		}
+		
+		for (Goal goal : state.getAgentGoals()) {
+			for (Agent agent : state.getAgents()) {
+				if (goal.getLetter() == (char)(agent.getId()+'0')) {
+					addTask(goal.getColor(), new AgentToGoalTask(goal, agent));
+				}
+			}
+			
+		}
 
 		// Initial tasks
 		// TODO - prioritize which agent takes which task, instead of random

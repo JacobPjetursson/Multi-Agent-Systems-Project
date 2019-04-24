@@ -16,7 +16,9 @@ public class State{
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
+	public static List<Goal> agentGoals;
 	public static Map<Location,Goal> goalMap;
+	public static Map<Location, Goal> agentGoalMap;
 
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;
@@ -134,6 +136,10 @@ public class State{
 	public List<Goal> getGoals() {
 		return goals;
 	}
+	
+	public List<Goal> getAgentGoals() {
+		return agentGoals;
+	}
 
 	public Agent getAgent(Agent agent) {
 		return getAgent(agent.getId());
@@ -227,7 +233,8 @@ public class State{
 	}
 
 	public int f(Task task) {
-		return g + task.h(this)-boxesInGoal();
+		//TODO : Remove boxes in goal when it stops moving shit
+		return g + task.h(this) - boxesInGoal();
 	}
 	
 	public int boxesInGoal() {
