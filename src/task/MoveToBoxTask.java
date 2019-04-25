@@ -40,7 +40,14 @@ public class MoveToBoxTask extends Task {
                 }
             }
         }
-        return best;
+        int dis = 0;
+		for(Box box : state.getBoxes()) {
+			if(!this.box.equals(box)) {
+				dis += State.safeLocation.get(box.getLocation());
+			}
+			
+		}
+        return best-dis;
     }
     
     @Override
@@ -85,6 +92,11 @@ public class MoveToBoxTask extends Task {
 			preserve.add(getBox());
 			state.removeObjectsExcept(preserve);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return ("MoveToBoxTask = Box : " + box.getLetter() + " - Box location : " + box.getLocation() + " - Agent : " + super.getAgent().getId());
 	}
 
 }

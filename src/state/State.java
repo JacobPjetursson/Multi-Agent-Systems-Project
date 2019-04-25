@@ -19,6 +19,9 @@ public class State{
 	public static List<Goal> agentGoals;
 	public static Map<Location,Goal> goalMap;
 	public static Map<Location, Goal> agentGoalMap;
+	public static Map<Location, Integer> safeLocation;
+	public static int totalGoals;
+	public static int freeGoals;
 
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;
@@ -69,20 +72,21 @@ public class State{
 
 	// Naively assign boxes to goals based on distance
 	public void assignBoxesToGoals() {
+		Set<Box> assigned = new HashSet<>();
 	    for (Goal g : goals) {
             int best = Integer.MAX_VALUE;
             for(Box box : boxes.values()) {
-                if (box.getLetter() == g.getLetter()) {
-                    // TODO - do not include boxes already in goal
+                if (box.getLetter() == g.getLetter() && !assigned.contains(box)) {
                     int val = 0;
                     DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
                     val += dm.distance(g.getLocation());
-                    if (val <= best) {
+                    if (val <= best && val>=0) {
                         best = val;
                         g.assignBox(box);
                     }
                 }
             }
+            assigned.add(g.getAssignedBox());
         }
     }
 
@@ -379,8 +383,8 @@ public class State{
 		return plan;
 	}
 
-	public List<Location> getPath(Location loc, Goal goal) {
-		DistanceMap dm = DISTANCE_MAPS.get(goal.getLocation());
+	public List<Location> getPath(Location loc, Location goal) {
+		DistanceMap dm = DISTANCE_MAPS.get(goal);
 		List<Location> path = new ArrayList<>();
 		Location location = new Location(loc);
 		int dist = dm.distance(location);

@@ -12,19 +12,19 @@ import state.Location;
 import state.State;
 import state.StateObject;
 
-public class MoveBoxTask extends ResolveTask {
+public class MoveBoxesTask extends ResolveTask {
 	
 	private Set<Location> path;
-	private Box box;
+	private List<Box> boxes;
 
-	public MoveBoxTask(int priority, Task taskToResolve, Box box, Collection<Location> path) {
+	public MoveBoxesTask(int priority, Task taskToResolve, List<Box> boxes, Collection<Location> path) {
 		super(priority, taskToResolve);
-		this.box = box;
+		this.boxes = boxes;
 		this.path = new HashSet<>(path);
 	}
 	
-	private Box getBox() {
-		return box;
+	private List<Box> getBoxes() {
+		return boxes;
 	}
 	
 	private Set<Location> getPath(){
@@ -33,19 +33,28 @@ public class MoveBoxTask extends ResolveTask {
 
 	@Override
 	public boolean isTerminal(State state) {
-		return !path.contains(state.getBox(box).getLocation());
+		for(Box box : boxes) {
+			if(path.contains(state.getBox(box).getLocation())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public int h(State state) {
 		int h = 0;
-		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+		DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
 		for(Box b : state.getBoxes()) {
 			if(path.contains(b.getLocation())) {
-				h+=10;
+				h+=5;
 			}
 		}
-		return h+dm.distance(getAgent().getLocation());
+		int dis = 0;
+		for(Box box : boxes) {
+			dis += State.safeLocation.get(box.getLocation());
+		}
+		return h-dis;
 	}
 
 	@Override
@@ -60,7 +69,7 @@ public class MoveBoxTask extends ResolveTask {
 
 	@Override
 	public Task getNaive() {
-		return new NaiveMoveBoxTask(this);
+		return new NaiveMoveBoxesTask(this);
 		//return null;
 	}
 
@@ -70,9 +79,9 @@ public class MoveBoxTask extends ResolveTask {
 		return null;
 	}
 	
-	private static class NaiveMoveBoxTask extends MoveBoxTask {		
-		public NaiveMoveBoxTask(MoveBoxTask task) {
-			super(task.getPriority(), task.getTaskToResolve(), task.getBox(), task.getPath());
+	private static class NaiveMoveBoxesTask extends MoveBoxesTask {		
+		public NaiveMoveBoxesTask(MoveBoxesTask task) {
+			super(task.getPriority(), task.getTaskToResolve(), task.getBoxes(), task.getPath());
 		}
 
 		@Override
@@ -91,7 +100,7 @@ public class MoveBoxTask extends ResolveTask {
 	
 	
 	public String toString() {
-		return ("MoveBoxTask = Box : " + box.getLetter() + " - Box location : " + box.getLocation() + " - Agent : " + super.getAgent().getId());
+		return ("MoveBoxesTask");
 	}
 
 }

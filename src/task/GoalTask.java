@@ -45,7 +45,6 @@ public class GoalTask extends Task {
 		int best = Integer.MAX_VALUE;
 		for(Box box : boxes) {
 			if (box.getLetter() == letter) {
-			    // TODO - do not include boxes already in goal
 				int val = 0;
 				DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
 				val += dm.distance(goal.getLocation());
@@ -55,7 +54,14 @@ public class GoalTask extends Task {
 				}
 			}
 		}
-		return best;
+		int dis = 0;
+		for(Box box : state.getBoxes()) {
+			if(!this.box.equals(box)) {
+				dis += State.safeLocation.get(box.getLocation());
+			}
+			
+		}
+        return best-dis;
 	}
 	
 	@Override
