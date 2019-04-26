@@ -26,28 +26,17 @@ public class MoveToBoxTask extends Task {
 
     @Override
     public int h(State state) {
-
-        int color = box.getColor();
-        List<Agent> agents = state.getAgents();
-        int best = Integer.MAX_VALUE;
-        for(Agent agent : agents) {
-            if (agent.getColor() == color) {
-                int val = 0;
-                DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
-                val += dm.distance(box.getLocation());
-                if (val <= best) {
-                    best = val;
-                }
-            }
-        }
+    	int val = 0;
+        DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
+        val += dm.distance(state.getBox(box).getLocation());
         int dis = 0;
-		for(Box box : state.getBoxes()) {
-			if(!this.box.equals(box)) {
+        for(Box box : state.getBoxes()) {
+			if(!State.goalMap.containsKey(box.getLocation())) {
 				dis += State.safeLocation.get(box.getLocation());
 			}
 			
 		}
-        return best-dis;
+        return val-dis;
     }
     
     @Override
@@ -78,6 +67,15 @@ public class MoveToBoxTask extends Task {
 	@Override
 	public Task getNextTask() {
 		return nextTask;
+	}
+	
+	@Override
+	public boolean assignAgent(Agent agent) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
+		if(dm.distance(box.getLocation()) <= 0) {
+			return false;
+		}
+		return super.assignAgent(agent);
 	}
 	
 	private static class NaiveMoveToBoxTask extends MoveToBoxTask {		

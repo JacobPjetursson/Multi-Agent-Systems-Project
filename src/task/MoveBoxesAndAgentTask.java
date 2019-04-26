@@ -1,5 +1,4 @@
 package task;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,16 +11,19 @@ import state.DistanceMap;
 import state.Location;
 import state.State;
 import state.StateObject;
+import task.Task;
 
-public class MoveBoxesTask extends ResolveTask {
+public class MoveBoxesAndAgentTask extends ResolveTask {
 	
 	private Set<Location> path;
 	private List<Box> boxes;
+	private Agent agent;
 
-	public MoveBoxesTask(int priority, Task taskToResolve, List<Box> boxes, Collection<Location> path) {
+	public MoveBoxesAndAgentTask(int priority, Task taskToResolve, List<Box> boxes, Agent agent, Collection<Location> path) {
 		super(priority, taskToResolve);
 		this.boxes = boxes;
 		this.path = new HashSet<>(path);
+		this.agent = agent;
 	}
 	
 	private List<Box> getBoxes() {
@@ -31,6 +33,10 @@ public class MoveBoxesTask extends ResolveTask {
 	private Set<Location> getPath(){
 		return path;
 	}
+	
+	public Agent getAgent(){
+		return agent;
+	}
 
 	@Override
 	public boolean isTerminal(State state) {
@@ -39,12 +45,13 @@ public class MoveBoxesTask extends ResolveTask {
 				return false;
 			}
 		}
-		return true;
+		return !path.contains(state.getAgent(agent).getLocation());
 	}
 
 	@Override
 	public int h(State state) {
 		int h = 0;
+		DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
 		for(Box b : state.getBoxes()) {
 			if(path.contains(b.getLocation())) {
 				h+=5;
@@ -69,7 +76,7 @@ public class MoveBoxesTask extends ResolveTask {
 
 	@Override
 	public Task getNaive() {
-		return new NaiveMoveBoxesTask(this);
+		return new NaiveMoveBoxesAndAgentTask(this);
 		//return null;
 	}
 
@@ -81,25 +88,21 @@ public class MoveBoxesTask extends ResolveTask {
 	
 	@Override
 	public boolean assignAgent(Agent agent) {
-		DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
-		for(Box box : boxes) {
-			if(dm.distance(box.getLocation()) <= 0) {
-				return false;
-			}
+		if(agent.equals(this.agent)) {
+			return super.assignAgent(agent);
 		}
-		return super.assignAgent(agent);
+		return false;
 	}
 	
-	private static class NaiveMoveBoxesTask extends MoveBoxesTask {		
-		public NaiveMoveBoxesTask(MoveBoxesTask task) {
-			super(task.getPriority(), task.getTaskToResolve(), task.getBoxes(), task.getPath());
+	private static class NaiveMoveBoxesAndAgentTask extends MoveBoxesAndAgentTask {		
+		public NaiveMoveBoxesAndAgentTask(MoveBoxesAndAgentTask task) {
+			super(task.getPriority(), task.getTaskToResolve(), task.getBoxes(), task.getAgent(), task.getPath());
 		}
 
 		@Override
 		public void initializeState(State state) {
 			List<StateObject> preserve = new LinkedList<>();
 			preserve.add(getAgent());
-			//preserve.add(super.getBox());
 			for(Box box: state.getBoxes()) {
 				if(box.getColor() == getAgent().getColor()) {
 					preserve.add(box);
@@ -111,7 +114,7 @@ public class MoveBoxesTask extends ResolveTask {
 	
 	
 	public String toString() {
-		return ("MoveBoxesTask");
+		return ("MoveBoxesAndAgentTask");
 	}
 
 }

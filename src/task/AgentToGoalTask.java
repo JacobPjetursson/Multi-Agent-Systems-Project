@@ -65,7 +65,11 @@ public class AgentToGoalTask extends Task {
 	}
 	
 	public boolean assignAgent(Agent agent) {
-    	return this.agent == agent;
+		if(this.agent.equals(agent)) {
+			super.assignAgent(agent);
+			return true;
+		}
+    	return false;
     }
 	
 	private static class NaiveAgentToGoalTask extends AgentToGoalTask {		

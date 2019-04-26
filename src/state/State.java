@@ -80,7 +80,7 @@ public class State{
                     int val = 0;
                     DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
                     val += dm.distance(g.getLocation());
-                    if (val <= best && val>=0) {
+                    if (val <= best && val>0) {
                         best = val;
                         g.assignBox(box);
                     }

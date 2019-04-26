@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import state.Agent;
 import state.Box;
 import state.DistanceMap;
 import state.Location;
@@ -61,13 +62,21 @@ public class MoveBoxTask extends ResolveTask {
 	@Override
 	public Task getNaive() {
 		return new NaiveMoveBoxTask(this);
-		//return null;
 	}
 
 	@Override
 	public Task getNextTask() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public boolean assignAgent(Agent agent) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(agent.getLocation());
+		if(dm.distance(box.getLocation()) <= 0) {
+			return false;
+		}
+		return super.assignAgent(agent);
 	}
 	
 	private static class NaiveMoveBoxTask extends MoveBoxTask {		

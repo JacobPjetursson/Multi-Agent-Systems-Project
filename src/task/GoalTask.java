@@ -40,28 +40,18 @@ public class GoalTask extends Task {
 
 	@Override
 	public int h(State state) {
-		char letter = goal.getLetter();
-		List<Box> boxes = state.getBoxes();
-		int best = Integer.MAX_VALUE;
-		for(Box box : boxes) {
-			if (box.getLetter() == letter) {
-				int val = 0;
-				DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-				val += dm.distance(goal.getLocation());
-				if (val <= best) {
-					best = val;
-					goal.assignBox(box);
-				}
-			}
-		}
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+		int val = dm.distance(goal.getLocation());
+		
 		int dis = 0;
 		for(Box box : state.getBoxes()) {
-			if(!this.box.equals(box)) {
+			if(!State.goalMap.containsKey(box.getLocation())) {
 				dis += State.safeLocation.get(box.getLocation());
 			}
 			
 		}
-        return best-dis;
+		
+        return val-dis;
 	}
 	
 	@Override

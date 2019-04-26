@@ -2,8 +2,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import state.Agent;
 import state.Box;
@@ -18,6 +20,7 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
 		Map<Character, Integer> colorMap = new HashMap<>();
+		Set<Integer> agentsOfColor = new HashSet<>();
 		
 		// STEP 1 : First System.out.println(client name);
 		System.out.println("Bob");
@@ -37,6 +40,9 @@ public class Client {
 			for(int i = 1; i < split.length; i++) {
 				char chr = split[i].charAt(0);
 				colorMap.put(chr, getColorCode(color));
+				if(chr >= '0' && chr <= '9') {
+					agentsOfColor.add(getColorCode(color));
+				}
 			}
 			response = serverMessages.readLine();
 		}
@@ -74,8 +80,13 @@ public class Client {
 				}else if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					boxes.put(boxId, new Box(boxId, color, chr, position));
-					boxId++;
+					if(agentsOfColor.contains(color)) {
+						boxes.put(boxId, new Box(boxId, color, chr, position));
+						boxId++;
+					}else {
+						State.walls[row][col] = true;
+					}
+					
 				}
 			}
 		}

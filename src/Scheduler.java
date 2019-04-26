@@ -268,37 +268,63 @@ public class Scheduler implements Runnable {
 
 				int lock = 0;
 				Map<Integer,List<Box>> boxesToMove = new HashMap<>();
+				Map<Integer,List<Agent>> agentsToMove = new HashMap<>();
 				for (Location location : plan) {
 					MovableObject object = state.getObjectAt(location);
 					if (object instanceof Agent) {
 						Agent moveAgent = (Agent) object;
 						if(moveAgent.getId() != agent.getId()) {
-							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+2, task, moveAgent, plan));
-							lock++;
+							if(!agentsToMove.containsKey(moveAgent.getColor())) {
+								agentsToMove.put(moveAgent.getColor(), new ArrayList<>());
+							}
+							agentsToMove.get(moveAgent.getColor()).add(moveAgent);
 						}
 					}
 					else if (object instanceof Box) {
 						
 						Box box = (Box) object;
-						/*
-						//Can possibly go wrong here
-						if(box.getColor() != agent.getColor()) {
-							taskMap.get(box.getColor()).add(new MoveBoxTask(task.getPriority()+1, task, box, plan));
-							lock++;
+						
+						if(box.getColor()!=agent.getColor()) {
+							if(!boxesToMove.containsKey(box.getColor())) {
+								boxesToMove.put(box.getColor(), new ArrayList<>());
+								
+							}
+							boxesToMove.get(box.getColor()).add(box);
 						}
-						*/
-						if(!boxesToMove.containsKey(box.getColor())) {
-							boxesToMove.put(box.getColor(), new ArrayList<>());
-							
-						}
-						boxesToMove.get(box.getColor()).add(box);
+						
+						
+						
+						
 					}
 				}
 				for(Integer col : boxesToMove.keySet()) {
-					System.err.println(boxesToMove.get(col));
-					taskMap.get(col).add(new MoveBoxesTask(task.getPriority()+1, task, boxesToMove.get(col), plan));
-					lock++;
+					if(agentsToMove.containsKey(col)) {
+						Agent agentToMove = agentsToMove.get(col).get(0);
+						agentsToMove.get(col).remove(0);
+						taskMap.get(col).add(new MoveBoxesAndAgentTask(task.getPriority()+1,task,boxesToMove.get(col), agentToMove,plan));
+						lock++;
+					}else {
+						List<Box> boxes = boxesToMove.get(col);
+						if(boxes.size() == 1) {
+							Task nextTask = new MoveBoxTask(task.getPriority()+1, task, boxes.get(0), plan);
+							taskMap.get(col).add(new MoveToBoxTask(task.getPriority()+2, boxes.get(0), nextTask));
+							lock++;
+						}else {
+							taskMap.get(col).add(new MoveBoxesTask(task.getPriority()+1, task, boxes, plan));
+							lock++;
+						}
+						
+					}
+					
 				}
+				for(Integer col : agentsToMove.keySet()) {
+					for(Agent moveAgent : agentsToMove.get(col)) {
+						taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
+						lock++;
+					}
+				}
+				
+				
 				lockTask(task, lock);
 
 				if (!taskLockMap.containsKey(task)) {
