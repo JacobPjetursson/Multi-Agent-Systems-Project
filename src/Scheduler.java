@@ -15,7 +15,8 @@ public class Scheduler implements Runnable {
 	private Map<Integer, PriorityQueue<Task>> taskMap;
 	private Map<Integer, Planner> plannerMap;
 	private Map<Task, Integer> taskLockMap;
-	private Map<Location,Integer> priorityMap;
+
+	private static Map<Location,Integer> priorityMap;
 	private Set<Goal> usedGoalsSet; // Used for monitoring which goals have been made to tasks
 
 	public Scheduler(State initialState, BufferedReader serverMessages) {
@@ -38,12 +39,25 @@ public class Scheduler implements Runnable {
 		state.assignBoxesToGoals();
 		priorityMap = new HashMap<>();
 		calculateGoalPriorities();
-		//addCombinedTasks();
+		State.totalGoals = state.getGoals().size()+state.getAgentGoals().size();
+		State.freeGoals = State.totalGoals;
+		calculateSafeLocations(state);
+
+
 
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals()) {
 		    if (!usedGoalsSet.contains(goal))
 			    addGoalTask(goal);
+		}
+
+		for (Goal goal : state.getAgentGoals()) {
+			for (Agent agent : state.getAgents()) {
+				if (goal.getLetter() == (char)(agent.getId()+'0')) {
+					addTask(goal.getColor(), new AgentToGoalTask(priorityMap.get(goal.getLocation()),goal, agent));
+				}
+			}
+
 		}
 
 		// Initial tasks
@@ -53,32 +67,50 @@ public class Scheduler implements Runnable {
 		}
 	}
 
-	private void addCombinedTasks() {
-        // Combine tasks for goals with the same priority
-        for (int i = 0; i < state.getGoals().size(); i++) {
-            Goal g1 = state.getGoals().get(i);
-            if (usedGoalsSet.contains(g1)) continue;
-            ArrayList<Task> combined = new ArrayList<>();
-            int g1prio = priorityMap.get(g1.getLocation());
-            combined.add(new GoalTask(g1prio, g1.getAssignedBox(), g1));
-            for (int j = i; j < state.getGoals().size(); j++) {
-                Goal g2 = state.getGoals().get(j);
-                if (i == j || usedGoalsSet.contains(g2)) continue;
-                int g2prio = priorityMap.get(g2.getLocation());
-                if (g1.getColor() == g2.getColor() && g1prio == g2prio) {
-                    combined.add(new GoalTask(g2prio, g2.getAssignedBox(), g2));
-                }
-            }
-            if (combined.size() > 1) {
-                for (Task t : combined) {
-                    GoalTask gt = (GoalTask) t;
-                    usedGoalsSet.add(gt.getGoal());
-                }
-                CombinedTask combinedTask = new CombinedTask(combined);
-                addTask(g1.getColor(), combinedTask);
-            }
-        }
-    }
+	private void calculateSafeLocations(State state) {
+		List<Goal> goals = new ArrayList<>(state.getGoals());
+		goals.addAll(state.getAgentGoals());
+		Set<Location> paths = new HashSet<>();
+		for(Goal goal : goals) {
+			if(state.getBoxAt(goal.getLocation()) != null) {
+				continue;
+			}
+			Location location;
+			if(goal.getLetter() >= '0' && goal.getLetter() <= '9') {
+				location = state.getAgent(Character.getNumericValue(goal.getLetter())).getLocation();
+			}else {
+				location = state.getBox(goal.getAssignedBox()).getLocation();
+			}
+			List<Location> shortestPath = state.getPath(location, goal.getLocation());
+			for(Location l : shortestPath) {
+				paths.add(l);
+			}
+		}
+
+		State.safeLocation = new HashMap<>();
+		for(int row = 0; row < State.ROWS; row++) {
+			for(int col = 0; col < State.COLS; col++) {
+				Location location = new Location(row,col);
+				if(!State.walls[row][col]) {
+					int safeValue = Integer.MAX_VALUE;
+					DistanceMap dm = State.DISTANCE_MAPS.get(location);
+					for(Location loc : paths) {
+						int temp = dm.distance(loc);
+						if(temp < safeValue) {
+							safeValue = temp;
+						}
+
+					}
+					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeGoals/1.2)),State.freeGoals*State.freeGoals));
+				}else {
+					State.safeLocation.put(location, -1);
+				}
+
+			}
+
+		}
+
+	}
 
 	private void addGoalTask(Goal goal) {
 		Box box = goal.getAssignedBox();
@@ -103,7 +135,7 @@ public class Scheduler implements Runnable {
 			if (val <= 0) {
 				taskLockMap.remove(task);
 				taskMap.get(task.getAgent().getColor()).add(task);
-			}
+				}
 			else {
 				taskLockMap.put(task, val);
 			}
@@ -114,22 +146,32 @@ public class Scheduler implements Runnable {
 
 	private void calculateGoalPriorities() {
 		//NOT WORKING TOTALLY CORRECT
-		int size = state.getGoals().size();
+		int size = state.getGoals().size()+state.getAgentGoals().size();
 		priorityMap = new HashMap<>();
 		Map<Goal, Integer> currentPriorityMap = new HashMap<>();
 		Map <Goal, List<Goal>> goalPathMap = new HashMap<>();
-		List<Goal> goals = state.getGoals();
+		List<Goal> goals = new ArrayList<>(state.getGoals());
+		goals.addAll(state.getAgentGoals());
 		for(Goal goal : goals) {
 			goalPathMap.put(goal, new ArrayList<>());
-			Box box = goal.getAssignedBox();
-
-			List<Location> shortestPath = state.getPath(box.getLocation(), goal);
+			Location location;
+			if(goal.getLetter() >= '0' && goal.getLetter() <= '9') {
+				location = state.getAgent(Character.getNumericValue(goal.getLetter())).getLocation();
+			}else {
+				location = goal.getAssignedBox().getLocation();
+			}
+			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
 				if(State.goalMap.containsKey(l)) {
 					List<Goal> goalsCrossing = goalPathMap.get(goal);
 					goalsCrossing.add(State.goalMap.get(l));
 					goalPathMap.put(goal, goalsCrossing);
+				}else if(State.agentGoalMap.containsKey(l)) {
+					List<Goal> goalsCrossing = goalPathMap.get(goal);
+					goalsCrossing.add(State.agentGoalMap.get(l));
+					goalPathMap.put(goal, goalsCrossing);
 				}
+
 			}
 		}
 
@@ -229,23 +271,64 @@ public class Scheduler implements Runnable {
 				List<Location> plan = terminalState.extractLocationPlan(agent);
 
 				int lock = 0;
+				Map<Integer,List<Box>> boxesToMove = new HashMap<>();
+				Map<Integer,List<Agent>> agentsToMove = new HashMap<>();
 				for (Location location : plan) {
 					MovableObject object = state.getObjectAt(location);
 					if (object instanceof Agent) {
 						Agent moveAgent = (Agent) object;
 						if(moveAgent.getId() != agent.getId()) {
-							taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
-							lock++;
+							if(!agentsToMove.containsKey(moveAgent.getColor())) {
+								agentsToMove.put(moveAgent.getColor(), new ArrayList<>());
+							}
+							agentsToMove.get(moveAgent.getColor()).add(moveAgent);
 						}
 					}
 					else if (object instanceof Box) {
+
 						Box box = (Box) object;
-						if(box.getColor() != agent.getColor()) {
-							taskMap.get(box.getColor()).add(new MoveBoxTask(task.getPriority()+1, task, box, plan));
-							lock++;
+
+						if(box.getColor()!=agent.getColor()) {
+							if(!boxesToMove.containsKey(box.getColor())) {
+								boxesToMove.put(box.getColor(), new ArrayList<>());
+
+							}
+							boxesToMove.get(box.getColor()).add(box);
 						}
+
+
+
+
 					}
 				}
+				for(Integer col : boxesToMove.keySet()) {
+					if(agentsToMove.containsKey(col)) {
+						Agent agentToMove = agentsToMove.get(col).get(0);
+						agentsToMove.get(col).remove(0);
+						taskMap.get(col).add(new MoveBoxesAndAgentTask(task.getPriority()+1,task,boxesToMove.get(col), agentToMove,plan));
+						lock++;
+					}else {
+						List<Box> boxes = boxesToMove.get(col);
+						if(boxes.size() == 1) {
+							Task nextTask = new MoveBoxTask(task.getPriority()+1, task, boxes.get(0), plan);
+							taskMap.get(col).add(new MoveToBoxTask(task.getPriority()+2, boxes.get(0), nextTask));
+							lock++;
+						}else {
+							taskMap.get(col).add(new MoveBoxesTask(task.getPriority()+1, task, boxes, plan));
+							lock++;
+						}
+
+					}
+
+				}
+				for(Integer col : agentsToMove.keySet()) {
+					for(Agent moveAgent : agentsToMove.get(col)) {
+						taskMap.get(moveAgent.getColor()).add(new MoveAgentTask(task.getPriority()+1, task, moveAgent, plan));
+						lock++;
+					}
+				}
+
+
 				lockTask(task, lock);
 
 				if (!taskLockMap.containsKey(task)) {
@@ -336,7 +419,7 @@ public class Scheduler implements Runnable {
 						else {
 							assignTask(state, agent);
 						}
-					} 
+					}
 					while (planner.isEmpty() && !planner.getTasks().isEmpty());
 				}
 				if (!planner.isEmpty()) {
@@ -359,10 +442,6 @@ public class Scheduler implements Runnable {
 			}
 
 			System.err.println("RESPONSE: " + message);
-			for(Goal goal : state.getGoals()) {
-				System.err.println("Goal " + goal.getLetter() + " has priority " + priorityMap.get(goal.getLocation()));
-
-			}
 
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
@@ -376,13 +455,24 @@ public class Scheduler implements Runnable {
 					collectConflicts(conflicts, agent, action);
 				}
 				else {
+					int oldGoalCount = state.boxesInGoal();
 					Location oldAgentLoc = agent.getLocation();
 					state.applyAction(agent, action);
+					Location newAgentLoc = state.getAgent(agent).getLocation();
+					int newGoalCount = state.boxesInGoal();
+					if(newGoalCount > oldGoalCount) {
+						calculateSafeLocations(state);
+						State.freeGoals--;
+					}
+					if(!oldAgentLoc.equals(newAgentLoc) && State.agentGoalMap.containsKey(oldAgentLoc)) {
+						addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.agentGoalMap.get(oldAgentLoc), agent));
+						State.freeGoals++;
+					}
 					//If box moved away from goal add goalTask again
 					if(action instanceof BoxAction) {
 						BoxAction boxAction = (BoxAction) action;
 						Dir boxDir = boxAction.getBoxDirection();
-						Location newAgentLoc = state.getAgent(agent).getLocation();
+
 						Location newBoxLoc;
 						newBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc.getRow() + Action.dirToRowChange(boxDir), newAgentLoc.getCol() + Action.dirToColChange(boxDir)) : new Location(oldAgentLoc);
 						Location oldBoxLoc;
@@ -392,6 +482,7 @@ public class Scheduler implements Runnable {
 							if(goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
 								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
+								State.freeGoals++;
 								break;
 							}
 						}

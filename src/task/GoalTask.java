@@ -40,9 +40,17 @@ public class GoalTask extends Task {
 
 	@Override
 	public int h(State state) {
-		Box box = state.getBox(this.box);
-		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-		return dm.distance(goal.getLocation());
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+		int val = dm.distance(goal.getLocation());
+		
+		int dis = 0;
+		for(Box box : state.getBoxes()) {
+			if(!State.goalMap.containsKey(box.getLocation())) {
+				dis += State.safeLocation.get(box.getLocation());
+			}
+			
+		}
+        return val-dis;
 	}
 	
 	@Override

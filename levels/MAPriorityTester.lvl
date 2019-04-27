@@ -3,17 +3,17 @@ hospital
 #levelname
 PriorityStupid
 #colors
-red: 0, A, B, C, D, E, F, G, H, I
+red: 0, A, B, C, D, E, F, G, H, I, J
 #initial
 ++++++++++++++++++
-+ABC EFGHI+++   ++
-+0              D+
++ABCDEFGHI+++   ++
++0              J+
 +         +++   ++
 ++++++++++++++++++
 #goal
 ++++++++++++++++++
 +         +++ABC++
-+            DEF +
++         J  DEF +
 +         +++GHI++
 ++++++++++++++++++
 #end

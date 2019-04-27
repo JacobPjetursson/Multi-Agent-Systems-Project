@@ -1,0 +1,20 @@
+#domain
+hospital
+#levelname
+AgentToGoal
+#colors
+red: 0, A
+blue: 1
+#initial
++++++++++++
++1   A    +
++++++0+++++
++++++ +++++
++++++++++++
+#goal
++++++++++++
++        1+
++++++ +++++
++++++ +++++
++++++++++++
+#end

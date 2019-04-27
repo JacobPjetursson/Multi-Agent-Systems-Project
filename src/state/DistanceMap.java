@@ -9,6 +9,7 @@ public class DistanceMap {
 	private int[][] map;
 	
 	DistanceMap(Location init) {
+		//TODO : Need to check of OutOfBounds - See MAdashen for example
 		boolean[][] walls = State.walls;
 		map = new int[State.ROWS][State.COLS];
 		Queue<Object[]> steps = new LinkedList<>();
