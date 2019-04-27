@@ -16,6 +16,7 @@ public class Scheduler implements Runnable {
 	private Map<Integer, Planner> plannerMap;
 	private Map<Task, Integer> taskLockMap;
 	private Map<Location,Integer> priorityMap;
+	private Set<Goal> usedGoalsSet; // Used for monitoring which goals have been made to tasks
 
 	public Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
@@ -25,6 +26,7 @@ public class Scheduler implements Runnable {
 		plannerMap = new HashMap<>();
 		taskMap = new HashMap<>();
 		taskLockMap = new HashMap<>();
+		usedGoalsSet = new HashSet<>();
 
 		Comparator<Task> taskComparator = (t1, t2) -> t2.getPriority() - t1.getPriority();
 
@@ -36,10 +38,12 @@ public class Scheduler implements Runnable {
 		state.assignBoxesToGoals();
 		priorityMap = new HashMap<>();
 		calculateGoalPriorities();
+		//addCombinedTasks();
 
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals()) {
-			addGoalTask(goal);
+		    if (!usedGoalsSet.contains(goal))
+			    addGoalTask(goal);
 		}
 
 		// Initial tasks
@@ -48,6 +52,33 @@ public class Scheduler implements Runnable {
 			assignTask(state, agent);
 		}
 	}
+
+	private void addCombinedTasks() {
+        // Combine tasks for goals with the same priority
+        for (int i = 0; i < state.getGoals().size(); i++) {
+            Goal g1 = state.getGoals().get(i);
+            if (usedGoalsSet.contains(g1)) continue;
+            ArrayList<Task> combined = new ArrayList<>();
+            int g1prio = priorityMap.get(g1.getLocation());
+            combined.add(new GoalTask(g1prio, g1.getAssignedBox(), g1));
+            for (int j = i; j < state.getGoals().size(); j++) {
+                Goal g2 = state.getGoals().get(j);
+                if (i == j || usedGoalsSet.contains(g2)) continue;
+                int g2prio = priorityMap.get(g2.getLocation());
+                if (g1.getColor() == g2.getColor() && g1prio == g2prio) {
+                    combined.add(new GoalTask(g2prio, g2.getAssignedBox(), g2));
+                }
+            }
+            if (combined.size() > 1) {
+                for (Task t : combined) {
+                    GoalTask gt = (GoalTask) t;
+                    usedGoalsSet.add(gt.getGoal());
+                }
+                CombinedTask combinedTask = new CombinedTask(combined);
+                addTask(g1.getColor(), combinedTask);
+            }
+        }
+    }
 
 	private void addGoalTask(Goal goal) {
 		Box box = goal.getAssignedBox();
