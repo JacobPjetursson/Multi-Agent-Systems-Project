@@ -43,8 +43,6 @@ public class Scheduler implements Runnable {
 		State.freeGoals = State.totalGoals;
 		calculateSafeLocations(state);
 
-
-
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals()) {
 			if (!usedGoalsSet.contains(goal))
@@ -57,9 +55,8 @@ public class Scheduler implements Runnable {
 					addTask(goal.getColor(), new AgentToGoalTask(priorityMap.get(goal.getLocation()),goal, agent));
 				}
 			}
-
 		}
-
+		
 		// Initial tasks
 		// TODO - prioritize which agent takes which task, instead of random
 		for (Agent agent : state.getAgents()) {
@@ -99,17 +96,13 @@ public class Scheduler implements Runnable {
 						if(temp < safeValue) {
 							safeValue = temp;
 						}
-
 					}
 					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeGoals/1.2)),State.freeGoals*State.freeGoals));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
-
 			}
-
 		}
-
 	}
 
 	private void addGoalTask(Goal goal) {
@@ -171,7 +164,6 @@ public class Scheduler implements Runnable {
 					goalsCrossing.add(State.agentGoalMap.get(l));
 					goalPathMap.put(goal, goalsCrossing);
 				}
-
 			}
 		}
 
@@ -202,7 +194,6 @@ public class Scheduler implements Runnable {
 					if(!goalPathMap.get(gc).contains(goal)) {
 						tempPriority++;
 					}
-
 					if (tempPriority > updatedPriority) {
 						updatedPriority = tempPriority;
 					}
@@ -222,11 +213,9 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
-
 		for(Goal goal : goals) {
 			priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
 		}
-
 	}
 
 	private boolean allTasksCompleted() {

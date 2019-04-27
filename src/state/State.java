@@ -360,8 +360,10 @@ public class State{
 	public List<Location> extractLocationPlan(Agent agent) {
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
-		List<Action> actions = extractActionPlan();
+		plan.add(l);
+		
 		Action last = null;
+		List<Action> actions = extractActionPlan();
 		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;

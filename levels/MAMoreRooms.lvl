@@ -1,0 +1,25 @@
+#domain
+hospital
+#levelname
+DistanceMap
+#colors
+red: 0, A
+blue: 1, B
+green: 2, C
+#initial
+++++++++ +++++++
++ A 2  + +     +
++      + +  1  +
+++++++C+ +     + 
++0 B   + +++++++
++      +
+++++++++
+#goal
+++++++++ +++++++
++A     + +     +
++      + +     +
+++++++ + +     + 
++      + +++++++
++      +
+++++++++
+#end
