@@ -47,8 +47,8 @@ public class Scheduler implements Runnable {
 
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals()) {
-		    if (!usedGoalsSet.contains(goal))
-			    addGoalTask(goal);
+			if (!usedGoalsSet.contains(goal))
+				addGoalTask(goal);
 		}
 
 		for (Goal goal : state.getAgentGoals()) {
@@ -135,7 +135,7 @@ public class Scheduler implements Runnable {
 			if (val <= 0) {
 				taskLockMap.remove(task);
 				taskMap.get(task.getAgent().getColor()).add(task);
-				}
+			}
 			else {
 				taskLockMap.put(task, val);
 			}
@@ -285,20 +285,13 @@ public class Scheduler implements Runnable {
 						}
 					}
 					else if (object instanceof Box) {
-
 						Box box = (Box) object;
-
 						if(box.getColor()!=agent.getColor()) {
 							if(!boxesToMove.containsKey(box.getColor())) {
 								boxesToMove.put(box.getColor(), new ArrayList<>());
-
 							}
 							boxesToMove.get(box.getColor()).add(box);
 						}
-
-
-
-
 					}
 				}
 				for(Integer col : boxesToMove.keySet()) {
@@ -317,9 +310,7 @@ public class Scheduler implements Runnable {
 							taskMap.get(col).add(new MoveBoxesTask(task.getPriority()+1, task, boxes, plan));
 							lock++;
 						}
-
 					}
-
 				}
 				for(Integer col : agentsToMove.keySet()) {
 					for(Agent moveAgent : agentsToMove.get(col)) {
@@ -327,7 +318,6 @@ public class Scheduler implements Runnable {
 						lock++;
 					}
 				}
-
 
 				lockTask(task, lock);
 
