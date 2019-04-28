@@ -45,9 +45,7 @@ public class GoalTask extends Task {
 		
 		int dis = 0;
 		for(Box box : state.getBoxes()) {
-			if(!State.goalMap.containsKey(box.getLocation())) {
-				dis += State.safeLocation.get(box.getLocation());
-			}
+			dis += State.safeLocation.get(box.getLocation());
 			
 		}
 		

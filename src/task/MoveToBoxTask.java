@@ -31,9 +31,7 @@ public class MoveToBoxTask extends Task {
         val += dm.distance(state.getBox(box).getLocation());
         int dis = 0;
         for(Box box : state.getBoxes()) {
-			if(!State.goalMap.containsKey(box.getLocation())) {
-				dis += State.safeLocation.get(box.getLocation());
-			}
+        	dis += State.safeLocation.get(box.getLocation());
 			
 		}
         return val-dis;

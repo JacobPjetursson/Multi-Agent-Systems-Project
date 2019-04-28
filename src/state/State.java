@@ -21,7 +21,7 @@ public class State{
 	public static Map<Location, Goal> agentGoalMap;
 	public static Map<Location, Integer> safeLocation;
 	public static int totalGoals;
-	public static int freeGoals;
+	public static int freeBoxes;
 
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;

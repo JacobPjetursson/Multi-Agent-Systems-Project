@@ -36,8 +36,8 @@ public class Scheduler implements Runnable {
 		state.assignBoxesToGoals();
 		priorityMap = new HashMap<>();
 		calculateGoalPriorities();
-		State.totalGoals = state.getGoals().size()+state.getAgentGoals().size();
-		State.freeGoals = State.totalGoals;
+		State.totalGoals = state.getBoxes().size();
+		State.freeBoxes = State.totalGoals;
 		calculateSafeLocations(state);
 		
 		
@@ -97,13 +97,11 @@ public class Scheduler implements Runnable {
 						}
 						
 					}
-					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeGoals/1.2)),State.freeGoals*State.freeGoals));
+					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes/1.2)),State.freeBoxes*State.freeBoxes));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
-				
 			}
-			
 		}
 		
 	}
@@ -458,11 +456,11 @@ public class Scheduler implements Runnable {
 					int newGoalCount = state.boxesInGoal();
 					if(newGoalCount > oldGoalCount) {
 						calculateSafeLocations(state);
-						State.freeGoals--;
+						State.freeBoxes--;
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.agentGoalMap.containsKey(oldAgentLoc)) {
 						addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.agentGoalMap.get(oldAgentLoc), agent));
-						State.freeGoals++;
+						State.freeBoxes++;
 					}
 					//If box moved away from goal add goalTask again
 					if(action instanceof BoxAction) {
@@ -478,7 +476,7 @@ public class Scheduler implements Runnable {
 							if(goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
 								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
-								State.freeGoals++;
+								State.freeBoxes++;
 								break;
 							}
 						}
