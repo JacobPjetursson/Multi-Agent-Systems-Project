@@ -16,9 +16,9 @@ public class State{
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
-	public static List<Goal> agentGoals;
+	//public static List<Goal> agentGoals;
 	public static Map<Location,Goal> goalMap;
-	public static Map<Location, Goal> agentGoalMap;
+	//public static Map<Location, Goal> agentGoalMap;
 	public static Map<Location, Integer> safeLocation;
 	public static int totalGoals;
 	public static int freeGoals;
@@ -81,18 +81,18 @@ public class State{
                     val += dm.distance(g.getLocation());
                     if (val <= best && val>0) {
                         best = val;
-                        g.assignBox(box);
+                        g.assignObj(box);
                     }
                 }
             }
-            assigned.add(g.getAssignedBox());
+            assigned.add((Box) g.getAssignedObj());
         }
     }
 
     public List<Box> getAssignedBoxes() {
 	    ArrayList<Box> assignedBoxes = new ArrayList<>();
 	    for (Goal g : goals) {
-	        Box b = g.getAssignedBox();
+	        Box b = (Box) g.getAssignedObj();
 	        if (b != null)
 	            assignedBoxes.add(b);
         }
@@ -139,11 +139,11 @@ public class State{
 	public List<Goal> getGoals() {
 		return goals;
 	}
-	
+	/*
 	public List<Goal> getAgentGoals() {
 		return agentGoals;
 	}
-
+*/
 	public Agent getAgent(Agent agent) {
 		return getAgent(agent.getId());
 	}

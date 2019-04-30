@@ -7,11 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import state.Agent;
-import state.Box;
-import state.Goal;
-import state.Location;
-import state.State;
+import state.*;
+
 public class Client {
 
 	private static String domain;
@@ -100,16 +97,16 @@ public class Client {
 				if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					Goal goal = new Goal(position, color, chr);
+					Goal goal = new BoxGoal(position, color, chr);
 					goals.add(goal);
 					goalMap.put(position, goal);
 					
 				}else if(chr >= '0' && chr <= '9') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					Goal goal = new Goal(position, color, chr);
-					agentGoals.add(goal);
-					agentGoalMap.put(position, goal);
+					Goal goal = new AgentGoal(position, color, chr);
+					goals.add(goal);
+					goalMap.put(position, goal);
 				}
 			}
 			row++;
@@ -129,8 +126,8 @@ public class Client {
 		
         State.goals = goals;
         State.goalMap = goalMap;
-        State.agentGoals = agentGoals;
-        State.agentGoalMap = agentGoalMap;
+        //State.agentGoals = agentGoals;
+        //State.agentGoalMap = agentGoalMap;
         State initialState = new State(agents, boxes);
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();
