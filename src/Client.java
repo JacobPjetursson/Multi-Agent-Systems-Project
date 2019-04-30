@@ -150,6 +150,7 @@ public class Client {
     			
     		}
     	}
+        
         //Set boxes that are unreachable to walls
         for(Box box : boxes.values()) {
     		int boxColor = box.getColor();
@@ -168,6 +169,7 @@ public class Client {
     			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
     		}
     	}
+    	
         //TODO : Loop
         
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));

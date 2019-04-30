@@ -56,10 +56,17 @@ public class Scheduler implements Runnable {
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
+			if(state.getBoxAt(goal.getLocation()) != null) {
 			if(state.getBoxAt(goal.getLocation()) != null)
 				continue;
+			}
+			Location location;
+			if(goal.getLetter() >= '0' && goal.getLetter() <= '9') {
+				location = state.getAgent(Character.getNumericValue(goal.getLetter())).getLocation();
+			}else {
+				location = state.getBox((Box)goal.getAssignedObj()).getLocation();
+			}
 
-			Location location = goal.getAssignedObj().getLocation();
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
 				if(paths.containsKey(l)) {
@@ -69,7 +76,6 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
-
 		State.safeLocation = new HashMap<>();
 		for(int row = 0; row < State.ROWS; row++) {
 			for(int col = 0; col < State.COLS; col++) {
@@ -88,7 +94,6 @@ public class Scheduler implements Runnable {
 					}
 					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes)),State.freeBoxes*State.freeBoxes));
 				}else {
-
 					State.safeLocation.put(location, -1);
 				}
 			}
@@ -438,7 +443,7 @@ public class Scheduler implements Runnable {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
 					}
-					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc)) {
+					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
 						addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.goalMap.get(oldAgentLoc), agent));
 						State.freeBoxes++;
 					}
