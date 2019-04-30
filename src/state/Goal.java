@@ -1,26 +1,21 @@
 package state;
 
-public class Goal extends StateObject {
-	
+public abstract class Goal extends StateObject {
 	private char letter;
-	private Box assignedBox;
+	private MovableObject assignedObj;
 
 	public Goal(Location position, int color, char letter) {
 		super(position, color);
 		this.letter = letter;
 	}
+
+	public abstract void assignObj(MovableObject obj);
+
+	public abstract MovableObject getAssignedObj();
 	
 	public char getLetter() {
 		return letter;
 	}
-
-	public void assignBox(Box box) {
-	    this.assignedBox = box;
-    }
-
-    public Box getAssignedBox() {
-	    return assignedBox;
-    }
 	
 	@Override
 	public String toString() {
