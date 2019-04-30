@@ -98,7 +98,7 @@ public class MoveToBoxTask extends Task implements BoxTask {
 	
 	@Override
 	public String toString() {
-		return ("MoveToBoxTask = Box : " + box.getLetter() + " - Box location : " + box.getLocation() + " - Agent : " + super.getAgent().getId());
+		return ("MoveToBoxTask = Box : " + box.getLetter() + " - Box location : " + box.getLocation() + " - Agent : " + (getAgent() == null ? "null" : getAgent().getId()));
 	}
 
 }
