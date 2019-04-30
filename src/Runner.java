@@ -37,7 +37,14 @@ public class Runner {
 		};
 		ProcessBuilder pb = new ProcessBuilder(args).inheritIO();
 		Process p = pb.start();
-		Runtime.getRuntime().addShutdownHook(new Thread(p::destroy));
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				super.run();
+				p.descendants().forEach(x -> x.destroy());
+				p.destroy();
+			}
+		});
 		p.waitFor();
 	}
 

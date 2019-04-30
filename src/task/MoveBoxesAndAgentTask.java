@@ -7,13 +7,12 @@ import java.util.Set;
 
 import state.Agent;
 import state.Box;
-import state.DistanceMap;
 import state.Location;
 import state.State;
 import state.StateObject;
 import task.Task;
 
-public class MoveBoxesAndAgentTask extends ResolveTask {
+public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 	
 	private Set<Location> path;
 	private List<Box> boxes;
@@ -26,7 +25,8 @@ public class MoveBoxesAndAgentTask extends ResolveTask {
 		this.agent = agent;
 	}
 	
-	private List<Box> getBoxes() {
+	@Override
+	public List<Box> getBoxes() {
 		return boxes;
 	}
 	
@@ -51,7 +51,6 @@ public class MoveBoxesAndAgentTask extends ResolveTask {
 	@Override
 	public int h(State state) {
 		int h = 0;
-		DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
 		for(Box b : state.getBoxes()) {
 			if(path.contains(b.getLocation())) {
 				h+=5;

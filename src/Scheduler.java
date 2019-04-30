@@ -275,7 +275,12 @@ public class Scheduler implements Runnable {
 					}
 					else if (object instanceof Box) {
 						Box box = (Box) object;
-						if(box.getColor()!=agent.getColor()) {
+						boolean moveBox = true;
+						if (task instanceof BoxTask) {
+							BoxTask boxTask = (BoxTask) task;
+							moveBox = !boxTask.getBoxes().contains(box);
+						}
+						if (moveBox) {
 							if(!boxesToMove.containsKey(box.getColor())) {
 								boxesToMove.put(box.getColor(), new ArrayList<>());
 							}

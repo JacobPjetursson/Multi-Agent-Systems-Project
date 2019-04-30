@@ -1,6 +1,7 @@
 package task;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +14,7 @@ import state.Location;
 import state.State;
 import state.StateObject;
 
-public class MoveBoxTask extends ResolveTask {
+public class MoveBoxTask extends ResolveTask implements BoxTask {
 	
 	private Set<Location> path;
 	private Box box;
@@ -26,6 +27,11 @@ public class MoveBoxTask extends ResolveTask {
 	
 	private Box getBox() {
 		return box;
+	}
+	
+	@Override
+	public List<Box> getBoxes() {
+		return Collections.singletonList(getBox());
 	}
 	
 	private Set<Location> getPath(){

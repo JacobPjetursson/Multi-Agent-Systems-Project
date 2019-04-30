@@ -19,8 +19,6 @@ public class TestSuite {
 					"<LEVEL>", level.getName()
 				};
 			ProcessBuilder pb = new ProcessBuilder(args);
-			
-			//pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 			Process p = pb.start();
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			Runtime.getRuntime().addShutdownHook(new Thread(p::destroy));
@@ -36,7 +34,7 @@ public class TestSuite {
 				}
 			}
 			input.close();
-			Thread.sleep(1);
+			Thread.sleep(5);
 			
 			results[status]++;
 			switch (status) {
