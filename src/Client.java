@@ -7,12 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import state.Agent;
-import state.Box;
-import state.DistanceMap;
-import state.Goal;
-import state.Location;
-import state.State;
+import state.*;
+
 public class Client {
 
 	private static String domain;
@@ -65,9 +61,7 @@ public class Client {
 		Map<Integer, Box> boxes = new HashMap<>();
 		int boxId = 1;
 		List<Goal> goals = new ArrayList<>();
-		List<Goal> agentGoals = new ArrayList<>();
 		Map<Location,Goal> goalMap = new HashMap<>();
-		Map<Location,Goal> agentGoalMap = new HashMap<>();
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < levelLine.length(); col++) {
@@ -92,7 +86,6 @@ public class Client {
 				}
 			}
 		}
-
 		response = serverMessages.readLine();
 		int row = 0;
 		while(!response.contains("end")) {
@@ -101,23 +94,22 @@ public class Client {
 				if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					Goal goal = new Goal(position, color, chr);
+					Goal goal = new BoxGoal(position, color, chr);
 					goals.add(goal);
 					goalMap.put(position, goal);
 					
 				}else if(chr >= '0' && chr <= '9') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					Goal goal = new Goal(position, color, chr);
-					agentGoals.add(goal);
-					agentGoalMap.put(position, goal);
+					Goal goal = new AgentGoal(position, color, chr);
+					goals.add(goal);
+					goalMap.put(position, goal);
 				}
 			}
 			row++;
 			response = serverMessages.readLine();
 		}
-		
-		
+
 		for (Goal goal : goals) {
 			System.err.println(goal);
 		}
@@ -130,10 +122,8 @@ public class Client {
 		
         State.goals = goals;
         State.goalMap = goalMap;
-        State.agentGoals = agentGoals;
-        State.agentGoalMap = agentGoalMap;
         State initialState = new State(agents, boxes);
-      //TODO : Set boxes which are non-reachables
+        //Set spaces which are unreachables to walls
         for(row = 0; row < rows; row++) {
     		for(int col = 0; col < cols; col++) {
     			Location curLoc = new Location(row,col);
@@ -154,6 +144,27 @@ public class Client {
     			
     		}
     	}
+        
+        //Set boxes that are unreachable to walls
+        for(Box box : boxes.values()) {
+    		int boxColor = box.getColor();
+    		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+    		boolean isReachable = false;
+    		for(Agent agent : agents.values()) {
+    			int agentColor = agent.getColor();
+    			if(agentColor == boxColor) {
+    				if(dm.distance(agent.getLocation())!=0) {
+    					isReachable = true;
+    					break;
+    				}
+    			}
+    		}
+    		if(!isReachable) {
+    			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
+    		}
+    	}
+    	
+        //TODO : Loop
         
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();

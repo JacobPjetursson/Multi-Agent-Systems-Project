@@ -19,6 +19,10 @@ public class Agent extends MovableObject {
 	public int getId() {
 		return id;
 	}
+
+	public char getLetter() {
+        return (char)(id + '0');
+	}
 	
 	@Override
 	public String toString() {
