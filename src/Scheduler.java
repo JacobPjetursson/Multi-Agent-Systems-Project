@@ -65,9 +65,10 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateSafeLocations(State state) {
+		//TODO : Fix that less safe the more paths are crossing
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		goals.addAll(state.getAgentGoals());
-		Set<Location> paths = new HashSet<>();
+		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
 			if(state.getBoxAt(goal.getLocation()) != null) {
 				continue;
@@ -80,7 +81,11 @@ public class Scheduler implements Runnable {
 			}
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
-				paths.add(l);
+				if(paths.containsKey(l)) {
+					paths.put(l,paths.get(l));
+				}else {
+					paths.put(l,1);
+				}
 			}
 		}
 
@@ -91,13 +96,16 @@ public class Scheduler implements Runnable {
 				if(!State.walls[row][col]) {
 					int safeValue = Integer.MAX_VALUE;
 					DistanceMap dm = State.DISTANCE_MAPS.get(location);
-					for(Location loc : paths) {
+					for(Location loc : paths.keySet()) {
 						int temp = dm.distance(loc);
 						if(temp < safeValue) {
 							safeValue = temp;
 						}
 					}
-					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes/1.2)),State.freeBoxes*State.freeBoxes));
+					if(paths.containsKey(location) && safeValue == 0) {
+						safeValue = paths.get(location);
+					}
+					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes)),State.freeBoxes*State.freeBoxes));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
@@ -138,7 +146,7 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateGoalPriorities() {
-		//NOT WORKING TOTALLY CORRECT
+		//TODO : Agents move to goal should be lower than all its other tasks
 		int size = state.getGoals().size()+state.getAgentGoals().size();
 		priorityMap = new HashMap<>();
 		Map<Goal, Integer> currentPriorityMap = new HashMap<>();

@@ -412,6 +412,7 @@ public class State{
 			}
 		}
 		path.add(location);
+		path.add(new Location(goal));
 		return path;
 	}
 

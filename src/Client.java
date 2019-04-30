@@ -9,6 +9,7 @@ import java.util.Set;
 
 import state.Agent;
 import state.Box;
+import state.DistanceMap;
 import state.Goal;
 import state.Location;
 import state.State;
@@ -132,6 +133,28 @@ public class Client {
         State.agentGoals = agentGoals;
         State.agentGoalMap = agentGoalMap;
         State initialState = new State(agents, boxes);
+      //TODO : Set boxes which are non-reachables
+        for(row = 0; row < rows; row++) {
+    		for(int col = 0; col < cols; col++) {
+    			Location curLoc = new Location(row,col);
+    			DistanceMap dm = State.DISTANCE_MAPS.get(curLoc);
+    			int dist = 0;
+    			for(Agent agent : agents.values()) {
+    	        	Location agentLoc = agent.getLocation();
+    	        	if(!agentLoc.equals(curLoc)) {
+        				dist+=dm.distance(agentLoc);
+        			}else {
+        				dist++;
+        			}
+    	        	
+    			}
+    			if(dist == 0) {
+    				State.walls[row][col] = true;
+    			}
+    			
+    		}
+    	}
+        
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();
 		// STEP 3 : System.out.println(Solution);
