@@ -2,7 +2,6 @@ package state;
 
 public abstract class Goal extends StateObject {
 	private char letter;
-	private MovableObject assignedObj;
 
 	public Goal(Location position, int color, char letter) {
 		super(position, color);

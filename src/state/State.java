@@ -16,9 +16,7 @@ public class State{
 
 	public static boolean[][] walls;
 	public static List<Goal> goals;
-	//public static List<Goal> agentGoals;
 	public static Map<Location,Goal> goalMap;
-	//public static Map<Location, Goal> agentGoalMap;
 	public static Map<Location, Integer> safeLocation;
 	public static int totalGoals;
 	public static int freeGoals;
@@ -70,33 +68,40 @@ public class State{
 	}
 
 	// Naively assign boxes to goals based on distance
-	public void assignBoxesToGoals() {
-		Set<Box> assigned = new HashSet<>();
+	public void assignObjectsToGoals() {
+		Set<MovableObject> assigned = new HashSet<>();
 	    for (Goal g : goals) {
-            int best = Integer.MAX_VALUE;
-            for(Box box : boxes.values()) {
-                if (box.getLetter() == g.getLetter() && !assigned.contains(box)) {
-                    int val = 0;
-                    DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-                    val += dm.distance(g.getLocation());
-                    if (val <= best && val>0) {
-                        best = val;
-                        g.assignObj(box);
-                    }
-                }
-            }
-            assigned.add((Box) g.getAssignedObj());
+	    	if (g instanceof BoxGoal) {
+				int best = Integer.MAX_VALUE;
+				for(Box box : boxes.values()) {
+					if (box.getLetter() == g.getLetter() && !assigned.contains(box)) {
+						int val = 0;
+						DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+						val += dm.distance(g.getLocation());
+						if (val <= best && val>0) {
+							best = val;
+							g.assignObj(box);
+						}
+					}
+				}
+			} else {
+	    		for (Agent agent : agents.values()) {
+	    			if (agent.getLetter() == g.getLetter())
+	    				g.assignObj(agent);
+				}
+			}
+            assigned.add(g.getAssignedObj());
         }
     }
 
-    public List<Box> getAssignedBoxes() {
-	    ArrayList<Box> assignedBoxes = new ArrayList<>();
+    public List<MovableObject> getAssignedObjects() {
+	    ArrayList<MovableObject> assignedObjects = new ArrayList<>();
 	    for (Goal g : goals) {
-	        Box b = (Box) g.getAssignedObj();
-	        if (b != null)
-	            assignedBoxes.add(b);
+	        MovableObject obj = g.getAssignedObj();
+	        if (obj != null)
+	            assignedObjects.add(obj);
         }
-        return assignedBoxes;
+        return assignedObjects;
     }
 
 	public List<Agent> getAgents() {

@@ -34,7 +34,7 @@ public class Scheduler implements Runnable {
 			taskMap.put(agent.getColor(), new PriorityQueue<>(taskComparator));
 		}
 
-		state.assignBoxesToGoals();
+		state.assignObjectsToGoals();
 		priorityMap = new HashMap<>();
 		calculateGoalPriorities();
 		State.totalGoals = state.getGoals().size();
@@ -94,7 +94,7 @@ public class Scheduler implements Runnable {
 			task = new MoveToBoxTask(priority, box, goalTask);
 		} else {
 			for (Agent agent : state.getAgents()) {
-				if (goal.getLetter() == (char)(agent.getId() + '0')) {
+				if (goal.getLetter() == agent.getLetter()) {
 					task = new AgentToGoalTask(priority, goal, agent);
 					break;
 				}
@@ -152,6 +152,7 @@ public class Scheduler implements Runnable {
 		for(Goal goal : goals) {
 		    if (goal instanceof AgentGoal) {
 		        currentPriorityMap.put(goal, 0);
+		        missingPriorities--;
 		        continue;
             }
 
@@ -163,7 +164,6 @@ public class Scheduler implements Runnable {
 				hasPriority.add(goal);
 			}
 		}
-
 		while(missingPriorities > 0) {
 			for(Goal goal : goals) {
 				if(hasPriority.contains(goal) || goal instanceof AgentGoal) {
@@ -197,7 +197,10 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+        System.err.println("wtf");
+        System.err.println(goals.size());
 		for(Goal goal : goals) {
+            System.err.println("adding stuff");
 			priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
 		}
 	}
