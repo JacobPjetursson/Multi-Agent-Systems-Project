@@ -1,11 +1,12 @@
 package task;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import state.*;
 
-public class MoveToBoxTask extends Task {
+public class MoveToBoxTask extends Task implements BoxTask {
 
     private Box box;
     private Task nextTask;
@@ -22,6 +23,11 @@ public class MoveToBoxTask extends Task {
 
     public Box getBox() {
         return box;
+    }
+    
+    @Override
+    public List<Box> getBoxes() {
+    	return Collections.singletonList(getBox());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package task;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import state.Goal;
 import state.State;
 import state.StateObject;
 
-public class GoalTask extends Task {
+public class GoalTask extends Task implements BoxTask {
 	
 	private Box box;
 	private Goal goal;
@@ -30,6 +31,11 @@ public class GoalTask extends Task {
 	
 	public Box getBox() {
 		return box;
+	}
+	
+	@Override
+	public List<Box> getBoxes() {
+		return Collections.singletonList(getBox());
 	}
 
 	@Override

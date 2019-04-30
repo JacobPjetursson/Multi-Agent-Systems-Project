@@ -13,7 +13,7 @@ import state.Location;
 import state.State;
 import state.StateObject;
 
-public class MoveBoxesTask extends ResolveTask {
+public class MoveBoxesTask extends ResolveTask implements BoxTask {
 	
 	private Set<Location> path;
 	private List<Box> boxes;
@@ -24,7 +24,8 @@ public class MoveBoxesTask extends ResolveTask {
 		this.path = new HashSet<>(path);
 	}
 	
-	private List<Box> getBoxes() {
+	@Override
+	public List<Box> getBoxes() {
 		return boxes;
 	}
 	
