@@ -61,9 +61,7 @@ public class Client {
 		Map<Integer, Box> boxes = new HashMap<>();
 		int boxId = 1;
 		List<Goal> goals = new ArrayList<>();
-		List<Goal> agentGoals = new ArrayList<>();
 		Map<Location,Goal> goalMap = new HashMap<>();
-		Map<Location,Goal> agentGoalMap = new HashMap<>();
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < levelLine.length(); col++) {
@@ -88,7 +86,6 @@ public class Client {
 				}
 			}
 		}
-
 		response = serverMessages.readLine();
 		int row = 0;
 		while(!response.contains("end")) {
@@ -112,8 +109,7 @@ public class Client {
 			row++;
 			response = serverMessages.readLine();
 		}
-		
-		
+
 		for (Goal goal : goals) {
 			System.err.println(goal);
 		}
@@ -126,8 +122,6 @@ public class Client {
 		
         State.goals = goals;
         State.goalMap = goalMap;
-        //State.agentGoals = agentGoals;
-        //State.agentGoalMap = agentGoalMap;
         State initialState = new State(agents, boxes);
         //Set spaces which are unreachables to walls
         for(row = 0; row < rows; row++) {
