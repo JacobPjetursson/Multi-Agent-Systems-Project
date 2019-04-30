@@ -18,7 +18,7 @@ public class Scheduler implements Runnable {
 
 	private static Map<Location,Integer> priorityMap;
 
-	public Scheduler(State initialState, BufferedReader serverMessages) {
+	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
 		// Get initial plan from initial state, queue them to priorityqueue
 		state = initialState;
@@ -128,7 +128,6 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateGoalPriorities() {
-		//NOT WORKING TOTALLY CORRECT
 		int size = state.getGoals().size();
 		priorityMap = new HashMap<>();
 		Map<Goal, Integer> currentPriorityMap = new HashMap<>();
@@ -334,12 +333,8 @@ public class Scheduler implements Runnable {
 	}
 
 	private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
-		Set<MovableObject> conflictList = conflictMap.get(location);
-		if (conflictList == null) {
-			conflictList = new HashSet<>();
-			conflictMap.put(location, conflictList);
-		}
-		conflictList.add(object);
+        Set<MovableObject> conflictList = conflictMap.computeIfAbsent(location, k -> new HashSet<>());
+        conflictList.add(object);
 	}
 
 	private void collectConflicts(Map<Location, Set<MovableObject>> conflictMap, Agent agent, Action action) {
