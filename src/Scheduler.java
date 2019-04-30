@@ -60,13 +60,7 @@ public class Scheduler implements Runnable {
 			if(state.getBoxAt(goal.getLocation()) != null)
 				continue;
 			}
-			Location location;
-			if(goal.getLetter() >= '0' && goal.getLetter() <= '9') {
-				location = state.getAgent(Character.getNumericValue(goal.getLetter())).getLocation();
-			}else {
-				location = state.getBox((Box)goal.getAssignedObj()).getLocation();
-			}
-
+			Location location = goal.getAssignedObj().getLocation();
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
 				if(paths.containsKey(l)) {
