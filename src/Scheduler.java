@@ -65,7 +65,6 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateSafeLocations(State state) {
-		//TODO : Fix that less safe the more paths are crossing
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		goals.addAll(state.getAgentGoals());
 		Map<Location,Integer> paths = new HashMap<>();
