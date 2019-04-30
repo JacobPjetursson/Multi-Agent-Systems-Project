@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +25,7 @@ public class TestSuite {
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			Runtime.getRuntime().addShutdownHook(new Thread(p::destroy));
 			
-			long time = 2;
+			long time = 5;
 			TimeUnit unit = TimeUnit.SECONDS;
 			int status = p.waitFor(time, unit) ? 0 : 1;
 			while (input.ready()) {

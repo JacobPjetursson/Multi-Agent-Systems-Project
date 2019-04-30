@@ -20,6 +20,7 @@ public class AvoidConflictTask extends Task {
 
 	@Override
 	public boolean isTerminal(State state) {
+		// TODO - This is not a terminal...
 		return state.g() >= avoidPlan.size();
 	}
 

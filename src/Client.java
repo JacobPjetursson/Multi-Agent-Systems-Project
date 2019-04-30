@@ -47,10 +47,11 @@ public class Client {
 			response = serverMessages.readLine();
 		}
 		response = serverMessages.readLine();
-		int cols = response.length();
+		int cols = 0;
 		int rows = 0;
 		List<String> levelLines = new ArrayList<>();
 		while(!response.contains("goal")) {
+			cols = Math.max(cols, response.length());
 			levelLines.add(response);
 			rows++;
 			response = serverMessages.readLine();
@@ -68,7 +69,7 @@ public class Client {
 		Map<Location,Goal> agentGoalMap = new HashMap<>();
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
-			for(int col = 0; col < cols; col++) {
+			for(int col = 0; col < levelLine.length(); col++) {
 				char chr = levelLine.charAt(col);
 				if (chr == '+') {
 					State.walls[row][col] = true;

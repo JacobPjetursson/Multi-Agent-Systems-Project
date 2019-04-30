@@ -23,13 +23,12 @@ public class State{
 	public static int totalGoals;
 	public static int freeBoxes;
 
+	private Set<Location> fakeWalls;
 	private Map<Integer, Agent> agents;
 	private Map<Integer, Box> boxes;
 	private State parent;
 	private Action action;
 	private int g;
-	private Set<Location> fakeWalls;
-	
 
 	// Initial state
 	public State(Map<Integer, Agent> agents, Map<Integer, Box> boxes) {
@@ -361,8 +360,10 @@ public class State{
 	public List<Location> extractLocationPlan(Agent agent) {
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
-		List<Action> actions = extractActionPlan();
+		plan.add(l);
+		
 		Action last = null;
+		List<Action> actions = extractActionPlan();
 		for (Action action : actions) {
 			if (action instanceof BoxAction) {
 				BoxAction boxAction = (BoxAction) action;

@@ -2,12 +2,15 @@ package task;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import state.Agent;
 import state.Box;
 import state.Location;
 import state.State;
+import state.StateObject;
 
 public class MoveAgentTask extends ResolveTask {
 
@@ -18,6 +21,14 @@ public class MoveAgentTask extends ResolveTask {
 		super(priority, taskToResolve);
 		this.moveAgent = moveAgent;
 		this.path = new HashSet<>(path);
+	}
+	
+	private Agent getMoveAgent() {
+		return moveAgent;
+	}
+	
+	private Set<Location> getPath() {
+		return path;
 	}
 
 	@Override
@@ -59,13 +70,25 @@ public class MoveAgentTask extends ResolveTask {
 
 	@Override
 	public Task getNaive() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NaiveMoveAgentTask(this);
 	}
 
 	@Override
 	public Task getNextTask() {
 		return null;
+	}
+	
+	private static class NaiveMoveAgentTask extends MoveAgentTask {		
+		public NaiveMoveAgentTask(MoveAgentTask task) {
+			super(task.getPriority(), task.getTaskToResolve(), task.getMoveAgent(), task.getPath());
+		}
+
+		@Override
+		public void initializeState(State state) {
+			List<StateObject> preserve = new LinkedList<>();
+			preserve.add(getAgent());
+			state.removeObjectsExcept(preserve);
+		}
 	}
 
 }

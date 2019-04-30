@@ -48,7 +48,6 @@ public class GoalTask extends Task {
 			dis += State.safeLocation.get(box.getLocation());
 			
 		}
-		
         return val-dis;
 	}
 	
