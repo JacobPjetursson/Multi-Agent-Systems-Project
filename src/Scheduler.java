@@ -41,7 +41,7 @@ public class Scheduler implements Runnable {
 		State.totalGoals = state.getBoxes().size();
 		State.freeBoxes = State.totalGoals;
 		calculateSafeLocations(state);
-		
+
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals())
 			addGoalTask(goal);
@@ -58,8 +58,8 @@ public class Scheduler implements Runnable {
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
 			if(state.getBoxAt(goal.getLocation()) != null) {
-			if(state.getBoxAt(goal.getLocation()) != null)
-				continue;
+				if(state.getBoxAt(goal.getLocation()) != null)
+					continue;
 			}
 			Location location = goal.getAssignedObj().getLocation();
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
@@ -166,7 +166,7 @@ public class Scheduler implements Runnable {
 		        missingPriorities--;
 		        continue;
             }
-            */
+			 */
 
 			currentPriorityMap.put(goal, 2);
 			List<Goal> goalsCrossing = goalPathMap.get(goal);
@@ -209,10 +209,10 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
-        System.err.println("wtf");
-        System.err.println(goals.size());
+		System.err.println("wtf");
+		System.err.println(goals.size());
 		for(Goal goal : goals) {
-            System.err.println("adding stuff");
+			System.err.println("adding stuff");
 			priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
 		}
 	}
@@ -353,13 +353,13 @@ public class Scheduler implements Runnable {
 			/*else if(completedTask instanceof GoalTask || completedTask instanceof AgentToGoalTask) {
 				taskPriority--;
 			}
-			*/
+			 */
 		}
 	}
 
 	private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
-        Set<MovableObject> conflictList = conflictMap.computeIfAbsent(location, k -> new HashSet<>());
-        conflictList.add(object);
+		Set<MovableObject> conflictList = conflictMap.computeIfAbsent(location, k -> new HashSet<>());
+		conflictList.add(object);
 	}
 
 	private void collectConflicts(Map<Location, Set<MovableObject>> conflictMap, Agent agent, Action action) {
@@ -474,37 +474,34 @@ public class Scheduler implements Runnable {
 				}
 			}
 
-			// TODO - handle conflicts better
-			Set<MovableObject> resolved = new HashSet<>();
+			Set<Agent> resolved = new HashSet<>();
 			for (Location location : conflicts.keySet()) {
-				Set<MovableObject> objects = conflicts.get(location).stream()
+				Set<Agent> agents = conflicts.get(location).stream()
 						.filter(x -> !resolved.contains(x))
+						.filter(x -> x instanceof Agent)
+						.map(x -> (Agent) x)
 						.collect(Collectors.toSet());
-				Optional<MovableObject> temp = objects.stream().filter(x -> x instanceof Agent).findAny();
-				if (!temp.isPresent()) continue;
-				Agent priority = (Agent) temp.get();
-				Planner priorityPlanner = getPlanner(priority);
-				priorityPlanner.undo();
-				Set<MovableObject> rest = objects.stream().filter(x -> !x.equals(priority)).collect(Collectors.toSet());
-				for (MovableObject object : rest) {
-					if (object instanceof Agent) {
-						Agent agent = (Agent) object;
-						Planner planner = getPlanner(agent);
-						addTasks(agent.getColor(), planner.getTasks());
-						planner.clear();
-						planner.addTask(state, new AvoidConflictTask(1, priority.getId(), priorityPlanner.getPlan()));
+				if (agents.isEmpty()) continue;
+				Agent prio = agents.stream().max(new Comparator<Agent>() {
+					@Override
+					public int compare(Agent o1, Agent o2) {
+						Task t1 = getPlanner(o1).getCurrentTask();
+						Task t2 = getPlanner(o2).getCurrentTask();
+						int p1 = t1 == null ? Integer.MIN_VALUE : t1.getPriority();
+						int p2 = t2 == null ? Integer.MIN_VALUE : t2.getPriority();
+						return p1 - p2;
 					}
-					else if (object instanceof Box) {
-						Box box = (Box) object;
-						Task task = priorityPlanner.getTasks().peek();
-						Task avoidTask = new MoveBoxTask(task.getPriority() + 1, task, box, priorityPlanner.getPath(state));
-						taskMap.get(box.getColor()).add(avoidTask);
-						lockTask(task, 1);
-						priorityPlanner.clear();
+				}).get();
+				for (Agent agent : agents) {
+					Planner planner = getPlanner(agent);
+					addTasks(agent.getColor(), planner.getTasks());
+					planner.clear();
+					assignTask(state, agent);
+					if (!agent.equals(prio)) {
+						planner.addDelay();
 					}
-					resolved.add(object);
+					resolved.add(agent);
 				}
-				resolved.add(priority);
 			}
 		}
 		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;

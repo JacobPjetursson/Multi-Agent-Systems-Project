@@ -51,6 +51,13 @@ public class Planner {
     	tasks.clear();
     }
     
+    public void addDelay() {
+    	Queue<Action> plan = new LinkedList<>();
+    	plan.add(new NoOpAction());
+    	plan.addAll(this.plan);
+    	this.plan = plan;
+    }
+    
     public int getAgentId() {
     	return agentId;
     }
@@ -69,6 +76,10 @@ public class Planner {
     
     public Queue<Task> getTasks() {
     	return new LinkedList<>(tasks);
+    }
+    
+    public Task getCurrentTask() {
+    	return tasks.peek();
     }
     
     public Task getNextTask() {

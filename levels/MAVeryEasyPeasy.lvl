@@ -1,0 +1,25 @@
+#domain
+hospital
+#levelname
+MAVeryEasyPeasy
+#colors
+red: 0, A
+blue: 1, B
+pink: 2, C
+#initial
+++++++++++++++
++0  A        +
++            +
++1  B        +
++            +
++2  C        +
+++++++++++++++
+#goal
+++++++++++++++
++           C+
++            +
++           B+
++            +
++           A+
+++++++++++++++
+#end
