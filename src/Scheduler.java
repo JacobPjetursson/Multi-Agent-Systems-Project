@@ -493,8 +493,11 @@ public class Scheduler implements Runnable {
 						State.freeBoxes--;
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
-						addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.goalMap.get(oldAgentLoc), agent));
-						State.freeBoxes++;
+						if(State.goalMap.get(oldAgentLoc).getLetter() == agent.getLetter()) {
+							addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.goalMap.get(oldAgentLoc), agent));
+							State.freeBoxes++;
+						}
+		
 					}
 					//If box moved away from goal add goalTask again
 					if(action instanceof BoxAction) {

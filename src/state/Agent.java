@@ -21,7 +21,7 @@ public class Agent extends MovableObject {
 	}
 
 	public char getLetter() {
-        return (char)(id + '0');
+		return (char)(id + '0');
 	}
 	
 	@Override
