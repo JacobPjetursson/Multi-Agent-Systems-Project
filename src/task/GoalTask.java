@@ -9,6 +9,7 @@ import state.DistanceMap;
 import state.Goal;
 import state.State;
 import state.StateObject;
+import state.Location;
 
 public class GoalTask extends Task implements BoxTask {
 	
@@ -67,7 +68,12 @@ public class GoalTask extends Task implements BoxTask {
 	public void initializeState(State state) {
 		
 	}
-	
+
+	@Override
+	public Location getGoalLocation() {
+		return goal.getLocation();
+	}
+
 	@Override 
 	public boolean equals(Object o) {
 		if (o instanceof GoalTask) {

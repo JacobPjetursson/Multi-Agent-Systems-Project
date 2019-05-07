@@ -4,6 +4,7 @@ import action.MoveAction;
 import action.NoOpAction;
 import state.Location;
 import state.State;
+import task.SimpleTask;
 import task.Task;
 
 import java.util.*;
@@ -63,6 +64,11 @@ public class Planner {
     }
 
     boolean addTask(State state, Task task) {
+
+        if (!createSimplePlan(state, task)) {
+            return false;
+        }
+
     	State terminalState = createPlan(state, task);
         if (terminalState == null) {
             return false;
@@ -131,6 +137,16 @@ public class Planner {
             }
         }
         return null;
+    }
+
+    private boolean createSimplePlan(State initialState, Task task) {
+        Location loc = task.getGoalLocation();
+        if (loc == null) // Only create simple plan for tasks that has a specific goal (MoveAgentToBox, BoxToGoal, etc.)
+            return true;
+
+        SimpleTask t = new SimpleTask(task.getGoalLocation(), task.getPriority());
+        t.assignAgent(task.getAgent());
+        return createPlan(initialState, t) != null;
     }
 
 

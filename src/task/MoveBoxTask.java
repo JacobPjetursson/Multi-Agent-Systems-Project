@@ -66,6 +66,11 @@ public class MoveBoxTask extends ResolveTask implements BoxTask {
 	}
 
 	@Override
+	public Location getGoalLocation() {
+		return null;
+	}
+
+	@Override
 	public Task getNaive() {
 		return new NaiveMoveBoxTask(this);
 	}
