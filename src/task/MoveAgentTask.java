@@ -69,11 +69,6 @@ public class MoveAgentTask extends ResolveTask {
 	}
 
 	@Override
-	public Location getGoalLocation() {
-		return null;
-	}
-
-	@Override
 	public Task getNaive() {
 		return new NaiveMoveAgentTask(this);
 	}

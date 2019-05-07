@@ -45,12 +45,7 @@ public class SwapTask extends Task {
 	public void initializeState(State state) {
 		
 	}
-
-	@Override
-	public Location getGoalLocation() {
-		return null;
-	}
-
+	
 	@Override
 	public boolean assignAgent(Agent agent) {
 		if(agent.equals(this.agent)) {

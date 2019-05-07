@@ -4,7 +4,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import state.*;
+import state.Box;
+import state.DistanceMap;
+import state.Goal;
+import state.State;
+import state.StateObject;
 
 public class GoalTask extends Task implements BoxTask {
 	
@@ -63,12 +67,7 @@ public class GoalTask extends Task implements BoxTask {
 	public void initializeState(State state) {
 		
 	}
-
-	@Override
-	public Location getGoalLocation() {
-		return goal.getLocation();
-	}
-
+	
 	@Override 
 	public boolean equals(Object o) {
 		if (o instanceof GoalTask) {

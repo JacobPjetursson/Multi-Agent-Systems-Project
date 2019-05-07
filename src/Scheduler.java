@@ -15,9 +15,9 @@ public class Scheduler implements Runnable {
 	private Map<Integer, PriorityQueue<Task>> taskMap;
 	private Map<Integer, Planner> plannerMap;
 	private Map<Task, Integer> taskLockMap;
+
 	private static Map<Location,Integer> priorityMap;
 	private int taskPriority = 0;
-
 
 	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
@@ -64,7 +64,11 @@ public class Scheduler implements Runnable {
 			Location location = goal.getAssignedObj().getLocation();
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
-				paths.put(l, paths.getOrDefault(l, 1));
+				if(paths.containsKey(l)) {
+					paths.put(l,paths.get(l));
+				}else {
+					paths.put(l,1);
+				}
 			}
 		}
 		State.safeLocation = new HashMap<>();
@@ -83,7 +87,7 @@ public class Scheduler implements Runnable {
 					if(paths.containsKey(location) && safeValue == 0) {
 						safeValue = paths.get(location);
 					}
-					State.safeLocation.put(location, Math.min(safeValue*(State.freeBoxes),State.freeBoxes*State.freeBoxes));
+					State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes)),State.freeBoxes*State.freeBoxes));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
@@ -219,6 +223,7 @@ public class Scheduler implements Runnable {
 			int prio = currentPriorityMap.get(goal);
 			if (goal instanceof AgentGoal)
 				prio -= goalDiff;
+			//System.err.println(goal.getLetter() + "  " + prio);
 			priorityMap.put(goal.getLocation(), prio);
 			taskPriority = Math.max(taskPriority, priorityMap.get(goal.getLocation()));
 		}
@@ -454,7 +459,7 @@ public class Scheduler implements Runnable {
 			}
 			cmd = cmd.substring(0, cmd.length()-1);
 			System.out.println(cmd);
-			//System.err.println(cmd);
+			System.err.println(cmd);
 
 
 			String message = "";
@@ -464,7 +469,7 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 
-			//System.err.println("RESPONSE: " + message);
+			System.err.println("RESPONSE: " + message);
 
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
@@ -474,7 +479,7 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action action = planner.getLastAction();
 				if (error) {
-					//System.err.println("Conflict involving Agent"+agent.getId());
+					System.err.println("Conflict involving Agent"+agent.getId());
 					collectConflicts(conflicts, agent, action);
 				}
 				else {
@@ -506,7 +511,7 @@ public class Scheduler implements Runnable {
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
 							if(goal.getAssignedObj().equals(state.getBoxAt(newBoxLoc))) {
-								//System.err.println("Re-adding goal task for goal " + goal.getLetter());
+								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
 								State.freeBoxes++;
 								break;
