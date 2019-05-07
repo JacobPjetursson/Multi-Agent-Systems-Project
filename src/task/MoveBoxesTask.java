@@ -65,18 +65,15 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 
 	@Override
 	public void initializeState(State state) {
-		//state.setFakeWalls(box);
 	}
 
 	@Override
 	public Task getNaive() {
 		return new NaiveMoveBoxesTask(this);
-		//return null;
 	}
 
 	@Override
 	public Task getNextTask() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -100,7 +97,6 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 		public void initializeState(State state) {
 			List<StateObject> preserve = new LinkedList<>();
 			preserve.add(getAgent());
-			//preserve.add(super.getBox());
 			for(Box box: state.getBoxes()) {
 				if(box.getColor() == getAgent().getColor()) {
 					preserve.add(box);

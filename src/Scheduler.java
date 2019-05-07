@@ -18,13 +18,11 @@ public class Scheduler implements Runnable {
 
 	private static Map<Location,Integer> priorityMap;
 	private int taskPriority = 0;
-	private int currentlyWorkingAgents;
 
 	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
 		// Get initial plan from initial state, queue them to priorityqueue
 		state = initialState;
-		currentlyWorkingAgents = 0;
 
 		plannerMap = new HashMap<>();
 		taskMap = new HashMap<>();
@@ -169,7 +167,9 @@ public class Scheduler implements Runnable {
 				missingPriorities--;
 				hasPriority.add(goal);
 			}
+			
 		}
+		
 		while(missingPriorities > 0) {
 			for(Goal goal : goals) {
 				if(hasPriority.contains(goal))
@@ -201,6 +201,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		
 		// Make sure agentGoals are below all boxGoals in priority
 		int maxAgentGoalPrio = 0;
 		int minBoxGoalPrio = 0;
@@ -331,7 +332,6 @@ public class Scheduler implements Runnable {
 				}
 			}
 			else {
-				currentlyWorkingAgents++;
 				result = task;
 			}
 		}
@@ -355,7 +355,6 @@ public class Scheduler implements Runnable {
 		planner.clear();
 		while (!tasks.isEmpty()) {
 			Task completedTask = tasks.poll();
-			currentlyWorkingAgents--;
 			if (completedTask instanceof ResolveTask) {
 				ResolveTask task = (ResolveTask) completedTask;
 				Task resolved = task.getTaskToResolve();
@@ -363,19 +362,10 @@ public class Scheduler implements Runnable {
 				resolved.setPriority(priority);
 				unlockTask(resolved);
 			}
-			if(currentlyWorkingAgents == 0) {
-				if(completedTask.getNextTask() != null) {
-					taskPriority = getMaxPriority(completedTask.getNextTask().getPriority());
-				}else {
-					taskPriority = getMaxPriority(0);
-				}
-
-			}
-
 		}
 	}
-
-	private int getMaxPriority(int i) {
+	
+	private void updatePriority() {
 		int prio = Integer.MIN_VALUE;
 		for(Integer key : taskMap.keySet()) {
 			Queue<Task> prioQueue = taskMap.get(key);
@@ -387,18 +377,25 @@ public class Scheduler implements Runnable {
 		}
 		for(Integer key : plannerMap.keySet()) {
 			Planner p = plannerMap.get(key);
-			if(!p.isEmpty()) {
-				Queue<Task> tasks = p.getTasks();
-				Task task = null;
-			    for (Task t : tasks) {
-			        task = t;
-			    }
+			if(p.getCurrentTask() != null) {
+				Task task = p.getCurrentTask();
 			    if (prio < task.getPriority()) {
 			    	prio = task.getPriority();
 				}
 			}
 		}
-		return Math.max(prio,i);
+		taskPriority = prio;
+		
+	}
+
+	private boolean agentsWorking(State state) {
+		for(Agent agent : state.getAgents()) {
+			Planner planner = plannerMap.get(agent.getId());
+			if(planner.getCurrentTask() != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
@@ -457,6 +454,9 @@ public class Scheduler implements Runnable {
 				cmd += a.toString() + ";";
 			}
 			solved = done && allTasksCompleted();
+			if(!agentsWorking(state)) {
+				updatePriority();
+			}
 			cmd = cmd.substring(0, cmd.length()-1);
 			System.out.println(cmd);
 			System.err.println(cmd);
@@ -543,6 +543,7 @@ public class Scheduler implements Runnable {
 					Planner planner = getPlanner(agent);
 					addTasks(agent.getColor(), planner.getTasks());
 					planner.clear();
+					
 					assignTask(state, agent);
 					if (!agent.equals(prio)) {
 						planner.addDelay();
@@ -554,4 +555,6 @@ public class Scheduler implements Runnable {
 		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
 		System.err.println("Time spent on solving: " + timeSpent + " seconds.");
 	}
+
+	
 }
