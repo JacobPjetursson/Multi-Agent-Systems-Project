@@ -160,14 +160,6 @@ public class Scheduler implements Runnable {
 		int missingPriorities = size;
 		Set<Goal> hasPriority = new HashSet<>();
 		for(Goal goal : goals) {
-			/*
-		    if (goal instanceof AgentGoal) {
-		        currentPriorityMap.put(goal, 0);
-		        missingPriorities--;
-		        continue;
-            }
-            */
-
 			currentPriorityMap.put(goal, 2);
 			List<Goal> goalsCrossing = goalPathMap.get(goal);
 			if(goalsCrossing.isEmpty()) {
@@ -178,9 +170,8 @@ public class Scheduler implements Runnable {
 		}
 		while(missingPriorities > 0) {
 			for(Goal goal : goals) {
-				if(hasPriority.contains(goal)) {// || goal instanceof AgentGoal) {
+				if(hasPriority.contains(goal))
 					continue;
-				}
 
 				List<Goal> goalsCrossing = goalPathMap.get(goal);
 				int currentPriority = currentPriorityMap.get(goal);
@@ -205,15 +196,31 @@ public class Scheduler implements Runnable {
 					currentPriorityMap.put(goal, size);
 					missingPriorities--;
 					hasPriority.add(goal);
-					continue;
 				}
 			}
 		}
-        System.err.println("wtf");
-        System.err.println(goals.size());
+		// Make sure agentGoals are below all boxGoals in priority
+		int maxAgentGoalPrio = 0;
+		int minBoxGoalPrio = 0;
+		for (Goal goal : goals) {
+			if (goal instanceof AgentGoal) {
+				int prio = currentPriorityMap.get(goal);
+				if (prio > maxAgentGoalPrio)
+					maxAgentGoalPrio = prio;
+			} else if (goal instanceof BoxGoal) {
+				int prio = currentPriorityMap.get(goal);
+				if (prio < minBoxGoalPrio)
+					minBoxGoalPrio = prio;
+			}
+		}
+		int goalDiff = (maxAgentGoalPrio - minBoxGoalPrio) - 1;
+		// Add all to priorityMap
 		for(Goal goal : goals) {
-            System.err.println("adding stuff");
-			priorityMap.put(goal.getLocation(), currentPriorityMap.get(goal));
+			int prio = currentPriorityMap.get(goal);
+			if (goal instanceof AgentGoal)
+				prio -= goalDiff;
+			System.err.println(goal.getLetter() + "  " + prio);
+			priorityMap.put(goal.getLocation(), prio);
 		}
 	}
 
