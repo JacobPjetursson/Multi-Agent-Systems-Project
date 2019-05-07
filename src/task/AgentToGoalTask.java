@@ -4,11 +4,7 @@ import java.util.LinkedList;
 
 import java.util.List;
 
-import state.Agent;
-import state.DistanceMap;
-import state.Goal;
-import state.State;
-import state.StateObject;
+import state.*;
 
 public class AgentToGoalTask extends Task {
 	
@@ -52,6 +48,11 @@ public class AgentToGoalTask extends Task {
 	@Override
 	public void initializeState(State state) {
 		
+	}
+
+	@Override
+	public Location getGoalLocation() {
+		return goal.getLocation();
 	}
 
 	@Override

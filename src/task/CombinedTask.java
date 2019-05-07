@@ -1,5 +1,6 @@
 package task;
 
+import state.Location;
 import state.State;
 
 import java.util.ArrayList;
@@ -43,6 +44,11 @@ public class CombinedTask extends Task {
     @Override
     public void initializeState(State state) {
 
+    }
+
+    @Override
+    public Location getGoalLocation() {
+        return null;
     }
 
     @Override

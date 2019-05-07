@@ -1,7 +1,9 @@
 package task;
 
-import state.Agent;
-import state.State;
+import state.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class Task implements Comparable<Task> {
     private int priority;
@@ -37,6 +39,7 @@ public abstract class Task implements Comparable<Task> {
 	public abstract int h(State state);
 	public abstract boolean updateState(State state);
 	public abstract void initializeState(State state);
+	public abstract Location getGoalLocation(); // Used for simple task
 	public abstract Task getNaive();
 	public abstract Task getNextTask();
 }
