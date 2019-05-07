@@ -39,8 +39,8 @@ public class MoveAgentTask extends ResolveTask {
 	@Override
 	public int h(State state) {
 		int h = 0;
-		for(Box b : state.getBoxes()) {
-			if(path.contains(b.getLocation())) {
+		for(Box box : state.getBoxes()) {
+			if(path.contains(state.getBox(box).getLocation())) {
 				//TODO : 10 chosen randomly maybe not always working
 				h+=10;
 			}

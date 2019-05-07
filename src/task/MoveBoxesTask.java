@@ -46,14 +46,14 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 	@Override
 	public int h(State state) {
 		int h = 0;
-		for(Box b : state.getBoxes()) {
-			if(path.contains(b.getLocation())) {
+		for(Box box : state.getBoxes()) {
+			if(path.contains(state.getBox(box).getLocation())) {
 				h+=5;
 			}
 		}
 		int dis = 0;
 		for(Box box : boxes) {
-			dis += State.safeLocation.get(box.getLocation());
+			dis += State.safeLocation.get(state.getBox(box).getLocation());
 		}
 		return h-dis;
 	}

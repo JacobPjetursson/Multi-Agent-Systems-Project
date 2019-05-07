@@ -33,11 +33,11 @@ public class MoveToBoxTask extends Task implements BoxTask {
     @Override
     public int h(State state) {
     	int val = 0;
-        DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
+        DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(getAgent()).getLocation());
         val += dm.distance(state.getBox(box).getLocation());
         int dis = 0;
         for(Box box : state.getBoxes()) {
-        	dis += State.safeLocation.get(box.getLocation());
+        	dis += State.safeLocation.get(state.getBox(box).getLocation());
 			
 		}
         return val-dis;
@@ -45,11 +45,8 @@ public class MoveToBoxTask extends Task implements BoxTask {
     
     @Override
     public boolean isTerminal(State state) {
-    	List<Agent> agents = state.getAgents();
-        for(Agent agent : agents) {
-            if (box.getColor() == agent.getColor() && box.isNeighbor(agent.getLocation()))
-                return true;
-        }
+    	if (box.getColor() == getAgent().getColor() && box.isNeighbor(state.getAgent(getAgent()).getLocation()))
+            return true;
         return false;
     }
 

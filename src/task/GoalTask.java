@@ -51,7 +51,7 @@ public class GoalTask extends Task implements BoxTask {
 		
 		int dis = 0;
 		for(Box box : state.getBoxes()) {
-			dis += State.safeLocation.get(box.getLocation());
+			dis += State.safeLocation.get(state.getBox(box).getLocation());
 			
 		}
         return val-dis;
