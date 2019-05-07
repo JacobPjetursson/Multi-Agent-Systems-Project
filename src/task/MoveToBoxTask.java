@@ -33,7 +33,7 @@ public class MoveToBoxTask extends Task implements BoxTask {
     @Override
     public int h(State state) {
     	int val = 0;
-        DistanceMap dm = State.DISTANCE_MAPS.get(getAgent().getLocation());
+        DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(getAgent()).getLocation());
         val += dm.distance(state.getBox(box).getLocation());
         int dis = 0;
         for(Box box : state.getBoxes()) {
