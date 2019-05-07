@@ -17,12 +17,14 @@ public class Scheduler implements Runnable {
 	private Map<Task, Integer> taskLockMap;
 
 	private static Map<Location,Integer> priorityMap;
-	private static int taskPriority = 4;
+	private int taskPriority = 0;
+	private int currentlyWorkingAgents;
 
 	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
 		// Get initial plan from initial state, queue them to priorityqueue
 		state = initialState;
+		currentlyWorkingAgents = 0;
 
 		plannerMap = new HashMap<>();
 		taskMap = new HashMap<>();
@@ -216,11 +218,13 @@ public class Scheduler implements Runnable {
 		int goalDiff = (maxAgentGoalPrio - minBoxGoalPrio) - 1;
 		// Add all to priorityMap
 		for(Goal goal : goals) {
+
 			int prio = currentPriorityMap.get(goal);
 			if (goal instanceof AgentGoal)
 				prio -= goalDiff;
-			System.err.println(goal.getLetter() + "  " + prio);
+			//System.err.println(goal.getLetter() + "  " + prio);
 			priorityMap.put(goal.getLocation(), prio);
+			taskPriority = Math.max(taskPriority, priorityMap.get(goal.getLocation()));
 		}
 	}
 
@@ -240,8 +244,8 @@ public class Scheduler implements Runnable {
 		List<Task> denied = new LinkedList<>();
 		while (task == null && !tasks.isEmpty()) {
 			task = tasks.poll();
-			//if (task.getPriority() < taskPriority || !task.assignAgent(agent)) {
-			if (!task.assignAgent(agent)) {
+			if (task.getPriority() < taskPriority || !task.assignAgent(agent)) {
+			//if (!task.assignAgent(agent)) {
 				denied.add(task);
 				task = null;
 			}
@@ -327,6 +331,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 			else {
+				currentlyWorkingAgents++;
 				result = task;
 			}
 		}
@@ -350,6 +355,7 @@ public class Scheduler implements Runnable {
 		planner.clear();
 		while (!tasks.isEmpty()) {
 			Task completedTask = tasks.poll();
+			currentlyWorkingAgents--;
 			if (completedTask instanceof ResolveTask) {
 				ResolveTask task = (ResolveTask) completedTask;
 				Task resolved = task.getTaskToResolve();
@@ -357,11 +363,42 @@ public class Scheduler implements Runnable {
 				resolved.setPriority(priority);
 				unlockTask(resolved);
 			}
-			/*else if(completedTask instanceof GoalTask || completedTask instanceof AgentToGoalTask) {
-				taskPriority--;
+			if(currentlyWorkingAgents == 0) {
+				if(completedTask.getNextTask() != null) {
+					taskPriority = getMaxPriority(completedTask.getNextTask().getPriority());
+				}else {
+					taskPriority = getMaxPriority(0);
+				}
+
 			}
-			 */
+
 		}
+	}
+
+	private int getMaxPriority(int i) {
+		int prio = Integer.MIN_VALUE;
+		for(Integer key : taskMap.keySet()) {
+			Queue<Task> prioQueue = taskMap.get(key);
+			if (!prioQueue.isEmpty()) {
+				if (prio < taskMap.get(key).peek().getPriority()) {
+					prio = taskMap.get(key).peek().getPriority();
+				}
+			}
+		}
+		for(Integer key : plannerMap.keySet()) {
+			Planner p = plannerMap.get(key);
+			if(!p.isEmpty()) {
+				Queue<Task> tasks = p.getTasks();
+				Task task = null;
+			    for (Task t : tasks) {
+			        task = t;
+			    }
+			    if (prio < task.getPriority()) {
+			    	prio = task.getPriority();
+				}
+			}
+		}
+		return Math.max(prio,i);
 	}
 
 	private void addConflict(Map<Location, Set<MovableObject>> conflictMap, MovableObject object, Location location) {
