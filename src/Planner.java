@@ -65,7 +65,6 @@ public class Planner {
     boolean addTask(State state, Task task) {
     	State terminalState = createPlan(state, task);
         if (terminalState == null) {
-            System.err.println("No plan was found");
             return false;
         }
         List<Action> actionList = terminalState.extractActionPlan();
