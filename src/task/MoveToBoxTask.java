@@ -61,6 +61,11 @@ public class MoveToBoxTask extends Task implements BoxTask {
 	}
 
 	@Override
+	public Location getGoalLocation() {
+		return box.getLocation();
+	}
+
+	@Override
 	public Task getNaive() {
 		return new NaiveMoveToBoxTask(this);
 	}
