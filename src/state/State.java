@@ -250,7 +250,7 @@ public class State{
 		for(Box box : this.getBoxes()) {
 			if(goalMap.containsKey(box.location)) {
 				Goal goal = goalMap.get(box.location);
-				if(goal.getLetter() == box.getLetter()) {
+				if(goal.getAssignedObj().equals(box)) {
 					goalCount++;
 				}
 			}

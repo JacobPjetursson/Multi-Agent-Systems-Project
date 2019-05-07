@@ -463,7 +463,7 @@ public class Scheduler implements Runnable {
 						oldBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc) : new Location(newBoxLoc.getRow() + Action.dirToRowChange(boxDir),newBoxLoc.getCol() + Action.dirToColChange(boxDir));
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
-							if(goal.getLetter() == state.getBoxAt(newBoxLoc).getLetter()) {
+							if(goal.getAssignedObj().equals(state.getBoxAt(newBoxLoc))) {
 								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
 								State.freeBoxes++;
