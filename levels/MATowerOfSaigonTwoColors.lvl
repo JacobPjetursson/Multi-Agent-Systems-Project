@@ -1,0 +1,28 @@
+#domain
+hospital
+#levelname
+TowerOfSaigonTwoColors
+#colors
+red: 0, A, D, E
+green: 1, B, C
+#initial
++++++++
++++0+++
++  1  +
++E+ + +
++C+ + +
++A+ + +
++B+ + +
++D+ + +
++++++++
+#goal
++++++++
++++ +++
++     +
++ + +A+
++ + +B+
++ + +C+
++ + +D+
++ + +E+
++++++++
+#end

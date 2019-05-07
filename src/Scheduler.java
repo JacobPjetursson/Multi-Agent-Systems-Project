@@ -17,6 +17,7 @@ public class Scheduler implements Runnable {
 	private Map<Task, Integer> taskLockMap;
 
 	private static Map<Location,Integer> priorityMap;
+	private static int taskPriority = 4;
 
 	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
@@ -40,7 +41,7 @@ public class Scheduler implements Runnable {
 		State.totalGoals = state.getBoxes().size();
 		State.freeBoxes = State.totalGoals;
 		calculateSafeLocations(state);
-
+		
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals())
 			addGoalTask(goal);
@@ -159,11 +160,13 @@ public class Scheduler implements Runnable {
 		int missingPriorities = size;
 		Set<Goal> hasPriority = new HashSet<>();
 		for(Goal goal : goals) {
+			/*
 		    if (goal instanceof AgentGoal) {
 		        currentPriorityMap.put(goal, 0);
 		        missingPriorities--;
 		        continue;
             }
+            */
 
 			currentPriorityMap.put(goal, 2);
 			List<Goal> goalsCrossing = goalPathMap.get(goal);
@@ -175,7 +178,7 @@ public class Scheduler implements Runnable {
 		}
 		while(missingPriorities > 0) {
 			for(Goal goal : goals) {
-				if(hasPriority.contains(goal) || goal instanceof AgentGoal) {
+				if(hasPriority.contains(goal)) {// || goal instanceof AgentGoal) {
 					continue;
 				}
 
@@ -230,6 +233,7 @@ public class Scheduler implements Runnable {
 		List<Task> denied = new LinkedList<>();
 		while (task == null && !tasks.isEmpty()) {
 			task = tasks.poll();
+			//if (task.getPriority() < taskPriority || !task.assignAgent(agent)) {
 			if (!task.assignAgent(agent)) {
 				denied.add(task);
 				task = null;
@@ -346,6 +350,10 @@ public class Scheduler implements Runnable {
 				resolved.setPriority(priority);
 				unlockTask(resolved);
 			}
+			/*else if(completedTask instanceof GoalTask || completedTask instanceof AgentToGoalTask) {
+				taskPriority--;
+			}
+			*/
 		}
 	}
 
