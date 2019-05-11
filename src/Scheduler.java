@@ -58,10 +58,17 @@ public class Scheduler implements Runnable {
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
 			if(state.getBoxAt(goal.getLocation()) != null) {
-				if(state.getBoxAt(goal.getLocation()) != null)
+				//if(state.getBoxAt(goal.getLocation()) != null)
 					continue;
 			}
-			Location location = goal.getAssignedObj().getLocation();
+			MovableObject object = goal.getAssignedObj();
+			Location location;
+			if(goal instanceof AgentGoal) {
+				location = state.getAgent((Agent) object).getLocation();
+			}else {
+				location = state.getBox((Box) object).getLocation();
+			}
+			 
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
 				if(paths.containsKey(l)) {
@@ -71,6 +78,8 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		
+		
 		State.safeLocation = new HashMap<>();
 		for(int row = 0; row < State.ROWS; row++) {
 			for(int col = 0; col < State.COLS; col++) {
@@ -433,6 +442,7 @@ public class Scheduler implements Runnable {
 
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
+				System.err.println("Agent " + agent.getId() + " is thinking");
 				Planner planner = getPlanner(agent);
 				if (planner.isEmpty()) {
 					do {
@@ -473,7 +483,6 @@ public class Scheduler implements Runnable {
 
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
-
 			for (Agent agent : state.getAgents()) {
 				boolean error = !Boolean.parseBoolean(feedback[agent.getId()]);
 				Planner planner = getPlanner(agent);
@@ -484,7 +493,7 @@ public class Scheduler implements Runnable {
 				}
 				else {
 					int oldGoalCount = state.boxesInGoal();
-					Location oldAgentLoc = agent.getLocation();
+					Location oldAgentLoc = state.getAgent(agent).getLocation();
 					state.applyAction(agent, action);
 					Location newAgentLoc = state.getAgent(agent).getLocation();
 					int newGoalCount = state.boxesInGoal();
@@ -514,7 +523,6 @@ public class Scheduler implements Runnable {
 								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
 								State.freeBoxes++;
-								break;
 							}
 						}
 					}

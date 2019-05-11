@@ -49,13 +49,7 @@ public class GoalTask extends Task implements BoxTask {
 	public int h(State state) {
 		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
 		int val = dm.distance(goal.getLocation());
-		
-		int dis = 0;
-		for(Box box : state.getBoxes()) {
-			dis += State.safeLocation.get(state.getBox(box).getLocation());
-			
-		}
-        return val-dis;
+		return val;
 	}
 	
 	@Override

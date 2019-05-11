@@ -68,7 +68,6 @@ public class Planner {
         if (!createSimplePlan(state, task)) {
             return false;
         }
-
     	State terminalState = createPlan(state, task);
         if (terminalState == null) {
             return false;
@@ -116,6 +115,8 @@ public class Planner {
     	}
     	return path;
     }
+    
+    
 
     State createPlan(State initialState, Task task) {
     	initialState = initialState.clone();
