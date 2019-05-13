@@ -1,4 +1,5 @@
 import action.*;
+
 import action.Action.Dir;
 import state.*;
 import task.*;
@@ -45,7 +46,7 @@ public class Scheduler implements Runnable {
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals())
 			addGoalTask(goal);
-
+		
 		// Initial tasks
 		// TODO - prioritize which agent takes which task, instead of random
 		for (Agent agent : state.getAgents()) {
@@ -442,7 +443,6 @@ public class Scheduler implements Runnable {
 
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
-				System.err.println("Agent " + agent.getId() + " is thinking");
 				Planner planner = getPlanner(agent);
 				if (planner.isEmpty()) {
 					do {
@@ -500,6 +500,9 @@ public class Scheduler implements Runnable {
 					if(newGoalCount > oldGoalCount) {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
+						//TODO : Set box as wall if safe
+						//TODO : Check if blocking for other side boxes
+						//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
 						if(State.goalMap.get(oldAgentLoc).getLetter() == agent.getLetter()) {
