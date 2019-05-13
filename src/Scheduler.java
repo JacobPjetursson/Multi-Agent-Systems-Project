@@ -58,7 +58,7 @@ public class Scheduler implements Runnable {
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
-			if(state.getBoxAt(goal.getLocation()) != null) {
+			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) < taskPriority-1) {
 				//if(state.getBoxAt(goal.getLocation()) != null)
 					continue;
 			}
