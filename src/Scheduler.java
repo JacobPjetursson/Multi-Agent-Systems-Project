@@ -501,7 +501,7 @@ public class Scheduler implements Runnable {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
 						//TODO : Set box as wall if safe
-						//TODO : Check if blocking for other side boxes
+						//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
 						//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
@@ -527,6 +527,25 @@ public class Scheduler implements Runnable {
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
+						}
+						if(newGoalCount > oldGoalCount) {
+							//TODO : Set box as wall if safe
+							Box box = state.getBoxAt(newBoxLoc);
+							int row = box.getLocation().getRow();
+							int col = box.getLocation().getCol();
+							int wallCount = 0;
+							wallCount += State.walls[row-1][col] ? 1 : 0;
+							wallCount += State.walls[row+1][col] ? 1 : 0;
+							wallCount += State.walls[row][col-1] ? 1 : 0;
+							wallCount += State.walls[row][col+1] ? 1 : 0;
+							if(wallCount >= 3) {
+								//State.walls[row][col] = true;
+								//System.err.println("Row : " + row + " - Col : " + col);
+							}else if(wallCount == 2) {
+								
+							}
+							//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
+							//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 						}
 					}
 				}

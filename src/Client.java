@@ -123,48 +123,54 @@ public class Client {
         State.goals = goals;
         State.goalMap = goalMap;
         State initialState = new State(agents, boxes);
-        //Set spaces which are unreachables to walls
-        for(row = 0; row < rows; row++) {
-    		for(int col = 0; col < cols; col++) {
-    			Location curLoc = new Location(row,col);
-    			DistanceMap dm = State.DISTANCE_MAPS.get(curLoc);
-    			int dist = 0;
-    			for(Agent agent : agents.values()) {
-    	        	Location agentLoc = agent.getLocation();
-    	        	if(!agentLoc.equals(curLoc)) {
-        				dist+=dm.distance(agentLoc);
-        			}else {
-        				dist++;
-        			}
-    	        	
-    			}
-    			if(dist == 0) {
-    				State.walls[row][col] = true;
-    			}
-    			
-    		}
-    	}
         
-        //Set boxes that are unreachable to walls
-        for(Box box : boxes.values()) {
-    		int boxColor = box.getColor();
-    		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
-    		boolean isReachable = false;
-    		for(Agent agent : agents.values()) {
-    			int agentColor = agent.getColor();
-    			if(agentColor == boxColor) {
-    				if(dm.distance(agent.getLocation())!=0) {
-    					isReachable = true;
-    					break;
-    				}
-    			}
-    		}
-    		if(!isReachable) {
-    			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
-    		}
-    	}
-    	
-        //TODO : Loop
+        boolean changed = true;
+        while(changed) {
+        	changed = false;
+        	//Set spaces which are unreachables to walls
+            for(row = 0; row < rows; row++) {
+        		for(int col = 0; col < cols; col++) {
+        			Location curLoc = new Location(row,col);
+        			DistanceMap dm = State.DISTANCE_MAPS.get(curLoc);
+        			int dist = 0;
+        			for(Agent agent : agents.values()) {
+        	        	Location agentLoc = agent.getLocation();
+        	        	if(!agentLoc.equals(curLoc)) {
+            				dist+=dm.distance(agentLoc);
+            			}else {
+            				dist++;
+            			}
+        	        	
+        			}
+        			if(dist == 0 && !State.walls[row][col]) {
+        				State.walls[row][col] = true;
+        				changed = true;
+        			}
+        			
+        		}
+        	}
+            
+            //Set boxes that are unreachable to walls
+            for(Box box : boxes.values()) {
+        		int boxColor = box.getColor();
+        		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
+        		boolean isReachable = false;
+        		for(Agent agent : agents.values()) {
+        			int agentColor = agent.getColor();
+        			if(agentColor == boxColor) {
+        				if(dm.distance(agent.getLocation())!=0) {
+        					isReachable = true;
+        					break;
+        				}
+        			}
+        		}
+        		if(!isReachable && !State.walls[box.getLocation().getRow()][box.getLocation().getCol()]) {
+        			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
+        			changed = true;
+        		}
+        	}
+        }
+        
         
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));
         schedule.start();
