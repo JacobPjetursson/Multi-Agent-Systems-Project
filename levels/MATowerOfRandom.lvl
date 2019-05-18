@@ -1,0 +1,35 @@
+#domain
+hospital
+#levelname
+TowerOfSaigon
+#colors
+red: 0, A, B, C, D, E, F, G, H, I, J
+#initial
++++++++
++  0  +
++G+ + +
++I+ + +
++D+ + +
++C+ + +
++A+ + +
++J+ + +
++E+ + +
++F+ + +
++H+ + +
++B+ + +
++++++++
+#goal
++++++++
++     +
++ + +A+
++ + +B+
++ + +C+
++ + +D+
++ + +E+
++ + +F+
++ + +G+
++ + +H+
++ + +I+
++ + +J+
++++++++
+#end

@@ -1,0 +1,26 @@
+#domain
+hospital
+#levelname
+15Puzzle
+#colors
+red: 0
+blue: 1
+green: 2
+cyan: 3
+pink: 4
+purple: 5
+orange: 6
+lightblue: 7
+#initial
++++++
++750+
++413+
++26 +
++++++
+#goal
++++++
++012+
++345+
++67 +
++++++
+#end

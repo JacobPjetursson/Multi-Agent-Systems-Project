@@ -13,7 +13,7 @@ public class Box extends MovableObject {
 		this.id = id;
 	}
 
-	Box(Box duplicate) {
+	public Box(Box duplicate) {
 		this(duplicate.getId(), duplicate.getColor(), 
 				duplicate.getLetter(), duplicate.getLocation());
     }

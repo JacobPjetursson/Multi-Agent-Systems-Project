@@ -125,7 +125,7 @@ public class State{
 		boxes = newBoxes;
 	}
 	*/
-	
+
 	public void removeObjectsExcept(List<StateObject> preserve) {
 		agents = new HashMap<>();
 		boxes = new HashMap<>();
@@ -205,17 +205,17 @@ public class State{
 		}
 		return copy;
 	}
-	
+
 	private Set<Location> copyFakeWalls(Set<Location> old) {
 		return new HashSet<>(old);
 	}
-	
+
 	public void setFakeWalls() {
 		for(Box box : getBoxes()) {
 			fakeWalls.add(box.location);
 		}
 	}
-	
+
 	public void setFakeWalls(Box box) {
 		setFakeWalls();
 		fakeWalls.remove(box.location);
@@ -242,9 +242,9 @@ public class State{
 
 	public int f(Task task) {
 		//TODO : Remove boxes in goal when it stops moving shit
-		return g() + task.h(this) - boxesInGoal();
+		return g + task.h(this) - 2*boxesInGoal();
 	}
-	
+
 	public int boxesInGoal() {
 		int goalCount = 0;
 		for(Box box : this.getBoxes()) {
@@ -336,7 +336,7 @@ public class State{
 	}
 
 	private boolean cellIsFree(Location location) {
-		return !walls[location.getRow()][location.getCol()] && 
+		return !walls[location.getRow()][location.getCol()] &&
 				getObjectAt(location) == null;
 	}
 
@@ -366,7 +366,7 @@ public class State{
 		List<Location> plan = new ArrayList<>();
 		Location l = agent.getLocation();
 		plan.add(l);
-		
+
 		Action last = null;
 		List<Action> actions = extractActionPlan();
 		for (Action action : actions) {
@@ -413,7 +413,7 @@ public class State{
 				dist = dist-1;
 				location = west;
 			}else {
-				
+
 			}
 		}
 		path.add(location);

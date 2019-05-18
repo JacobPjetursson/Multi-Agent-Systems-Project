@@ -1,4 +1,5 @@
 import action.*;
+
 import action.Action.Dir;
 import state.*;
 import task.*;
@@ -45,7 +46,7 @@ public class Scheduler implements Runnable {
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals())
 			addGoalTask(goal);
-
+		
 		// Initial tasks
 		// TODO - prioritize which agent takes which task, instead of random
 		for (Agent agent : state.getAgents()) {
@@ -57,7 +58,7 @@ public class Scheduler implements Runnable {
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
-			if(state.getBoxAt(goal.getLocation()) != null) {
+			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) < taskPriority-1) {
 				//if(state.getBoxAt(goal.getLocation()) != null)
 					continue;
 			}
@@ -442,7 +443,6 @@ public class Scheduler implements Runnable {
 
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
-				System.err.println("Agent " + agent.getId() + " is thinking");
 				Planner planner = getPlanner(agent);
 				if (planner.isEmpty()) {
 					do {
@@ -500,6 +500,9 @@ public class Scheduler implements Runnable {
 					if(newGoalCount > oldGoalCount) {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
+						//TODO : Set box as wall if safe
+						//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
+						//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
 						if(State.goalMap.get(oldAgentLoc).getLetter() == agent.getLetter()) {
@@ -524,6 +527,25 @@ public class Scheduler implements Runnable {
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
+						}
+						if(newGoalCount > oldGoalCount) {
+							//TODO : Set box as wall if safe
+							Box box = state.getBoxAt(newBoxLoc);
+							int row = box.getLocation().getRow();
+							int col = box.getLocation().getCol();
+							int wallCount = 0;
+							wallCount += State.walls[row-1][col] ? 1 : 0;
+							wallCount += State.walls[row+1][col] ? 1 : 0;
+							wallCount += State.walls[row][col-1] ? 1 : 0;
+							wallCount += State.walls[row][col+1] ? 1 : 0;
+							if(wallCount >= 3) {
+								//State.walls[row][col] = true;
+								//System.err.println("Row : " + row + " - Col : " + col);
+							}else if(wallCount == 2) {
+								
+							}
+							//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
+							//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 						}
 					}
 				}
