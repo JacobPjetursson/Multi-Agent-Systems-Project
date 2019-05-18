@@ -9,6 +9,7 @@ import state.DistanceMap;
 import state.Goal;
 import state.State;
 import state.StateObject;
+import state.Location;
 
 public class AgentToGoalTask extends Task {
 	
@@ -52,6 +53,11 @@ public class AgentToGoalTask extends Task {
 	@Override
 	public void initializeState(State state) {
 		
+	}
+
+	@Override
+	public Location getGoalLocation() {
+		return goal.getLocation();
 	}
 
 	@Override
