@@ -242,7 +242,7 @@ public class State{
 
 	public int f(Task task) {
 		//TODO : Remove boxes in goal when it stops moving shit
-		return g + task.h(this) - 2*boxesInGoal();
+		return g() + task.h(this) - 2*boxesInGoal();
 	}
 
 	public int boxesInGoal() {

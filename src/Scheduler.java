@@ -279,6 +279,10 @@ public class Scheduler implements Runnable {
 				}
 				naiveTask.assignAgent(agent);
 				State terminalState = planner.createPlan(state, naiveTask);
+				if (terminalState == null) {
+					addTask(agent.getColor(), task);
+					return null;
+				}
 				List<Location> plan = terminalState.extractLocationPlan(agent);
 
 				int lock = 0;
