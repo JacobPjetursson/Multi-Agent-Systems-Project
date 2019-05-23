@@ -41,4 +41,6 @@ public abstract class Task implements Comparable<Task> {
 	public abstract Location getGoalLocation(); // Used for simple task
 	public abstract Task getNaive();
 	public abstract Task getNextTask();
+
+	public abstract int estimatedTime(State state);
 }

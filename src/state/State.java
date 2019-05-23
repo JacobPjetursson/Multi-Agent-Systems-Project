@@ -10,7 +10,7 @@ import task.Task;
 import java.util.*;
 
 public class State{
-	public static final Map<Location, DistanceMap> DISTANCE_MAPS = new HashMap<>();
+	public static Map<Location, DistanceMap> DISTANCE_MAPS = new HashMap<>();
 	public static int ROWS;
 	public static int COLS;
 
@@ -37,7 +37,12 @@ public class State{
 		this.fakeWalls = new HashSet<>();
 		g = 0;
 
+		updateDistanceMaps();
 		// Preprocess distance maps
+		
+	}
+	
+	public void updateDistanceMaps() {
 		for (int i = 0; i < ROWS; i++) {
 			for (int j = 0; j < COLS; j++) {
 				Location l = new Location(i, j);
@@ -78,7 +83,7 @@ public class State{
 						int val = 0;
 						DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
 						val += dm.distance(g.getLocation());
-						if (val <= best && val>0) {
+						if (val <= best && (val>0 || box.getLocation().equals(g.getLocation()))) {
 							best = val;
 							g.assignObj(box);
 						}
@@ -241,8 +246,11 @@ public class State{
 	}
 
 	public int f(Task task) {
-		//TODO : Remove boxes in goal when it stops moving shit
-		return g() + task.h(this) - 2*boxesInGoal();
+		//TODO : Stop moving boxes out of goal or actually just boxes in general
+		if(this.action instanceof MoveAction) {
+			return g() + task.h(this) - boxesInGoal();
+		}
+		return g() + task.h(this) - boxesInGoal() + 1;
 	}
 
 	public int boxesInGoal() {
@@ -394,6 +402,8 @@ public class State{
 		List<Location> path = new ArrayList<>();
 		Location location = new Location(loc);
 		int dist = dm.distance(location);
+		
+		
 		while (dist > 1) {
 			path.add(location);
 			Location south = new Location(location.getRow()+1,location.getCol());

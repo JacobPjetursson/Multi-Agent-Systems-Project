@@ -103,4 +103,14 @@ public class MoveToBoxTask extends Task implements BoxTask {
 		return ("MoveToBoxTask = Box : " + box.getLetter() + " - Box location : " + box.getLocation() + " - Agent : " + (getAgent() == null ? "null" : getAgent().getId()));
 	}
 
+	@Override
+	public int estimatedTime(State state) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(getAgent()).getLocation());
+		int r = dm.distance(state.getBox(box).getLocation());
+		if(nextTask != null) {
+			return r + nextTask.estimatedTime(state);
+		}
+		return r;
+	}
+
 }

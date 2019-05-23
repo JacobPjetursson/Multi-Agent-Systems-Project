@@ -4,6 +4,9 @@ import action.MoveAction;
 import action.NoOpAction;
 import state.Location;
 import state.State;
+import task.AgentToGoalTask;
+import task.GoalTask;
+import task.MoveToBoxTask;
 import task.SimpleTask;
 import task.Task;
 
@@ -116,11 +119,40 @@ public class Planner {
     	return path;
     }
     
+    private boolean isSolvable(State state, Task task) {
+    	if(task instanceof GoalTask) {
+    		task = (GoalTask) task;
+    		if(state.getBoxAt(task.getGoalLocation()) != null 
+    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor()){
+    			return false;
+    		}
+    	}else if(task instanceof AgentToGoalTask) {
+    		task = (AgentToGoalTask) task;
+    		if(state.getBoxAt(task.getGoalLocation()) != null 
+    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor()){
+    			return false;
+    		}
+    	}else if (task instanceof MoveToBoxTask) {
+    		task = (MoveToBoxTask) task;
+    		//TODO Check if surrounded by other color boxes
+    	}
+    	//TODO : Otherthing to look for.
+    	// - Blocked hallways
+		return true;
+    }
+    
     
 
     State createPlan(State initialState, Task task) {
     	initialState = initialState.clone();
     	task.initializeState(initialState);
+    	if(!isSolvable(initialState,task)) {
+    		return null;
+    	}
+    	
+    	//TODO : 2 is not correct value need to do some calculations based on map
+    	int max = task.estimatedTime(initialState) * 2;
+    	max = max < State.ROWS + State.COLS ? max * 2 : max;
         Set<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
@@ -129,6 +161,10 @@ public class Planner {
             State state = frontier.poll();
             if (task.isTerminal(state)) {
                 return state;
+            }
+            if(state.g() > max && !(task.getNaive() == null)) {
+            	break;
+        
             }
             for (State child : state.getExpandedStates(agentId)) {
             	if (task.updateState(child) && !explored.contains(child)) {

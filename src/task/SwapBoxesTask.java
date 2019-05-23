@@ -54,4 +54,10 @@ public class SwapBoxesTask extends Task {
 		return null;
 	}
 
+	@Override
+	public int estimatedTime(State state) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box1).getLocation());
+		return dm.distance(state.getBox(box2).getLocation())*3;
+	}
+
 }

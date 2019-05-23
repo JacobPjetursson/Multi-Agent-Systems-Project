@@ -100,4 +100,10 @@ public class GoalTask extends Task implements BoxTask {
 			state.removeObjectsExcept(preserve);
 		}
 	}
+
+	@Override
+	public int estimatedTime(State state) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+		return dm.distance(goal.getLocation());
+	}
 }

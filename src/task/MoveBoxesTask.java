@@ -115,5 +115,19 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 	public String toString() {
 		return ("MoveBoxesTask");
 	}
+	
+	@Override
+	public int estimatedTime(State state) {
+		//Not correct
+		int maxDist = 0;
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(boxes.get(0)).getLocation());
+		for(Location loc : path) {
+			int dist = dm.distance(loc) + 1;
+			if(dist > maxDist) {
+				maxDist = dist;
+			}
+		}
+		return maxDist * boxes.size();
+	}
 
 }

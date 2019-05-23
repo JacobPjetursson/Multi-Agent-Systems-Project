@@ -35,7 +35,7 @@ public class Box extends MovableObject {
 		return letter;
 	}
     
-    int getId() {
+    public int getId() {
     	return id;
     }
 	

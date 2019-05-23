@@ -57,4 +57,10 @@ public class SimpleTask extends Task {
     public Task getNextTask() {
         return null;
     }
+
+	@Override
+	public int estimatedTime(State state) {
+		//Dont know what this class does
+		return 10000000;
+	}
 }

@@ -13,11 +13,12 @@ public class Client {
 
 	private static String domain;
 	private static String levelName;
+	public static Set<Integer> agentsOfColor;
 
 	public static void main(String[] args) throws Exception {
 		BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
 		Map<Character, Integer> colorMap = new HashMap<>();
-		Set<Integer> agentsOfColor = new HashSet<>();
+		agentsOfColor = new HashSet<>();
 		
 		// STEP 1 : First System.out.println(client name);
 		System.out.println("Bob");
@@ -31,10 +32,16 @@ public class Client {
 		serverMessages.readLine(); // response = #colors
 		response = serverMessages.readLine();
 		while(!response.contains("#initial")) {
-			String[] split = response.split("\\s+");
-			String color = split[0];
-			color = color.substring(0, color.length()-1);
-			for(int i = 1; i < split.length; i++) {
+			//TODO : Split on more than black space (MAHelloWorl)
+			String[] colorSplit = response.split(":");
+			String[] split = colorSplit[1].split(",");
+			String color = colorSplit[0];
+			color = color.substring(0, color.length());
+			for(int i = 0; i < split.length; i++) {
+				split[i] = split[i].replaceAll("\\s","");
+				if(split[i].length() < 1) {
+					continue;
+				}
 				char chr = split[i].charAt(0);
 				colorMap.put(chr, getColorCode(color));
 				if(chr >= '0' && chr <= '9') {
@@ -94,9 +101,12 @@ public class Client {
 				if(chr <= 'Z' && chr >= 'A') {
 					Location position = new Location(row, col);
 					int color = colorMap.get(chr);
-					Goal goal = new BoxGoal(position, color, chr);
-					goals.add(goal);
-					goalMap.put(position, goal);
+					if(agentsOfColor.contains(color)) {
+						Goal goal = new BoxGoal(position, color, chr);
+						goals.add(goal);
+						goalMap.put(position, goal);
+					}
+					
 					
 				}else if(chr >= '0' && chr <= '9') {
 					Location position = new Location(row, col);
@@ -120,7 +130,7 @@ public class Client {
 			System.err.println(agent);
 		}
 		
-        State.goals = goals;
+		State.goals = goals;
         State.goalMap = goalMap;
         State initialState = new State(agents, boxes);
         
@@ -145,12 +155,16 @@ public class Client {
         			if(dist == 0 && !State.walls[row][col]) {
         				State.walls[row][col] = true;
         				changed = true;
+        				if(goalMap.containsKey(new Location(row,col))) {
+        					goalMap.remove(new Location(row,col));
+        				}
         			}
         			
         		}
         	}
             
             //Set boxes that are unreachable to walls
+            List<Integer> boxesToRemove = new ArrayList<>();
             for(Box box : boxes.values()) {
         		int boxColor = box.getColor();
         		DistanceMap dm = State.DISTANCE_MAPS.get(box.getLocation());
@@ -164,12 +178,39 @@ public class Client {
         				}
         			}
         		}
-        		if(!isReachable && !State.walls[box.getLocation().getRow()][box.getLocation().getCol()]) {
-        			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
-        			changed = true;
+        		if(!isReachable) {
+        			boxesToRemove.add(box.getId());
+        			if(goalMap.containsKey(box.getLocation())) {
+    					goalMap.remove(box.getLocation());
+    				}
+        			if(!State.walls[box.getLocation().getRow()][box.getLocation().getCol()]) {
+            			State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
+            			changed = true;
+            			
+            		}
         		}
         	}
+            for(Integer i : boxesToRemove) {
+            	boxes.remove(i);
+            }
+            initialState = new State(agents, boxes);
         }
+        initialState = new State(agents, boxes);
+        
+        for(int i = 0; i < State.ROWS; i++) {
+        	for(int j = 0; j < State.COLS; j++) {
+        		if(State.walls[i][j]) {
+        			System.err.print("x");
+        		}else {
+        			System.err.print(" ");
+        		}
+        		
+        	}
+        	System.err.println();
+        }
+        
+        State.goalMap = goalMap;
+        State.goals = new ArrayList<>(goalMap.values());
         
         
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));

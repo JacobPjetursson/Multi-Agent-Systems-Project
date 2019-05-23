@@ -69,4 +69,12 @@ public class CombinedTask extends Task {
         }
         return false;
     }
+
+	@Override
+	public int estimatedTime(State state) {
+		int combinedTime = 0;
+        for (Task t : tasks)
+            combinedTime += t.estimatedTime(state);
+        return combinedTime;
+	}
 }

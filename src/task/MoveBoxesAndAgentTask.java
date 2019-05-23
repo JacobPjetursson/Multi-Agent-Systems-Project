@@ -7,6 +7,7 @@ import java.util.Set;
 
 import state.Agent;
 import state.Box;
+import state.DistanceMap;
 import state.Location;
 import state.State;
 import state.StateObject;
@@ -119,6 +120,20 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 	
 	public String toString() {
 		return ("MoveBoxesAndAgentTask");
+	}
+
+	@Override
+	public int estimatedTime(State state) {
+		//Not correct
+		int maxDist = 0;
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(agent).getLocation());
+		for(Location loc : path) {
+			int dist = dm.distance(loc) + 1;
+			if(dist > maxDist) {
+				maxDist = dist;
+			}
+		}
+		return maxDist * boxes.size();
 	}
 
 }

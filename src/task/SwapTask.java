@@ -69,4 +69,10 @@ public class SwapTask extends Task {
 	public Task getNextTask() {
 		return null;
 	}
+
+	@Override
+	public int estimatedTime(State state) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+		return dm.distance(state.getAgent(agent).getLocation())*2;
+	}
 }

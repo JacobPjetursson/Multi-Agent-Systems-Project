@@ -90,6 +90,12 @@ public class AgentToGoalTask extends Task {
 		}
 	}
 
+	@Override
+	public int estimatedTime(State state) {
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(agent).getLocation());
+		return dm.distance(goal.getLocation());
+	}
+
 	
 	
 }
