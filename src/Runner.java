@@ -32,7 +32,7 @@ public class Runner {
 		args = new String[] {"java",
 				"-jar", arg("lib/server.jar"),
 				"-c", "java -Duser.dir=" + arg("bin ") + (Boolean.parseBoolean(options.get(DEBUG)) ? DEBUG_STRING : "") + "Client",
-				"-l", arg("levels/" + options.get(LEVEL)),
+				"-l", arg("complevels/" + options.get(LEVEL)),
 				Boolean.parseBoolean(options.get(GUI)) ? "-g" : "-p",
 		};
 		ProcessBuilder pb = new ProcessBuilder(args).inheritIO();
