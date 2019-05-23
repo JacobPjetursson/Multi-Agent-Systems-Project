@@ -12,28 +12,28 @@ import state.StateObject;
 import state.Location;
 
 public class GoalTask extends Task implements BoxTask {
-	
+
 	private Box box;
 	private Goal goal;
 
 	public GoalTask(Box box, Goal goal) {
 		this(3, box, goal);
 	}
-	
+
 	public GoalTask(int priority, Box box, Goal goal) {
 		super(priority);
 		this.goal = goal;
 		this.box = box;
 	}
-	
+
 	public Goal getGoal() {
 		return goal;
 	}
-	
+
 	public Box getBox() {
 		return box;
 	}
-	
+
 	@Override
 	public List<Box> getBoxes() {
 		return Collections.singletonList(getBox());
@@ -51,7 +51,7 @@ public class GoalTask extends Task implements BoxTask {
 		int val = dm.distance(goal.getLocation());
 		return val;
 	}
-	
+
 	@Override
 	public boolean updateState(State state) {
 		// The world is assumed to be static
@@ -60,7 +60,7 @@ public class GoalTask extends Task implements BoxTask {
 
 	@Override
 	public void initializeState(State state) {
-		
+
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class GoalTask extends Task implements BoxTask {
 		return goal.getLocation();
 	}
 
-	@Override 
+	@Override
 	public boolean equals(Object o) {
 		if (o instanceof GoalTask) {
 			GoalTask task = (GoalTask) o;
@@ -86,8 +86,8 @@ public class GoalTask extends Task implements BoxTask {
 	public Task getNextTask() {
 		return null;
 	}
-	
-	private static class NaiveGoalTask extends GoalTask {		
+
+	private static class NaiveGoalTask extends GoalTask {
 		public NaiveGoalTask(GoalTask task) {
 			super(task.getPriority(), task.getBox(), task.getGoal());
 		}
