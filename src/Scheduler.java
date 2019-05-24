@@ -43,7 +43,6 @@ public class Scheduler implements Runnable {
 		State.totalGoals = state.getBoxes().size();
 		State.freeBoxes = State.totalGoals;
 		calculateSafeLocations(state);
-		// TODO : Find hallways and add to a set
 		findHallways();
 
 		// Task of getting box to goal
@@ -63,8 +62,12 @@ public class Scheduler implements Runnable {
 			for(int col = 1 ; col < State.COLS-1; col++) {
 				if(State.walls[row-1][col] && State.walls[row+1][col]) {
 					hallways.add(new Location(row,col));
+					//hallways.add(new Location(row,col+1));
+					//hallways.add(new Location(row,col-1));
 				}else if(State.walls[row][col-1] && State.walls[row][col+1]) {
 					hallways.add(new Location(row,col));
+					//hallways.add(new Location(row+1,col));
+					//hallways.add(new Location(row-1,col));
 				}
 			}
 		}
@@ -117,10 +120,11 @@ public class Scheduler implements Runnable {
 							safeValue = temp;
 						}
 					}
-					if(paths.containsKey(location) && safeValue == 0) {
+					if(paths.containsKey(location) && safeValue <= 0) {
 						safeValue = paths.get(location);
 					}
-					State.safeLocation.put(location, Math.min((int) (safeValue*(taskPriority)),taskPriority*taskPriority));
+					
+					State.safeLocation.put(location, Math.min((int) (safeValue*(taskPriority)),(taskPriority)*taskPriority));
 					
 					//State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes)),State.freeBoxes*State.freeBoxes));
 				}else {
@@ -128,6 +132,14 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		System.err.println("TASK PRIO " + taskPriority);
+		for(int i = 0; i < State.ROWS; i++) {
+        	for(int j = 0; j < State.COLS; j++) {
+        		System.err.print("" + State.safeLocation.get(new Location(i,j)) + "\t");
+        		
+        	}
+        	System.err.println();
+        }
 	}
 
 	private void addGoalTask(Goal goal) {
@@ -180,7 +192,6 @@ public class Scheduler implements Runnable {
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		for(Goal goal : goals) {
 			goalPathMap.put(goal, new ArrayList<>());
-			//TODO : Null pointer MAAvicii
 			Location location = goal.getAssignedObj().getLocation();
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
@@ -516,8 +527,11 @@ public class Scheduler implements Runnable {
 				int priority = Math.max(resolved.getPriority(), task.getPriority() + 1);
 				resolved.setPriority(priority);
 				unlockTask(resolved);
+				
 			}
+			
 		}
+		updatePriority();
 	}
 	
 	private void updatePriority() {
@@ -726,6 +740,4 @@ public class Scheduler implements Runnable {
 		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
 		System.err.println("Time spent on solving: " + timeSpent + " seconds.");
 	}
-
-	
 }

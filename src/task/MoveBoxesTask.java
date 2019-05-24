@@ -17,11 +17,14 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 	
 	private Set<Location> path;
 	private List<Box> boxes;
+	private List<MoveToBoxTask> tasks;
 
 	public MoveBoxesTask(int priority, Task taskToResolve, List<Box> boxes, Collection<Location> path) {
 		super(priority, taskToResolve);
 		this.boxes = boxes;
 		this.path = new HashSet<>(path);
+		
+		
 	}
 	
 	@Override
@@ -74,11 +77,13 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 
 	@Override
 	public Task getNaive() {
+		
 		return new NaiveMoveBoxesTask(this);
 	}
 
 	@Override
 	public Task getNextTask() {
+		
 		return null;
 	}
 	
@@ -93,21 +98,34 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 		return super.assignAgent(agent);
 	}
 	
-	private static class NaiveMoveBoxesTask extends MoveBoxesTask {		
+	private static class NaiveMoveBoxesTask extends MoveBoxesTask {	
+		
 		public NaiveMoveBoxesTask(MoveBoxesTask task) {
 			super(task.getPriority(), task.getTaskToResolve(), task.getBoxes(), task.getPath());
+			
 		}
 
 		@Override
 		public void initializeState(State state) {
+			
 			List<StateObject> preserve = new LinkedList<>();
 			preserve.add(getAgent());
-			for(Box box: state.getBoxes()) {
-				if(box.getColor() == getAgent().getColor()) {
-					preserve.add(box);
-				}
+			for(Box box: getBoxes()) {
+				preserve.add(box);
 			}
+			state.setFakeWalls();
 			state.removeObjectsExcept(preserve);
+		
+			
+		}
+		
+		@Override
+		public Task getNaive() {
+			return null;
+		}
+		
+		public String toString() {
+			return ("NaiveMoveBoxesTask");
 		}
 	}
 	
@@ -118,7 +136,6 @@ public class MoveBoxesTask extends ResolveTask implements BoxTask {
 	
 	@Override
 	public int estimatedTime(State state) {
-		//Not correct
 		int maxDist = 0;
 		for(Box box : boxes) {
 			int max = 0;

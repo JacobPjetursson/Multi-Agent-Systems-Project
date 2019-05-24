@@ -136,7 +136,18 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 				maxDist = dist;
 			}
 		}
-		return maxDist * boxes.size();
+		for(Box box : boxes) {
+			int max = 0;
+			dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+			for(Location loc : path) {
+				int dist = dm.distance(loc) + 1;
+				if(dist > max) {
+					max = dist;
+				}
+			}
+			maxDist+=max;
+		}
+		return maxDist*2;
 	}
 
 }

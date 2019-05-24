@@ -158,7 +158,6 @@ public class Planner {
     	}
     	if (task instanceof MoveToBoxTask) {
     		task = (MoveToBoxTask) task;
-    		//TODO Check if surrounded by other color boxes
     		List<Location> shortestPath = state.getPath(state.getAgent(task.getAgent()).getLocation(), state.getBox(((MoveToBoxTask) task).getBox()).getLocation());
     		for(Location loc : shortestPath) {
     			if(State.hallways.contains(loc)) {
@@ -171,8 +170,6 @@ public class Planner {
     		}
     	}
     	
-    	//TODO : Otherthing to look for.
-    	// - Blocked hallways
 		return true;
     }
     
@@ -184,22 +181,23 @@ public class Planner {
     	if(!isSolvable(initialState,task)) {
     		return null;
     	}
-    	
-    	//TODO : 2 is not correct value need to do some calculations based on map
     	int max = task.estimatedTime(initialState) * 2;
         Set<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
         explored.add(initialState);
+        System.err.println("Trying for task " + task);
+        System.err.println("Max " + max);
         while (!frontier.isEmpty()) {
             State state = frontier.poll();
             if (task.isTerminal(state)) {
                 return state;
             }
-            if(state.g() > max && !(task.getNaive() == null)) {
+            if((state.g() > max || state.f(task)-state.g() > max * 2) && !(task.getNaive() == null) ) {
+            	
             	break;
-        
             }
+            
             for (State child : state.getExpandedStates(agentId)) {
             	if (task.updateState(child) && !explored.contains(child)) {
             		frontier.add(child);

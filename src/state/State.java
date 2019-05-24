@@ -262,7 +262,15 @@ public class State{
 				}
 			}
 		}
-		return goalCount + convertedBoxes;
+		for(Agent agent : this.getAgents()) {
+			if(goalMap.containsKey(agent.location)) {
+				Goal goal = goalMap.get(agent.location);
+				if(goal.getAssignedObj().equals(agent)) {
+					goalCount++;
+				}
+			}
+		}
+		return goalCount*2;
 	}
 
 	public int g() {

@@ -99,6 +99,11 @@ public class GoalTask extends Task implements BoxTask {
 			preserve.add(getBox());
 			state.removeObjectsExcept(preserve);
 		}
+		
+		@Override
+		public Task getNaive() {
+			return null;
+		}
 	}
 
 	@Override
