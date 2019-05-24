@@ -677,11 +677,7 @@ public class Scheduler implements Runnable {
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
 							if(goal.getAssignedObj().equals(box)) {
-<<<<<<< HEAD
-								System.err.println("Re-adding goal task for goal " + goal.getLetter());
-=======
 								//System.err.println("Re-adding goal task for goal " + goal.getLetter());
->>>>>>> Merge FUCK
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
