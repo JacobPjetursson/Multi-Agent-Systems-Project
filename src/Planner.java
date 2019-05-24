@@ -124,7 +124,7 @@ public class Planner {
     		task = (GoalTask) task;
     		if((state.getBoxAt(task.getGoalLocation()) != null 
     			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor())
-    			|| state.getAgentAt(task.getGoalLocation()) != null	){
+    			|| (state.getAgentAt(task.getGoalLocation()) != null	&& !state.getAgentAt(task.getGoalLocation()).equals(state.getAgent(agentId)))){
     			return false;
     		}
     		List<Location> shortestPath = state.getPath(state.getBox(((GoalTask) task).getBox()).getLocation(), task.getGoalLocation());
@@ -142,7 +142,7 @@ public class Planner {
     		task = (AgentToGoalTask) task;
     		if((state.getBoxAt(task.getGoalLocation()) != null 
     			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor())
-    			|| state.getAgentAt(task.getGoalLocation()) != null ){
+    				|| (state.getAgentAt(task.getGoalLocation()) != null	&& !state.getAgentAt(task.getGoalLocation()).equals(state.getAgent(agentId)))){
     			return false;
     		}
     		List<Location> shortestPath = state.getPath(state.getAgent(task.getAgent()).getLocation(), task.getGoalLocation());
@@ -187,7 +187,6 @@ public class Planner {
     	
     	//TODO : 2 is not correct value need to do some calculations based on map
     	int max = task.estimatedTime(initialState) * 2;
-    	max = max < State.ROWS + State.COLS ? max * 2 : max;
         Set<State> explored = new HashSet<>();
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
