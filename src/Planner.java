@@ -186,14 +186,12 @@ public class Planner {
         PriorityQueue<State> frontier = new PriorityQueue<>(new StateComparator(task));
         frontier.add(initialState);
         explored.add(initialState);
-        System.err.println("Trying for task " + task);
-        System.err.println("Max " + max);
         while (!frontier.isEmpty()) {
             State state = frontier.poll();
             if (task.isTerminal(state)) {
                 return state;
             }
-            if((state.g() > max || state.f(task)-state.g() > max * 2) && !(task.getNaive() == null) ) {
+            if((state.g() > max) && !(task.getNaive() == null) ) {
             	
             	break;
             }

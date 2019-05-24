@@ -127,14 +127,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
-		System.err.println("TASK PRIO " + taskPriority);
-		for(int i = 0; i < State.ROWS; i++) {
-        	for(int j = 0; j < State.COLS; j++) {
-        		System.err.print("" + State.safeLocation.get(new Location(i,j)) + "\t");
-        		
-        	}
-        	System.err.println();
-        }
+		
 	}
 
 	private void addGoalTask(Goal goal) {
@@ -623,7 +616,7 @@ public class Scheduler implements Runnable {
 			}
 			cmd = cmd.substring(0, cmd.length()-1);
 			System.out.println(cmd);
-			System.err.println(cmd);
+			//System.err.println(cmd);
 
 
 			String message = "";
@@ -633,7 +626,7 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 
-			System.err.println("RESPONSE: " + message);
+			//System.err.println("RESPONSE: " + message);
 
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
@@ -642,7 +635,7 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action action = planner.getLastAction();
 				if (error) {
-					System.err.println("Conflict involving Agent"+agent.getId());
+					//System.err.println("Conflict involving Agent"+agent.getId());
 					collectConflicts(conflicts, agent, action);
 				}
 				else {
@@ -677,7 +670,6 @@ public class Scheduler implements Runnable {
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
 							if(goal.getAssignedObj().equals(state.getBoxAt(newBoxLoc))) {
-								System.err.println("Re-adding goal task for goal " + goal.getLetter());
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
