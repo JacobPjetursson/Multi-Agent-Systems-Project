@@ -60,7 +60,7 @@ public class SimpleTask extends Task {
 
 	@Override
 	public int estimatedTime(State state) {
-		//Dont know what this class does
-		return 10000000;
+		DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(getAgent()).getLocation());
+        return dm.distance(loc);
 	}
 }

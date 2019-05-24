@@ -66,9 +66,12 @@ public class Client {
 		State.walls = new boolean[rows][cols];
 		Map<Integer, Agent> agents = new HashMap<>();
 		Map<Integer, Box> boxes = new HashMap<>();
+		Map<Character,Integer> boxLetters = new HashMap<>();
 		int boxId = 1;
 		List<Goal> goals = new ArrayList<>();
 		Map<Location,Goal> goalMap = new HashMap<>();
+		Set<Character> goalLetters = new HashSet<>();
+		
 		for(int row = 0; row < rows; row++) {
 			String levelLine = levelLines.get(row);
 			for(int col = 0; col < levelLine.length(); col++) {
@@ -86,6 +89,11 @@ public class Client {
 					if(agentsOfColor.contains(color)) {
 						boxes.put(boxId, new Box(boxId, color, chr, position));
 						boxId++;
+						if(!boxLetters.containsKey(chr)) {
+							boxLetters.put(chr,1);
+						}
+						boxLetters.put(chr,boxLetters.get(chr)+1);
+						
 					}else {
 						State.walls[row][col] = true;
 					}
@@ -105,6 +113,7 @@ public class Client {
 						Goal goal = new BoxGoal(position, color, chr);
 						goals.add(goal);
 						goalMap.put(position, goal);
+						goalLetters.add(chr);
 					}
 					
 					
@@ -197,6 +206,86 @@ public class Client {
         }
         initialState = new State(agents, boxes);
         
+        for(int i = 0; i < State.ROWS; i++) {
+        	for(int j = 0; j < State.COLS; j++) {
+        		if(State.walls[i][j]) {
+        			System.err.print("x");
+        		}else {
+        			System.err.print(" ");
+        		}
+        		
+        	}
+        	System.err.println();
+        }
+        
+        
+        for(Character c : boxLetters.keySet()) {
+        	if(goalLetters.contains(c) || boxLetters.get(c) < 20) {
+        		continue;
+        	}
+    		for(Box box : boxes.values()) {
+    			if(box.getLetter() != c) {
+    				continue;
+    			}
+				
+				State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = true;
+				
+        	
+        		
+        	}
+            boolean revert = false;
+            initialState = new State(agents, boxes);
+            l : for(Goal goal : goals) {
+            	DistanceMap dm = State.DISTANCE_MAPS.get(goal.getLocation());
+            	for(Box box : boxes.values()) {
+            		if(box.getLetter() == goal.getLetter()) {
+            			if(dm.distance(box.getLocation()) == 0 && !box.getLocation().equals(goal.getLocation())) {
+            				revert = true;
+            				break l;
+            			}else {
+            				break;
+            			}
+            		}
+            	}
+            	for(Agent agent : agents.values()) {
+            		if(agent.getLetter() == goal.getLetter()) {
+            			if(dm.distance(agent.getLocation()) == 0 && !agent.getLocation().equals(goal.getLocation())) {
+            				revert = true;
+            				break l;
+            			}else {
+            				break;
+            			}
+            		}
+            	}
+            }
+            if(revert) {
+            	for(Box box : boxes.values()) {
+        			if(box.getLetter() != c) {
+        				continue;
+        			}
+    				if(goalLetters.contains(box.getLetter())) {
+                		continue;
+                	}
+    				State.walls[box.getLocation().getRow()][box.getLocation().getCol()] = false;
+    				
+            	
+            		
+            	}
+            	initialState = new State(agents, boxes);
+            }else {
+            	List<Box> boxesToRemove = new ArrayList<>();
+            	for(Box box : boxes.values()) {
+            		if(box.getLetter() == c) {
+            			boxesToRemove.add(box);
+            		}
+            	}
+            	for(Box box : boxesToRemove) {
+            		boxes.remove(box.getId());
+            	}
+            	
+            }
+    	}
+    	
         for(int i = 0; i < State.ROWS; i++) {
         	for(int j = 0; j < State.COLS; j++) {
         		if(State.walls[i][j]) {
