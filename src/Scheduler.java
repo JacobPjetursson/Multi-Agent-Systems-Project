@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 
 public class Scheduler implements Runnable {
+	// To get nice solutions if multiple rooms exists split up everything into rooms. Dont think we have the time though
 	private BufferedReader serverMessages;
 	private State state;
 	private Map<Integer, PriorityQueue<Task>> taskMap;
@@ -42,6 +43,8 @@ public class Scheduler implements Runnable {
 		State.totalGoals = state.getBoxes().size();
 		State.freeBoxes = State.totalGoals;
 		calculateSafeLocations(state);
+		// TODO : Find hallways and add to a set
+		findHallways();
 
 		// Task of getting box to goal
 		for (Goal goal : state.getGoals())
@@ -52,6 +55,21 @@ public class Scheduler implements Runnable {
 		for (Agent agent : state.getAgents()) {
 			assignTask(state, agent);
 		}
+	}
+
+	private void findHallways() {
+		Set<Location> hallways = new HashSet<>();
+		for(int row = 1; row < State.ROWS-1; row++) {
+			for(int col = 1 ; col < State.COLS-1; col++) {
+				if(State.walls[row-1][col] && State.walls[row+1][col]) {
+					hallways.add(new Location(row,col));
+				}else if(State.walls[row][col-1] && State.walls[row][col+1]) {
+					hallways.add(new Location(row,col));
+				}
+			}
+		}
+		State.hallways = hallways;
+		
 	}
 
 	private void calculateSafeLocations(State state) {

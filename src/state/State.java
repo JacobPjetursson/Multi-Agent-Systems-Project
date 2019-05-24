@@ -20,6 +20,7 @@ public class State{
 	public static Map<Location, Integer> safeLocation;
 	public static int totalGoals;
 	public static int freeBoxes;
+	public static Set<Location> hallways;
 
 	private Set<Location> fakeWalls;
 	private Map<Integer, Agent> agents;

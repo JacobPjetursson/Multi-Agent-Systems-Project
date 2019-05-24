@@ -122,20 +122,55 @@ public class Planner {
     private boolean isSolvable(State state, Task task) {
     	if(task instanceof GoalTask) {
     		task = (GoalTask) task;
-    		if(state.getBoxAt(task.getGoalLocation()) != null 
-    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor()){
+    		if((state.getBoxAt(task.getGoalLocation()) != null 
+    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor())
+    			|| state.getAgentAt(task.getGoalLocation()) != null	){
     			return false;
     		}
-    	}else if(task instanceof AgentToGoalTask) {
+    		List<Location> shortestPath = state.getPath(state.getBox(((GoalTask) task).getBox()).getLocation(), task.getGoalLocation());
+    		for(Location loc : shortestPath) {
+    			if(State.hallways.contains(loc)) {
+    				if((state.getBoxAt(loc) != null 
+    		    		&& state.getBoxAt(loc).getColor() != state.getAgent(agentId).getColor())
+    		    		|| (state.getAgentAt(loc) != null && !state.getAgentAt(loc).equals(state.getAgent(agentId)))){
+    		    		return false;
+    		    	}
+    			}
+    		}
+    	}
+    	if(task instanceof AgentToGoalTask) {
     		task = (AgentToGoalTask) task;
-    		if(state.getBoxAt(task.getGoalLocation()) != null 
-    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor()){
+    		if((state.getBoxAt(task.getGoalLocation()) != null 
+    			&& state.getBoxAt(task.getGoalLocation()).getColor() != state.getAgent(agentId).getColor())
+    			|| state.getAgentAt(task.getGoalLocation()) != null ){
     			return false;
     		}
-    	}else if (task instanceof MoveToBoxTask) {
+    		List<Location> shortestPath = state.getPath(state.getAgent(task.getAgent()).getLocation(), task.getGoalLocation());
+    		for(Location loc : shortestPath) {
+    			if(State.hallways.contains(loc)) {
+    				if((state.getBoxAt(loc) != null 
+        		    	&& state.getBoxAt(loc).getColor() != state.getAgent(agentId).getColor())
+        		    	|| (state.getAgentAt(loc) != null && !state.getAgentAt(loc).equals(state.getAgent(agentId)))){
+        		   		return false;
+        		   	}
+    			}
+    		}
+    	}
+    	if (task instanceof MoveToBoxTask) {
     		task = (MoveToBoxTask) task;
     		//TODO Check if surrounded by other color boxes
+    		List<Location> shortestPath = state.getPath(state.getAgent(task.getAgent()).getLocation(), state.getBox(((MoveToBoxTask) task).getBox()).getLocation());
+    		for(Location loc : shortestPath) {
+    			if(State.hallways.contains(loc)) {
+    				if((state.getBoxAt(loc) != null 
+            		    && state.getBoxAt(loc).getColor() != state.getAgent(agentId).getColor())
+            		   	|| (state.getAgentAt(loc) != null && !state.getAgentAt(loc).equals(state.getAgent(agentId)))){
+            			return false;
+            	   	}
+    			}
+    		}
     	}
+    	
     	//TODO : Otherthing to look for.
     	// - Blocked hallways
 		return true;
