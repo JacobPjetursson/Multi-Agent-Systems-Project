@@ -141,7 +141,7 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 			Box b = state.getBox(box);
 			if (b == null)
 			    continue;
-			dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+			dm = State.DISTANCE_MAPS.get(b.getLocation());
 			for(Location loc : path) {
 				int dist = dm.distance(loc) + 1;
 				if(dist > max) {
