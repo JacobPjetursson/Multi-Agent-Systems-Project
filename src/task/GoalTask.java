@@ -42,6 +42,7 @@ public class GoalTask extends Task implements BoxTask {
 	@Override
 	public boolean isTerminal(State state) {
 		Box box = state.getBox(this.box);
+		if(box == null) return true;
 		return box.getLocation().equals(goal.getLocation());
 	}
 
@@ -108,6 +109,7 @@ public class GoalTask extends Task implements BoxTask {
 
 	@Override
 	public int estimatedTime(State state) {
+		if(isTerminal(state)) return 0;
 		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
 		return dm.distance(goal.getLocation());
 	}

@@ -128,7 +128,7 @@ public class Client {
 			row++;
 			response = serverMessages.readLine();
 		}
-
+/*
 		for (Goal goal : goals) {
 			System.err.println(goal);
 		}
@@ -138,7 +138,7 @@ public class Client {
 		for (Agent agent : agents.values()) {
 			System.err.println(agent);
 		}
-		
+		*/
 		State.goals = goals;
         State.goalMap = goalMap;
         State initialState = new State(agents, boxes);
@@ -205,7 +205,7 @@ public class Client {
             initialState = new State(agents, boxes);
         }
         initialState = new State(agents, boxes);
-        
+        /*
         for(int i = 0; i < State.ROWS; i++) {
         	for(int j = 0; j < State.COLS; j++) {
         		if(State.walls[i][j]) {
@@ -216,7 +216,7 @@ public class Client {
         		
         	}
         	System.err.println();
-        }
+        }*/
         
         
         for(Character c : boxLetters.keySet()) {

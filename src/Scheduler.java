@@ -40,8 +40,8 @@ public class Scheduler implements Runnable {
 		state.assignObjectsToGoals();
 		priorityMap = new HashMap<>();
 		calculateGoalPriorities();
-		State.totalGoals = state.getBoxes().size();
-		State.freeBoxes = State.totalGoals;
+		State.freeBoxes = state.getBoxes().size();
+		State.freeGoals = state.getGoals().size();
 		calculateSafeLocations(state);
 		findHallways();
 
@@ -79,7 +79,7 @@ public class Scheduler implements Runnable {
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
-			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) < taskPriority-1) {
+			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) <= taskPriority-1) {
 				//if(state.getBoxAt(goal.getLocation()) != null)
 					continue;
 			}
@@ -90,13 +90,18 @@ public class Scheduler implements Runnable {
 			}else {
 				Box b = state.getBox((Box) object);
 				if (b == null) // box converted to wall
-					location = goal.getLocation();
+					location = null;
 				else
 					location = state.getBox((Box) object).getLocation();
 			}
 
 
-			List<Location> shortestPath = state.getPath(location, goal.getLocation());
+			List<Location> shortestPath;
+			if(location == null) {
+				shortestPath = new ArrayList<>();
+			}else {
+				shortestPath = state.getPath(location, goal.getLocation());
+			}
 			for(Location l : shortestPath) {
 				if(paths.containsKey(l)) {
 					paths.put(l,paths.get(l));
@@ -210,37 +215,7 @@ public class Scheduler implements Runnable {
 			
 		}
 		
-		while(missingPriorities > 0) {
-			for(Goal goal : goals) {
-				if(hasPriority.contains(goal))
-					continue;
-
-				List<Goal> goalsCrossing = goalPathMap.get(goal);
-				int currentPriority = currentPriorityMap.get(goal);
-				int updatedPriority = currentPriority;
-				for(Goal gc : goalsCrossing) {
-					int tempPriority = currentPriorityMap.get(gc);
-					if(!goalPathMap.get(gc).contains(goal)) {
-						tempPriority++;
-					}
-					if (tempPriority > updatedPriority) {
-						updatedPriority = tempPriority;
-					}
-				}
-				currentPriorityMap.put(goal, updatedPriority);
-				if(currentPriority == updatedPriority) {
-					currentPriorityMap.put(goal, currentPriority);
-					missingPriorities--;
-					hasPriority.add(goal);
-					continue;
-				}
-				if(updatedPriority >= size) {
-					currentPriorityMap.put(goal, size);
-					missingPriorities--;
-					hasPriority.add(goal);
-				}
-			}
-		}
+		
 		
 		while(missingPriorities > 0) {
 			for(Goal goal : goals) {
@@ -331,32 +306,12 @@ public class Scheduler implements Runnable {
 			}
 		}
 		
-		/*
-		// Make sure agentGoals are below all boxGoals in priority
-		int maxAgentGoalPrio = 0;
-		int minBoxGoalPrio = 0;
-		for (Goal goal : goals) {
-			if (goal instanceof AgentGoal) {
-				int prio = currentPriorityMap.get(goal);
-				if (prio > maxAgentGoalPrio)
-					maxAgentGoalPrio = prio;
-			} else if (goal instanceof BoxGoal) {
-				int prio = currentPriorityMap.get(goal);
-				if (prio < minBoxGoalPrio)
-					minBoxGoalPrio = prio;
-			}
-		}
 		
-		int goalDiff = (maxAgentGoalPrio - minBoxGoalPrio) - 1;
-		*/
 		// Add all to priorityMap
 		for(Goal goal : goals) {
 
 			int prio = currentPriorityMap.get(goal);
-			/*
-			if (goal instanceof AgentGoal)
-				prio -= goalDiff;
-			*/
+			
 			//System.err.println(goal.getLetter() + "  " + prio);
 			priorityMap.put(goal.getLocation(), prio);
 			taskPriority = Math.max(taskPriority, priorityMap.get(goal.getLocation()));
@@ -589,6 +544,7 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		boolean solved = false;
+		int noOpCounter = 0;
 		long timeStart = System.currentTimeMillis();
 		while (!solved) {
 			boolean done = true;
@@ -613,15 +569,19 @@ public class Scheduler implements Runnable {
 					done = false;
 				}
 				Action a = planner.poll();
+				if(!(a instanceof NoOpAction)) {
+					noOpCounter = 0;
+				}
 				cmd += a.toString() + ";";
 			}
+			noOpCounter++;
 			solved = done && allTasksCompleted();
 			if(!agentsWorking(state)) {
 				updatePriority();
 			}
 			cmd = cmd.substring(0, cmd.length()-1);
 			System.out.println(cmd);
-			//System.err.println(cmd);
+			System.err.println(cmd);
 
 
 			String message = "";
@@ -649,21 +609,20 @@ public class Scheduler implements Runnable {
 					state.applyAction(agent, action);
 					Location newAgentLoc = state.getAgent(agent).getLocation();
 					int newGoalCount = state.boxesInGoal();
+					
 					if(newGoalCount > oldGoalCount) {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
-						//TODO : Set box as wall if safe
-						//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
-						//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
+						State.freeGoals-= Math.abs(newGoalCount - oldGoalCount)/2;
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
 						if(State.goalMap.get(oldAgentLoc).getLetter() == agent.getLetter()) {
 							addTask(agent.getColor(), new AgentToGoalTask(priorityMap.get(oldAgentLoc),State.goalMap.get(oldAgentLoc), agent));
 							State.freeBoxes++;
+							State.freeGoals++;
 						}
 		
 					}
-					//If box moved away from goal add goalTask again
 					if(action instanceof BoxAction) {
 						BoxAction boxAction = (BoxAction) action;
 						Dir boxDir = boxAction.getBoxDirection();
@@ -679,10 +638,9 @@ public class Scheduler implements Runnable {
 							Goal goal = State.goalMap.get(oldBoxLoc);
 
 							if(goal.getAssignedObj().equals(box)) {
-								//System.err.println("Re-adding goal task for goal " + goal.getLetter());
-
 								addGoalTask(goal);
 								State.freeBoxes++;
+								State.freeGoals++;
 							}
 						}
 
@@ -695,8 +653,6 @@ public class Scheduler implements Runnable {
 
 								state.updateDistanceMaps();
 							}
-							//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
-							//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
 						}
 					}
 				}
@@ -732,7 +688,43 @@ public class Scheduler implements Runnable {
 					resolved.add(agent);
 				}
 			}
-			solved = solved || State.freeBoxes == 0;
+			if(solved && State.freeGoals != 0) {
+				if(!taskLockMap.keySet().isEmpty()) {
+					for(Task task : taskLockMap.keySet()) {
+						addTask(task.getAgent().getColor(), task);
+					}
+
+					updatePriority();
+					solved = false;
+				}
+				
+			}
+			System.err.println(State.freeGoals);
+
+			if(noOpCounter >= 3) {
+				for(Integer color : taskMap.keySet()) {
+					taskMap.get(color).clear();
+				}
+				for (Agent agent : state.getAgents()) {
+					Planner planner = getPlanner(agent);
+					planner.clear();
+				}
+				for (Goal goal : state.getGoals()) {
+					if(goal instanceof AgentGoal) {
+						AgentToGoalTask gt = new AgentToGoalTask(goal, (Agent) goal.getAssignedObj());
+						if(!gt.isTerminal(state))
+							addGoalTask(goal);
+					}else {
+						GoalTask gt = new GoalTask((Box) goal.getAssignedObj(), goal);
+						if(!gt.isTerminal(state))
+							addGoalTask(goal);
+					}
+					
+				}
+				updatePriority();
+			}
+			
+			solved = solved || State.freeGoals == 0;
 		}
 		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
 		//System.err.println("Time spent on solving: " + timeSpent + " seconds.");
