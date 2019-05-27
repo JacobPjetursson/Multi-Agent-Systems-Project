@@ -1,2 +1,6 @@
 *.iml
 /lib/runner.conf
+bin/*
+out/*
+/bin/*
+/out/*
