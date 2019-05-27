@@ -132,6 +132,7 @@ public class Scheduler implements Runnable {
 				}
 			}
 		}
+		
 	}
 
 	private void addGoalTask(Goal goal) {
@@ -676,18 +677,22 @@ public class Scheduler implements Runnable {
 						int boxCol = box.getLocation().getCol();
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
+
 							if(goal.getAssignedObj().equals(box)) {
 								//System.err.println("Re-adding goal task for goal " + goal.getLetter());
+
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
 						}
+
 
 						if(planner.isEmpty() && newGoalCount > oldGoalCount) {
 							if (box.isSafe()) {
 								State.walls[boxRow][boxCol] = true;
 								State.convertedBoxes++;
 								state.boxes.remove(box.getId());
+
 								state.updateDistanceMaps();
 							}
 							//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps

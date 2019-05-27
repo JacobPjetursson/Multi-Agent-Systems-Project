@@ -286,17 +286,6 @@ public class Client {
             }
     	}
     	
-        for(int i = 0; i < State.ROWS; i++) {
-        	for(int j = 0; j < State.COLS; j++) {
-        		if(State.walls[i][j]) {
-        			System.err.print("x");
-        		}else {
-        			System.err.print(" ");
-        		}
-        		
-        	}
-        	System.err.println();
-        }
         
         State.goalMap = goalMap;
         State.goals = new ArrayList<>(goalMap.values());
