@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 public class TestSuite {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
-		File file = new File("levels");
+		File file = new File("complevels");
 		File[] levels = file.listFiles((dir, name) -> name.endsWith(".lvl"));
 		File bin = new File("bin");
 		
@@ -23,7 +23,7 @@ public class TestSuite {
 			BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			Runtime.getRuntime().addShutdownHook(new Thread(p::destroy));
 			
-			long time = 5;
+			long time = 30;
 			TimeUnit unit = TimeUnit.SECONDS;
 			int status = p.waitFor(time, unit) ? 0 : 1;
 			while (input.ready()) {

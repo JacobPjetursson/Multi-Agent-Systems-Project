@@ -42,7 +42,9 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 	@Override
 	public boolean isTerminal(State state) {
 		for(Box box : boxes) {
-			if(path.contains(state.getBox(box).getLocation())) {
+			Box b = state.getBox(box);
+			if (b == null) continue;
+			if(path.contains(b.getLocation())) {
 				return false;
 			}
 		}
@@ -59,7 +61,9 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 		}
 		int dis = 0;
 		for(Box box : boxes) {
-			dis += State.safeLocation.get(state.getBox(box).getLocation());
+			Box b = state.getBox(box);
+			if (b == null) continue;
+			dis += State.safeLocation.get(b.getLocation());
 		}
 		return h-dis;
 	}
@@ -87,7 +91,6 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 
 	@Override
 	public Task getNextTask() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -135,7 +138,12 @@ public class MoveBoxesAndAgentTask extends ResolveTask implements BoxTask {
 		}
 		for(Box box : boxes) {
 			int max = 0;
+
+			Box b = state.getBox(box);
+			if (b == null)
+			    continue;
 			dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
+
 			for(Location loc : path) {
 				int dist = dm.distance(loc) + 1;
 				if(dist > max) {

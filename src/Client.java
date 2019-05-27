@@ -287,7 +287,6 @@ public class Client {
     	}
     	
         
-        
         State.goalMap = goalMap;
         State.goals = new ArrayList<>(goalMap.values());
         

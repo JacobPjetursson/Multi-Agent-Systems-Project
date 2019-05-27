@@ -21,10 +21,11 @@ public class State{
 	public static int totalGoals;
 	public static int freeBoxes;
 	public static Set<Location> hallways;
+	public static int convertedBoxes;
 
 	private Set<Location> fakeWalls;
 	private Map<Integer, Agent> agents;
-	private Map<Integer, Box> boxes;
+	public Map<Integer, Box> boxes;
 	private State parent;
 	private Action action;
 	private int g;
@@ -247,11 +248,8 @@ public class State{
 	}
 
 	public int f(Task task) {
-		//TODO : Stop moving boxes out of goal or actually just boxes in general
-		if(this.action instanceof MoveAction) {
-			return g() + task.h(this) - boxesInGoal();
-		}
-		return g() + task.h(this) - boxesInGoal() + 1;
+
+		return g() + task.h(this) - boxesInGoal();
 	}
 
 	public int boxesInGoal() {

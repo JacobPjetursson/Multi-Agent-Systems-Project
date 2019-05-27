@@ -88,9 +88,14 @@ public class Scheduler implements Runnable {
 			if(goal instanceof AgentGoal) {
 				location = state.getAgent((Agent) object).getLocation();
 			}else {
-				location = state.getBox((Box) object).getLocation();
+				Box b = state.getBox((Box) object);
+				if (b == null) // box converted to wall
+					location = goal.getLocation();
+				else
+					location = state.getBox((Box) object).getLocation();
 			}
-			 
+
+
 			List<Location> shortestPath = state.getPath(location, goal.getLocation());
 			for(Location l : shortestPath) {
 				if(paths.containsKey(l)) {
@@ -667,32 +672,28 @@ public class Scheduler implements Runnable {
 						newBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc.getRow() + Action.dirToRowChange(boxDir), newAgentLoc.getCol() + Action.dirToColChange(boxDir)) : new Location(oldAgentLoc);
 						Location oldBoxLoc;
 						oldBoxLoc = (action instanceof PushAction) ? new Location(newAgentLoc) : new Location(newBoxLoc.getRow() + Action.dirToRowChange(boxDir),newBoxLoc.getCol() + Action.dirToColChange(boxDir));
+						Box box = state.getBoxAt(newBoxLoc);
+						int boxRow = box.getLocation().getRow();
+						int boxCol = box.getLocation().getCol();
 						if(State.goalMap.containsKey(oldBoxLoc)){
 							Goal goal = State.goalMap.get(oldBoxLoc);
-							if(goal.getAssignedObj().equals(state.getBoxAt(newBoxLoc))) {
+
+							if(goal.getAssignedObj().equals(box)) {
+								//System.err.println("Re-adding goal task for goal " + goal.getLetter());
+
 								addGoalTask(goal);
 								State.freeBoxes++;
 							}
 						}
-						if(newGoalCount > oldGoalCount) {
-							//System.err.println("SOMETHING IS NOW IN GOAL");
-							//TODO : Set box as wall if safe
-							Box box = state.getBoxAt(newBoxLoc);
-							int row = box.getLocation().getRow();
-							int col = box.getLocation().getCol();
-							int wallCount = 0;
-							wallCount += State.walls[row-1][col] ? 1 : 0;
-							wallCount += State.walls[row+1][col] ? 1 : 0;
-							wallCount += State.walls[row][col-1] ? 1 : 0;
-							wallCount += State.walls[row][col+1] ? 1 : 0;
-							if(wallCount >= 3) {
-								//State.walls[row][col] = true;
+
+
+						if(planner.isEmpty() && newGoalCount > oldGoalCount) {
+							if (box.isSafe()) {
+								State.walls[boxRow][boxCol] = true;
+								State.convertedBoxes++;
+								state.boxes.remove(box.getId());
+
 								state.updateDistanceMaps();
-							}else if(wallCount == 2) {
-								
-							}else if(wallCount == 0) {
-								//State.walls[row][col] = true;
-								//state.updateDistanceMaps();
 							}
 							//TODO : Check if blocking for other side boxes, can be done by setting as wall and making distancemaps
 							//TODO : For all blocked boxes : AddTask(box.color, new MoveBoxToTask(prio, box, Set<Location>)
@@ -734,8 +735,7 @@ public class Scheduler implements Runnable {
 			solved = solved || State.freeBoxes == 0;
 		}
 		double timeSpent = (System.currentTimeMillis() - timeStart) / 1000.0;
-		System.err.println("Time spent on solving: " + timeSpent + " seconds.");
+		//System.err.println("Time spent on solving: " + timeSpent + " seconds.");
 	}
 
-	
 }

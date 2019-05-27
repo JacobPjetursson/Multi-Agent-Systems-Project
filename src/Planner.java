@@ -191,7 +191,9 @@ public class Planner {
             if (task.isTerminal(state)) {
                 return state;
             }
-            if((state.g() > max) && !(task.getNaive() == null) ) {
+
+            if(state.g() > max && !(task.getNaive() == null) ) {
+
             	
             	break;
             }
