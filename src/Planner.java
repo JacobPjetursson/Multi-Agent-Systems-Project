@@ -178,7 +178,7 @@ public class Planner {
     State createPlan(State initialState, Task task) {
     	initialState = initialState.clone();
     	task.initializeState(initialState);
-    	if(!isSolvable(initialState,task)) {
+    	if(!isSolvable(initialState,task) && task.getNaive() != null) {
     		return null;
     	}
     	int max = task.estimatedTime(initialState) * 2;
@@ -191,13 +191,9 @@ public class Planner {
             if (task.isTerminal(state)) {
                 return state;
             }
-
-            if(state.g() > max && !(task.getNaive() == null) ) {
-
-            	
+            if(state.g() > max && !(task.getNaive() == null)) {
             	break;
             }
-            
             for (State child : state.getExpandedStates(agentId)) {
             	if (task.updateState(child) && !explored.contains(child)) {
             		frontier.add(child);

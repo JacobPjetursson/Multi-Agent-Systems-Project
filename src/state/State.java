@@ -251,7 +251,7 @@ public class State{
 
 	public int f(Task task) {
 
-		return g() + task.h(this) - boxesInGoal();
+		return g() + (int) (1.05*task.h(this)) - boxesInGoal()*5;
 	}
 
 	public int boxesInGoal() {
@@ -272,7 +272,7 @@ public class State{
 				}
 			}
 		}
-		return goalCount*2;
+		return goalCount;
 	}
 
 	public int g() {

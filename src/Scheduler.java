@@ -50,7 +50,6 @@ public class Scheduler implements Runnable {
 			addGoalTask(goal);
 		
 		// Initial tasks
-		// TODO - prioritize which agent takes which task, instead of random
 		for (Agent agent : state.getAgents()) {
 			assignTask(state, agent);
 		}
@@ -62,12 +61,8 @@ public class Scheduler implements Runnable {
 			for(int col = 1 ; col < State.COLS-1; col++) {
 				if(State.walls[row-1][col] && State.walls[row+1][col]) {
 					hallways.add(new Location(row,col));
-					//hallways.add(new Location(row,col+1));
-					//hallways.add(new Location(row,col-1));
 				}else if(State.walls[row][col-1] && State.walls[row][col+1]) {
 					hallways.add(new Location(row,col));
-					//hallways.add(new Location(row+1,col));
-					//hallways.add(new Location(row-1,col));
 				}
 			}
 		}
@@ -130,8 +125,6 @@ public class Scheduler implements Runnable {
 					}
 					
 					State.safeLocation.put(location, Math.min((int) (safeValue*(taskPriority)),(taskPriority)*taskPriority));
-					
-					//State.safeLocation.put(location, Math.min((int) (safeValue*(State.freeBoxes)),State.freeBoxes*State.freeBoxes));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
@@ -311,8 +304,6 @@ public class Scheduler implements Runnable {
 		for(Goal goal : goals) {
 
 			int prio = currentPriorityMap.get(goal);
-			
-			//System.err.println(goal.getLetter() + "  " + prio);
 			priorityMap.put(goal.getLocation(), prio);
 			taskPriority = Math.max(taskPriority, priorityMap.get(goal.getLocation()));
 		}
@@ -334,10 +325,8 @@ public class Scheduler implements Runnable {
 		Task task = null;
 		List<Task> denied = new LinkedList<>();
 		while (task == null && !tasks.isEmpty()) {
-			//TODO : If multiple task have same priority pick the one that can be solved the fastest (Look at estimatedTime for task)
 			task = tasks.poll();
 			if (task.getPriority() < taskPriority || !task.assignAgent(agent)) {
-			//if (!task.assignAgent(agent)) {
 				denied.add(task);
 				task = null;
 			}
@@ -548,6 +537,7 @@ public class Scheduler implements Runnable {
 		long timeStart = System.currentTimeMillis();
 		while (!solved) {
 			boolean done = true;
+			boolean noOpping = true;
 
 			String cmd = "";
 			for (Agent agent : state.getAgents()) {
@@ -571,6 +561,7 @@ public class Scheduler implements Runnable {
 				Action a = planner.poll();
 				if(!(a instanceof NoOpAction)) {
 					noOpCounter = 0;
+					noOpping = false;
 				}
 				cmd += a.toString() + ";";
 			}
@@ -580,8 +571,48 @@ public class Scheduler implements Runnable {
 				updatePriority();
 			}
 			cmd = cmd.substring(0, cmd.length()-1);
+			if(noOpping) {
+				if(solved && State.freeGoals != 0) {
+					if(!taskLockMap.keySet().isEmpty()) {
+						for(Task task : taskLockMap.keySet()) {
+							addTask(task.getAgent().getColor(), task);
+						}
+
+						updatePriority();
+						solved = false;
+					}
+					
+				}
+				if(noOpCounter >= 5) {
+					for(Integer color : taskMap.keySet()) {
+						taskMap.get(color).clear();
+					}
+					for (Agent agent : state.getAgents()) {
+						Planner planner = getPlanner(agent);
+						planner.clear();
+					}
+					for (Goal goal : state.getGoals()) {
+						if(goal instanceof AgentGoal) {
+							AgentToGoalTask gt = new AgentToGoalTask(goal, (Agent) goal.getAssignedObj());
+							if(!gt.isTerminal(state)) {
+								addGoalTask(goal);
+							}
+								
+						}else {
+							GoalTask gt = new GoalTask((Box) goal.getAssignedObj(), goal);
+							if(!gt.isTerminal(state)) {
+								addGoalTask(goal);
+							}
+								
+						}
+						
+					}
+					updatePriority();
+					noOpCounter = 0;
+				}
+				continue;
+			}
 			System.out.println(cmd);
-			System.err.println(cmd);
 
 
 			String message = "";
@@ -591,7 +622,6 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 
-			//System.err.println("RESPONSE: " + message);
 
 			String[] feedback = message.split(";");
 			Map<Location, Set<MovableObject>> conflicts = new HashMap<>();
@@ -600,7 +630,6 @@ public class Scheduler implements Runnable {
 				Planner planner = getPlanner(agent);
 				Action action = planner.getLastAction();
 				if (error) {
-					//System.err.println("Conflict involving Agent"+agent.getId());
 					collectConflicts(conflicts, agent, action);
 				}
 				else {
@@ -613,7 +642,7 @@ public class Scheduler implements Runnable {
 					if(newGoalCount > oldGoalCount) {
 						calculateSafeLocations(state);
 						State.freeBoxes--;
-						State.freeGoals-= Math.abs(newGoalCount - oldGoalCount)/2;
+						State.freeGoals-= Math.abs(newGoalCount - oldGoalCount);
 					}
 					if(!oldAgentLoc.equals(newAgentLoc) && State.goalMap.containsKey(oldAgentLoc) && State.goalMap.get(oldAgentLoc) instanceof AgentGoal) {
 						if(State.goalMap.get(oldAgentLoc).getLetter() == agent.getLetter()) {
@@ -686,43 +715,11 @@ public class Scheduler implements Runnable {
 						planner.addDelay();
 					}
 					resolved.add(agent);
-				}
-			}
-			if(solved && State.freeGoals != 0) {
-				if(!taskLockMap.keySet().isEmpty()) {
-					for(Task task : taskLockMap.keySet()) {
-						addTask(task.getAgent().getColor(), task);
-					}
-
-					updatePriority();
-					solved = false;
-				}
-				
-			}
-			System.err.println(State.freeGoals);
-
-			if(noOpCounter >= 3) {
-				for(Integer color : taskMap.keySet()) {
-					taskMap.get(color).clear();
-				}
-				for (Agent agent : state.getAgents()) {
-					Planner planner = getPlanner(agent);
-					planner.clear();
-				}
-				for (Goal goal : state.getGoals()) {
-					if(goal instanceof AgentGoal) {
-						AgentToGoalTask gt = new AgentToGoalTask(goal, (Agent) goal.getAssignedObj());
-						if(!gt.isTerminal(state))
-							addGoalTask(goal);
-					}else {
-						GoalTask gt = new GoalTask((Box) goal.getAssignedObj(), goal);
-						if(!gt.isTerminal(state))
-							addGoalTask(goal);
-					}
 					
 				}
-				updatePriority();
 			}
+			
+			
 			
 			solved = solved || State.freeGoals == 0;
 		}
