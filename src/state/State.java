@@ -23,6 +23,10 @@ public class State{
 	public static int freeGoals;
 	public static Set<Location> hallways;
 	public static int convertedBoxes;
+	public static Map<Agent, Integer> agentRoom;
+	public static Map<Goal, Integer> goalRoom;
+	public static Map<Box, Integer> boxRoom;
+	public static int rooms;
 	
 
 	private Set<Location> fakeWalls;

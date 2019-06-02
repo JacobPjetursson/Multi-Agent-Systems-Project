@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import state.Agent;
 import state.Box;
 import state.DistanceMap;
 import state.Goal;
@@ -113,4 +114,12 @@ public class GoalTask extends Task implements BoxTask {
 		DistanceMap dm = State.DISTANCE_MAPS.get(state.getBox(box).getLocation());
 		return dm.distance(goal.getLocation());
 	}
+	
+	public boolean assignAgent(Agent agent) {
+		if(State.DISTANCE_MAPS.get(box.getLocation()).distance(agent.getLocation())>0 || box.getLocation().equals(agent.getLocation())) {
+			return super.assignAgent(agent);
+		}
+    	return false;
+	}
+    
 }

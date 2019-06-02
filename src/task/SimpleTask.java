@@ -63,4 +63,11 @@ public class SimpleTask extends Task {
 		DistanceMap dm = State.DISTANCE_MAPS.get(state.getAgent(getAgent()).getLocation());
         return dm.distance(loc);
 	}
+	
+	public boolean assignAgent(Agent agent) {
+		if(State.DISTANCE_MAPS.get(loc).distance(agent.getLocation())>0 || agent.getLocation().equals(loc)) {
+			return super.assignAgent(agent);
+		}
+    	return false;
+	}
 }

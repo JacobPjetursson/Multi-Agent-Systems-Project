@@ -128,17 +128,7 @@ public class Client {
 			row++;
 			response = serverMessages.readLine();
 		}
-/*
-		for (Goal goal : goals) {
-			System.err.println(goal);
-		}
-		for (Box box : boxes.values()) {
-			System.err.println(box);
-		}
-		for (Agent agent : agents.values()) {
-			System.err.println(agent);
-		}
-		*/
+
 		State.goals = goals;
         State.goalMap = goalMap;
         State initialState = new State(agents, boxes);
@@ -289,6 +279,83 @@ public class Client {
         
         State.goalMap = goalMap;
         State.goals = new ArrayList<>(goalMap.values());
+        
+        Map<Integer, Location> roomMap = new HashMap<>();
+        int roomNumber = 0;
+        for(int i = 0; i < State.ROWS; i++) {
+        	for(int j = 0; j < State.COLS; j++) {
+        		if(!State.walls[i][j]) {
+        			boolean newRoom = true;
+        			for(Integer key : roomMap.keySet()) {
+        				if(State.DISTANCE_MAPS.get(roomMap.get(key)).distance(new Location(i,j))>0) {
+        					newRoom = false;
+        					break;
+        				}
+        			}
+        			if(newRoom) {
+        				roomMap.put(roomNumber, new Location(i,j));
+        				roomNumber++;
+        			}
+        			
+        		}
+        		
+        	}
+        }
+        
+        State.rooms = roomNumber;
+        
+        Map<Agent, Integer> agentRoom = new HashMap<>();
+        Map<Goal, Integer> goalRoom = new HashMap<>();
+        Map<Box, Integer> boxRoom = new HashMap<>();
+        for(Agent agent : agents.values()) {
+        	for(Integer key : roomMap.keySet()) {
+				if(State.DISTANCE_MAPS.get(roomMap.get(key)).distance(agent.getLocation())>0 || roomMap.get(key).equals(agent.getLocation())) {
+					agentRoom.put(agent, key);
+					break;
+				}
+			}
+        }
+        for(Goal goal : State.goals) {
+        	for(Integer key : roomMap.keySet()) {
+				if(State.DISTANCE_MAPS.get(roomMap.get(key)).distance(goal.getLocation())>0 || roomMap.get(key).equals(goal.getLocation())) {
+					goalRoom.put(goal, key);
+					break;
+				}
+			}
+        }
+        for(Box box : boxes.values()) {
+        	for(Integer key : roomMap.keySet()) {
+				if(State.DISTANCE_MAPS.get(roomMap.get(key)).distance(box.getLocation())>0 || roomMap.get(key).equals(box.getLocation())) {
+					boxRoom.put(box, key);
+					break;
+				}
+			}
+        }
+        
+        State.agentRoom = agentRoom;
+        State.goalRoom = goalRoom;
+        State.boxRoom = boxRoom;
+        
+        /*
+        for(int i = 0; i < State.ROWS; i++) {
+        	for(int j = 0; j < State.COLS; j++) {
+        		if(State.walls[i][j]) {
+        			System.err.print("x");
+        		}else {
+        			for(Integer key : roomMap.keySet()) {
+        				if(State.DISTANCE_MAPS.get(roomMap.get(key)).distance(new Location(i,j))>0 || roomMap.get(key).equals(new Location(i,j))) {
+        					System.err.print(key);
+        					break;
+        				}
+        			}
+        		}
+        		
+        	}
+        	System.err.println();
+        }
+        */
+        
+        
         
         
         Thread schedule = new Thread(new Scheduler(initialState, serverMessages));

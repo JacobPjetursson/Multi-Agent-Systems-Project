@@ -19,7 +19,7 @@ public class Scheduler implements Runnable {
 	private Map<Task, Integer> taskLockMap;
 
 	private static Map<Location,Integer> priorityMap;
-	private int taskPriority = 0;
+	private Map<Integer,Integer> taskPriority;
 
 	Scheduler(State initialState, BufferedReader serverMessages) {
 		this.serverMessages = serverMessages;
@@ -29,6 +29,10 @@ public class Scheduler implements Runnable {
 		plannerMap = new HashMap<>();
 		taskMap = new HashMap<>();
 		taskLockMap = new HashMap<>();
+		taskPriority = new HashMap<>();
+		for(int i = 0; i < State.rooms; i++) {
+			taskPriority.put(i, 0);
+		}
 
 		Comparator<Task> taskComparator = (t1, t2) -> t2.getPriority() - t1.getPriority();
 
@@ -71,13 +75,14 @@ public class Scheduler implements Runnable {
 	}
 
 	private void calculateSafeLocations(State state) {
+		state.updateDistanceMaps();
 		List<Goal> goals = new ArrayList<>(state.getGoals());
 		Map<Location,Integer> paths = new HashMap<>();
 		for(Goal goal : goals) {
-			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) <= taskPriority-1) {
-				//if(state.getBoxAt(goal.getLocation()) != null)
+			if(state.getBoxAt(goal.getLocation()) != null || priorityMap.get(goal.getLocation()) <= taskPriority.get(State.goalRoom.get(goal))-1) {
 					continue;
 			}
+			
 			MovableObject object = goal.getAssignedObj();
 			Location location;
 			if(goal instanceof AgentGoal) {
@@ -114,23 +119,35 @@ public class Scheduler implements Runnable {
 				if(!State.walls[row][col]) {
 					int safeValue = Integer.MAX_VALUE;
 					DistanceMap dm = State.DISTANCE_MAPS.get(location);
-					for(Location loc : paths.keySet()) {
-						int temp = dm.distance(loc);
-						if(temp < safeValue) {
-							safeValue = temp;
+					if(paths.containsKey(location)) {
+						safeValue = paths.get(location);
+					}else {
+						for(Location loc : paths.keySet()) {
+							int temp = dm.distance(loc);
+							if(temp == 0) {
+								continue;
+							}
+							
+							if(temp < safeValue) {
+								safeValue = temp;
+								
+							}
 						}
 					}
-					if(paths.containsKey(location) && safeValue <= 0) {
-						safeValue = paths.get(location);
-					}
 					
-					State.safeLocation.put(location, Math.min((int) (safeValue*(taskPriority)),(taskPriority)*taskPriority));
+					int prio = 0;
+					for(Agent agent : state.getAgents()) {
+						if(dm.distance(agent.getLocation()) > 0 || agent.getLocation().equals(location)) {
+							prio = taskPriority.get(State.agentRoom.get(agent));
+							break;
+						}
+					}
+					State.safeLocation.put(location, Math.min((int) (safeValue*prio),prio*prio));
 				}else {
 					State.safeLocation.put(location, -1);
 				}
 			}
 		}
-		
 	}
 
 	private void addGoalTask(Goal goal) {
@@ -305,9 +322,10 @@ public class Scheduler implements Runnable {
 
 			int prio = currentPriorityMap.get(goal);
 			priorityMap.put(goal.getLocation(), prio);
-			taskPriority = Math.max(taskPriority, priorityMap.get(goal.getLocation()));
+			
+			taskPriority.put(State.goalRoom.get(goal), Math.max(taskPriority.get(State.goalRoom.get(goal)), priorityMap.get(goal.getLocation())));
+			
 		}
-		
 	}
 
 	private boolean allTasksCompleted() {
@@ -326,7 +344,7 @@ public class Scheduler implements Runnable {
 		List<Task> denied = new LinkedList<>();
 		while (task == null && !tasks.isEmpty()) {
 			task = tasks.poll();
-			if (task.getPriority() < taskPriority || !task.assignAgent(agent)) {
+			if (task.getPriority() < taskPriority.get(State.agentRoom.get(agent)) || !task.assignAgent(agent)) {
 				denied.add(task);
 				task = null;
 			}
@@ -472,25 +490,41 @@ public class Scheduler implements Runnable {
 	}
 	
 	private void updatePriority() {
-		int prio = Integer.MIN_VALUE;
+		int[] prio = new int[State.rooms];
 		for(Integer key : taskMap.keySet()) {
 			Queue<Task> prioQueue = taskMap.get(key);
-			if (!prioQueue.isEmpty()) {
-				if (prio < taskMap.get(key).peek().getPriority()) {
-					prio = taskMap.get(key).peek().getPriority();
+			List<Task> tasks = new ArrayList<>(prioQueue);
+			while (!tasks.isEmpty()) {
+				Task task = tasks.remove(tasks.size()-1);
+				int room = 0;
+				for(Agent agent : state.getAgents()) {
+					if(task.assignAgent(agent)) {
+						room = State.agentRoom.get(agent);
+						break;
+					}
+					
+				}
+				if (prio[room] < task.getPriority()) {
+					prio[room] = task.getPriority();
 				}
 			}
+			
 		}
 		for(Integer key : plannerMap.keySet()) {
 			Planner p = plannerMap.get(key);
 			if(p.getCurrentTask() != null) {
 				Task task = p.getCurrentTask();
-			    if (prio < task.getPriority()) {
-			    	prio = task.getPriority();
+				Agent agent = state.getAgent(key);
+				int room = State.agentRoom.get(agent);
+				if (prio[room] < task.getPriority()) {
+					prio[room] = task.getPriority();
 				}
 			}
 		}
-		taskPriority = prio;
+		
+		for(int i = 0; i < State.rooms; i++) {
+			taskPriority.put(i, prio[i]);
+		}
 		
 	}
 
